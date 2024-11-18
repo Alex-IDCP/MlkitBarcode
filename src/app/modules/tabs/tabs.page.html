@@ -1,0 +1,42 @@
+<ion-tabs>
+
+  <ion-tab-bar slot="bottom">
+
+    <ion-tab-button tab="dashboard">
+      <ion-icon name="home"></ion-icon>
+      <ion-label>Home</ion-label>
+    </ion-tab-button>
+
+    <ion-tab-button tab="transactions" [disabled]="!showTrxTab">
+      <ion-icon name="pie-chart"></ion-icon>
+      <ion-label>Transaction</ion-label>
+    </ion-tab-button>
+
+    <ion-tab-button tab="managements" [disabled]="!showMagTab">
+      <ion-icon name="clipboard-outline"></ion-icon>
+      <ion-label>Management</ion-label>
+    </ion-tab-button>
+
+    <!-- Placeholder for fab button -->
+    <!-- <ion-tab-button class="ion-tab-button-placeholder">
+    </ion-tab-button> -->
+
+    <ion-tab-button tab="reports" [disabled]="!showRepTab">
+      <ion-icon name="book-outline"></ion-icon>
+      <ion-label>Report</ion-label>
+    </ion-tab-button>
+
+    <ion-tab-button tab="cards">
+      <ion-icon name="cog"></ion-icon>
+      <ion-label>Settings</ion-label>
+    </ion-tab-button>
+ 
+  </ion-tab-bar>
+
+  <!-- <ion-fab class="ion-fab-custom" vertical="bottom" horizontal="center" slot="fixed" (click)="selectAction()">
+    <ion-fab-button>
+      <ion-icon name="add"></ion-icon>
+    </ion-fab-button>
+  </ion-fab> -->
+
+</ion-tabs>

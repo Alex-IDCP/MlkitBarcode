@@ -1,0 +1,307 @@
+<ion-searchbar #searchbar class="p-0" showCancelButton="never" showClearButton="focus" animated="true" placeholder="Search for Item" enterkeyhint="search" (ionFocus)="highlight(searchbar)" (ionChange)="availableItem = []; startIndex = 0" (keydown)="onKeyDown($event, searchbar.value)"></ion-searchbar>
+
+<ng-container>   
+   <ion-list class="list-custom animate__animated animate__fadeIn" lines="full">
+      <ion-grid class="ion-no-padding">
+         <ion-row>
+            <ion-col [size]="showImage ? '6' : '12'" *ngFor="let rowData of availableItem; let rowIndex = index">
+               <ion-item-sliding #sliding>
+                  <ion-item class="ion-no-padding no-ripple" [lines]="showImage ? 'none' : 'full'">
+                     <ion-grid class="ion-no-padding pl-2 pb-2">
+                        <ng-container *ngIf="showImage">
+                           <ion-row>
+                              <ion-col>
+                                 <ion-badge class="overlapBadgeTopRight" *ngIf="rowData?.itemPricing?.discountExpression">
+                                    <div class="font-bold font-smaller">
+                                       {{rowData?.itemPricing?.discountGroupCode}} [{{rowData?.itemPricing?.discountExpression}}]
+                                    </div>
+                                 </ion-badge>
+                                 <div class="image-container" (click)="showZoomedImage(rowData.itemId)">
+                                    <!-- <ion-img style="height:120px" [src]="matchImage(rowData.itemId)"></ion-img> -->
+                                     <img [src]="matchImage(rowData.itemId)" alt="" class="image">
+                                 </div>
+                              </ion-col>
+                           </ion-row>
+                        </ng-container>
+                        <ion-row>
+                           <ion-col [size]="showImage ? '12' : '8'" class="ion-flex ion-margin-auto">
+                              <div *ngIf="rowData?.vendorItemCode" class="font-bold ion-text-wrap">{{rowData.itemCode}} | {{rowData?.vendorItemCode}}</div>
+                              <div *ngIf="!rowData?.vendorItemCode" class="font-bold ion-text-wrap">{{rowData.itemCode}}</div>
+                              <div class="ion-flex ml-2" *ngIf="configSystemWideActivateMultiUOM && rowData.uomMaster && rowData.uomMaster.length>1">
+                                 <span class="badge-warning ion-text-wrap ion-flex my-auto px-1">UOM</span>                                 
+                              </div>
+                           </ion-col>
+                           <ng-container *ngIf="!showImage">
+                              <ng-container *ngIf="rowData.variationTypeCode === '0'">
+                                 <ion-col size="1" class="ion-flex ion-margin-auto justify-content-center">
+                                    <ion-button class="ion-button-custom" fill="clear" color="primary" size="small" (click)="decreaseQty(rowData)" [disabled]="disableIfPricingNotSet && (rowData.itemPricing === null || rowData.itemPricing === undefined)">
+                                       <ion-icon slot="icon-only" name="remove-circle"></ion-icon>
+                                    </ion-button>
+                                 </ion-col>
+                                 <ion-col size="2">
+                                    <ion-input #input class="ion-text-center" type="number" [(ngModel)]="rowData.qtyRequest" placeholder="0" (ionBlur)="isValidQty(rowData)" [disabled]="disableIfPricingNotSet && (rowData.itemPricing === null || rowData.itemPricing === undefined)"></ion-input>
+                                 </ion-col>
+                                 <ion-col size="1" class="ion-flex ion-margin-auto justify-content-center">
+                                    <ion-button class="ion-button-custom" fill="clear" color="primary" size="small" (click)="increaseQty(rowData)" [disabled]="disableIfPricingNotSet && (rowData.itemPricing === null || rowData.itemPricing === undefined)">
+                                       <ion-icon slot="icon-only" name="add-circle"></ion-icon>
+                                    </ion-button>
+                                 </ion-col>
+                              </ng-container>
+                              <ng-container *ngIf="rowData.variationTypeCode === '1' || rowData.variationTypeCode === '2'">
+                                 <ion-col size="4" class="ion-flex ion-margin-auto justify-content-end"> 
+                                    <ion-button expand="block" size="small" style="width:100%" (click)="showModal(rowData)" [disabled]="disableIfPricingNotSet && (rowData.itemPricing === null || rowData.itemPricing === undefined)">Variation</ion-button>
+                                 </ion-col>
+                              </ng-container>
+                           </ng-container>
+                        </ion-row>
+                        <ion-row>
+                           <ion-col>
+                              <!-- <div>{{rowData.description}}</div> -->
+                              <div><ion-textarea [value]="rowData.description" [rows]="1" autoGrow readonly></ion-textarea></div>
+                           </ion-col>
+                        </ion-row>
+                        <ion-row>
+                           <ion-col class="ion-flex ion-margin-auto" *ngIf="rowData?.qtyInCart > 0">
+                              <ion-badge>
+                                 <div class="ion-flex font-smaller">[In cart:<div class="font-bold ml-1"> {{rowData?.qtyInCart|number:"1.0"}}</div>]</div>
+                              </ion-badge>
+                           </ion-col>
+                           <ion-col class="ion-flex ion-margin-auto justify-content-end font-smaller" *ngIf="(rowData?.actualQty !== null || rowData?.availableQty !== null) && showAvailQty">
+                              Qty:
+                              <div *ngIf="salesOrderQuantityControl === '1'" class="font-bold ml-1">{{rowData.actualQty|number:"1.0"}}
+                              </div>
+                              <div *ngIf="salesOrderQuantityControl === '0' || salesOrderQuantityControl === '2'" class="font-bold ml-1">{{rowData.availableQty|number:"1.0"}}</div>
+                           </ion-col>
+                        </ion-row>
+                        <ion-row>
+                           <ng-container *ngIf="(isQuotation || isSalesOrder) && showLatestPrice && getLatestSalesHistoryByItemId(rowData.itemId)">
+                              <ion-col class="ion-flex ion-margin-auto font-smaller">
+                                 L/P:
+                                 <div class="font-bold ml-1">
+                                    {{getLatestSalesHistoryByItemId(rowData.itemId)?.unitPrice|number:"1.2"}}
+                                    <ng-container *ngIf="getLatestSalesHistoryByItemId(rowData.itemId)?.discountExpression">[{{getLatestSalesHistoryByItemId(rowData.itemId)?.discountExpression}}]</ng-container>
+                                     {{getLatestSalesHistoryByItemId(rowData.itemId)?.documentDate|date:"dd/MM/yyyy"}}
+                                 </div>
+                              </ion-col>
+                           </ng-container>
+                           <ng-container *ngIf="showStandardPackingInfo">
+                              <ion-col class="ion-flex ion-margin-auto font-smaller justify-content-end">
+                                 Std. Pack'g Info:
+                                 <div class="font-bold ml-1">
+                                    {{rowData.standardPackingInfo}}
+                                 </div>
+                              </ion-col>
+                           </ng-container>
+                        </ion-row>
+                        <ion-row>
+                           <ion-col class="ion-flex ion-margin-auto font-smaller">
+                              U/P:
+                              <div class="font-bold ml-1" *ngIf="objectHeader?.isDisplayTaxInclusive">
+                                 {{rowData.unitPrice|number:(objectHeader?.isHomeCurrency?precisionSalesUnitPrice.localFormat:precisionSalesUnitPrice.foreignFormat)}}
+                              </div>
+                              <div class="font-bold ml-1" *ngIf="!objectHeader?.isDisplayTaxInclusive">
+                                 {{rowData.unitPriceExTax|number:(objectHeader?.isHomeCurrency?precisionSalesUnitPrice.localFormat:precisionSalesUnitPrice.foreignFormat)}}
+                              </div>
+                           </ion-col>
+                           <ng-container *ngIf="!showImage">
+                              <ion-col size="auto" class="ion-flex ion-margin-auto font-smaller" *ngIf="rowData?.itemPricing?.discountExpression || rowData?.itemPricing?.discountGroupCode">
+                                 DISC:
+                                 <div *ngIf="rowData?.itemPricing?.discountExpression; then div1 else div2"></div>                                 
+                                 <ng-template #div1><div class="font-bold ml-1">{{rowData?.itemPricing?.discountGroupCode}} [{{rowData?.itemPricing?.discountExpression}}]</div></ng-template>
+                                 <ng-template #div2><div class="font-bold ml-1">{{rowData?.itemPricing?.discountGroupCode}}</div></ng-template>
+                              </ion-col>
+                           </ng-container>
+                           <ion-col class="ion-flex ion-margin-auto justify-content-end font-smaller">
+                              N/P:
+                              <div class="font-bold ml-1" *ngIf="objectHeader?.isDisplayTaxInclusive">
+                                 {{calculatNetPrice(rowData.unitPrice,rowData?.itemPricing?.discountExpression)|number:(objectHeader?.isHomeCurrency?precisionSales.localFormat:precisionSales.foreignFormat)}}
+                              </div>
+                              <div class="font-bold ml-1" *ngIf="!objectHeader?.isDisplayTaxInclusive">
+                                 {{calculatNetPrice(rowData.unitPriceExTax,rowData?.itemPricing?.discountExpression)|number:(objectHeader?.isHomeCurrency?precisionSales.localFormat:precisionSales.foreignFormat)}}
+                              </div>
+                           </ion-col>
+                        </ion-row>
+                        <ng-container *ngIf="showImage">
+                           <ng-container *ngIf="rowData.variationTypeCode === '0'">
+                              <ion-row>
+                                 <ion-col class="ion-flex ion-margin-auto justify-content-center">
+                                    <ion-button class="ion-button-custom" fill="clear" color="primary" size="small" (click)="decreaseQty(rowData)" [disabled]="disableIfPricingNotSet && (rowData.itemPricing === null || rowData.itemPricing === undefined)">
+                                       <ion-icon slot="icon-only" name="remove-circle"></ion-icon>
+                                    </ion-button>
+                                 </ion-col>
+                                 <ion-col>
+                                    <ion-input #input class="ion-text-center" type="number" [(ngModel)]="rowData.qtyRequest" placeholder="0" [disabled]="disableIfPricingNotSet && (rowData.itemPricing === null || rowData.itemPricing === undefined)"></ion-input>
+                                 </ion-col>
+                                 <ion-col class="ion-flex ion-margin-auto justify-content-center">
+                                    <ion-button class="ion-button-custom" fill="clear" color="primary" size="small" (click)="increaseQty(rowData)" [disabled]="disableIfPricingNotSet && (rowData.itemPricing === null || rowData.itemPricing === undefined)">
+                                       <ion-icon slot="icon-only" name="add-circle"></ion-icon>
+                                    </ion-button>
+                                 </ion-col>
+                              </ion-row>
+                           </ng-container>
+                           <ng-container *ngIf="rowData.variationTypeCode === '1' || rowData.variationTypeCode === '2'">
+                              <ion-row>
+                                 <ion-col>
+                                    <ion-button expand="block" size="small" style="width:100%" (click)="showModal(rowData)" [disabled]="disableIfPricingNotSet && (rowData.itemPricing === null || rowData.itemPricing === undefined)">Variation</ion-button>
+                                 </ion-col>
+                              </ion-row>
+                           </ng-container>
+                        </ng-container>
+                        <ng-container *ngIf="rowData.qtyRequest > 0">
+                           <ion-row>
+                              <ion-col>
+                                 <ion-button expand="block" size="small" style="width:100%;" (click)="addToCart(rowData)" [disabled]="disableIfPricingNotSet && (rowData.itemPricing === null || rowData.itemPricing === undefined)">Add to Cart</ion-button>
+                              </ion-col>
+                           </ion-row>
+                        </ng-container>
+                     </ion-grid>
+                  </ion-item>
+                  <ion-item-options>
+                     <ion-item-option color="medium" (click)="sliding.close(); showPriceHistoryModal(rowData.itemId)" *ngIf="configSalesTransactionShowHistory">
+                        History
+                     </ion-item-option>
+                  </ion-item-options>
+               </ion-item-sliding>
+            </ion-col>
+         </ion-row>
+      </ion-grid>
+   </ion-list>
+</ng-container>
+
+<ion-list-header class="ion-list-header ion-flex ion-text-center" *ngIf="!availableItem || availableItem?.length === 0">
+   <ion-label>Nothing found!</ion-label>
+</ion-list-header>
+
+<ion-infinite-scroll (ionInfinite)="onIonInfinite($event)" threshold="30%">
+   <ion-infinite-scroll-content></ion-infinite-scroll-content>
+</ion-infinite-scroll>
+
+<!-- Zoomed image overlay -->
+<div *ngIf="showZoom && selectedImageSrc" class="zoomed-image">
+   <span class="close-btn" (click)="hideZoomedImage()">&times;</span>
+   <pinch-zoom>      
+      <img [src]="selectedImageSrc" alt="Zoomed Image" class="zoomed-img">
+   </pinch-zoom>
+</div>
+
+<ion-modal [isOpen]="isModalOpen" (didDismiss)="isModalOpen = false">
+   <ng-template>
+      <ion-header>
+         <ion-toolbar>
+            <ion-title>Variations</ion-title>
+            <ion-buttons slot="start">
+               <ion-button (click)="hideModal()">Cancel</ion-button>
+            </ion-buttons>
+         </ion-toolbar>
+      </ion-header>
+      <ion-content>
+         <ion-grid class="p-0" *ngIf="selectedItem">
+            <ion-row>
+               <ion-col class="ion-margin-auto ion-text-center">
+                  <div>{{selectedItem.itemCode}}</div>
+               </ion-col>
+            </ion-row>
+            <ng-container *ngIf="!configItemVariationShowMatrix">
+               <div *ngFor="let vd of selectedItem.variationDetails">
+                  <div *ngFor="let d of vd.details">
+                     <ion-row class="py-0" *ngIf="d.deactivated === false">
+                        <ion-col size="6" class="ion-flex ion-margin-auto">
+                           <ion-grid class="ion-no-padding">
+                              <ion-row>
+                                 <ion-col class="ion-flex ion-margin-auto">
+                                    <span class="badge-green ion-text-wrap ion-flex my-auto px-1 mx-1" style="font-size:x-small" *ngIf="vd.itemVariationXId">
+                                       {{vd.itemVariationXId|idMapping:itemVariationXMasterList}}</span>
+                                    <span class="badge-purple ion-text-wrap ion-flex my-auto px-1" style="font-size:x-small" *ngIf="d.itemVariationYId">
+                                       {{d.itemVariationYId|idMapping:itemVariationYMasterList}}</span>
+                                 </ion-col>
+                              </ion-row>
+                              <ion-row class="pt-1">
+                                 <ion-col class="ion-flex ion-margin-auto font-smaller" *ngIf="isSalesOrder && showAvailQty">
+                                    Qty:
+                                    <div *ngIf="salesOrderQuantityControl === '1'" class="font-bold ml-1">
+                                       {{d.actualQty|number:"1.0"}}</div>
+                                    <div *ngIf="salesOrderQuantityControl === '0' || salesOrderQuantityControl === '2'" class="font-bold ml-1">{{d.availableQty|number:"1.0"}}</div>
+                                 </ion-col>
+                                 <ion-col class="ion-flex ion-margin-auto" *ngIf="d?.qtyInCart > 0">
+                                    <ion-badge>
+                                       <div class="ion-flex font-smaller">[In cart:<div class="font-bold ml-1"> {{d?.qtyInCart|number:"1.0"}}</div>]</div>
+                                    </ion-badge>
+                                 </ion-col>
+                              </ion-row>
+                           </ion-grid>
+                        </ion-col>
+                        <ion-col size="6" class="ion-margin-auto p-0">
+                           <ion-grid class="ion-no-padding">
+                              <ion-row>
+                                 <ion-col class="ion-flex ion-margin-auto justify-content-center">
+                                    <ion-button class="ion-button-custom" fill="clear" color="primary" size="small" (click)="decreaseVariationQty(d)">
+                                       <ion-icon slot="icon-only" name="remove-circle"></ion-icon>
+                                    </ion-button>
+                                 </ion-col>
+                                 <ion-col class="ion-flex ion-margin-auto justify-content-center">
+                                    <ion-input #input class="ion-text-center" type="number" [min]="0" [(ngModel)]="d.qtyRequest" (ionBlur)="isValidVariationQty(d)" placeholder="0"></ion-input>
+                                 </ion-col>
+                                 <ion-col class="ion-flex ion-margin-auto justify-content-center">
+                                    <ion-button class="ion-button-custom" fill="clear" color="primary" size="small" (click)="increaseVariationQty(d)">
+                                       <ion-icon slot="icon-only" name="add-circle"></ion-icon>
+                                    </ion-button>
+                                 </ion-col>
+                              </ion-row>
+                           </ion-grid>
+                        </ion-col>
+                     </ion-row>
+                  </div>
+               </div>
+            </ng-container>
+            <ng-container *ngIf="configItemVariationShowMatrix">
+               <table id="qtyMatrix" class="matrixtable">
+                  <tr>
+                     <th class="custom-header p-1 font-half-size ion-text-left">Variety</th>
+                     <th class="custom-header p-1 font-half-size" *ngFor="let rowData of selectedItem.variationY">
+                        {{rowData|idMapping:itemVariationYMasterList}}
+                     </th>
+                  </tr>
+                  <tr *ngFor="let rowData of selectedItem.variationDetails">
+                     <td class="p-1 font-half-size div-link-button" (click)="presentPopover($event, rowData.details)">
+                        {{rowData.itemVariationXId|idMapping:itemVariationXMasterList}}
+                     </td>
+                     <td class="p-1 font-half-size ion-text-right" *ngFor="let rowData2 of rowData.details">
+                        <ion-input #input class="ion-text-center" type="number" [min]="0" [(ngModel)]="rowData2.qtyRequest" (ionBlur)="isValidVariationQty(rowData2)" placeholder="0"></ion-input>
+                     </td>
+                  </tr>
+               </table>
+            </ng-container>
+         </ion-grid>
+      </ion-content>
+      <ion-footer class="ion-padding-bottom-large animate__animated animate__fadeInUp p-0" style="background-color:white;">
+         <ion-button class="ion-margin" expand="block" (click)="addVariationToCart()">
+            Add to Cart
+         </ion-button>
+      </ion-footer>
+   </ng-template>
+</ion-modal>
+
+<ion-popover #popover [isOpen]="isPopoverOpen" (ionDismiss)="popoverDismiss($event)" (didDismiss)="isPopoverOpen = false">
+   <ng-template>
+      <ion-content class="ion-no-padding m-2">
+         <ion-list class="list-custom animate__animated animate__fadeIn" lines="inset">
+            <ion-item>
+               <ion-select label="Ratio" placeholder="Select Ratio" justify="space-between" interface="popover" [(ngModel)]="selectedRatio">
+                  <ion-select-option *ngFor="let rowData of filteredVariationRatioList" [value]="rowData">
+                     <ion-item>
+                        <!-- <div class="ion-flex ion-margin-auto"> -->
+                        <!-- <ion-badge color="warning">{{ rowData.qtyPerSet }}</ion-badge> -->
+                        <ion-text>{{ rowData.qtyPerSet }} {{ rowData.itemVariationRatioCode }}</ion-text>
+                        <!-- </div> -->
+                     </ion-item>
+                  </ion-select-option>
+               </ion-select>
+            </ion-item>
+            <ion-item>
+               <ion-input class="customSuffix" type="number" placeholder="Total Set" [(ngModel)]="xRatio" (keydown)="onRatioKeyDown($event)"></ion-input>
+               <ion-button class="ml-2" [disabled]="!xRatio" (click)="applyQtyByRatio()">Apply</ion-button>
+            </ion-item>
+         </ion-list>
+      </ion-content>
+   </ng-template>
+</ion-popover>

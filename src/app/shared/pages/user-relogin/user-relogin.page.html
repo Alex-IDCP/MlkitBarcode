@@ -1,0 +1,93 @@
+<ion-header>
+   <ion-toolbar>
+      <ion-title>
+         <div class="ion-text-wrap">{{title}}</div>
+      </ion-title>
+      <ion-buttons slot="primary" *ngIf="displayMode == 1">
+         <ion-button (click)="closeRef()">X</ion-button>
+      </ion-buttons>
+   </ion-toolbar>
+</ion-header>
+
+<ion-content>
+
+   <div class="p-2">
+      <ng-container *ngIf="displayMode === 0">
+         <div class="ion-text-center pb-1">
+            <ion-text color="primary">
+               Please Re-login
+            </ion-text>
+         </div>
+         <ion-list class="item-card-list" lines="none">
+            <ion-item>
+               <ion-label color="tertiary" position="stacked">Email</ion-label>
+               <ion-input [(ngModel)]="loginModel.userEmail" type="email" autocomplete="off" placeholder="Your email address" [disabled]="true"></ion-input>
+            </ion-item>
+            <ion-item>
+               <ion-label color="tertiary" position="stacked">Password</ion-label>
+               <ion-input #inputPassword [(ngModel)]="loginModel.password" type="password" placeholder="Your password"></ion-input>
+            </ion-item>
+         </ion-list>
+
+         <ion-button class="mt-2" type="submit" expand="block" color="primary" (click)="login()">
+            LOGIN
+         </ion-button>
+
+         <div class="flex flex-column">
+            <div class="mt-2" *ngIf="loginError?.length > 0">
+               <ion-badge color="danger">{{loginError}}</ion-badge>
+               <!-- <p-tag styleClass="mr-2" icon="pi pi-lock" severity="danger">{{loginError}} </p-tag> -->
+            </div>
+            <div class="mt-2" *ngIf="inputRequired.length > 0">
+               <ion-badge color="danger">{{inputRequired}}</ion-badge>
+               <!-- <p-tag styleClass="mr-2" severity="danger">{{inputRequired}} </p-tag> -->
+            </div>
+         </div>
+      </ng-container>
+      <ng-container *ngIf="displayMode === 1">
+         <div class="flex flex-column">
+            <hr />
+            <div class="ion-text-center col-12">
+               Refresh Token Acquired Successfully!
+            </div>
+            <hr />
+            <div class="mt-5 flex justify-content-center">
+               <ion-button class="ion-margin-top px-3" type="submit" expand="block" color="primary" (click)="closeRef()">
+                  Close
+               </ion-button>
+            </div>
+         </div>
+      </ng-container>
+   </div>
+</ion-content>
+<ion-modal id="userReloginModal2FA" [isOpen]="show2FaDialog" (didDismiss)="on2FaDialogHide()">
+   <ng-template>
+      <ion-header>
+         <ion-toolbar>
+            <ion-title>2FA Required</ion-title>
+         </ion-toolbar>
+      </ion-header>
+      <ion-content>
+         <div *ngIf="isDisplayQrImage()">
+            <div class="my-2">
+               <div class="ion-text-center col-12">
+                  Please download Microsoft/Google Authenticator, scan the QR Code (Or input manual code) to register for 2FA:
+               </div>
+            </div>
+            <div class="ion-text-center">
+               <img [src]="get2FAQrImage()" />
+            </div>
+            <div class="ion-text-center mb-3" *ngIf="get2FAManualKey()">{{ get2FAManualKey() }}<i
+                  class="ml-2 pi pi-copy cursor-pointer" pTooltip="Copy to clipboard"
+                  (click)="copyToClipboard(get2FAManualKey())"></i></div>
+         </div>
+         <div class="my-2">
+            <div class="ion-text-center col-12">
+               <span class="badge-purple font-bold px-2 py-1">Please Input OTP From Authenticator</span>
+            </div>
+         </div>
+         <code-input #codeInput2Fa [isCodeHidden]="false" [initialFocusField]="0" [codeLength]="6" (codeCompleted)="onCodeCompleted($event)">
+         </code-input>
+      </ion-content>
+   </ng-template>
+</ion-modal>

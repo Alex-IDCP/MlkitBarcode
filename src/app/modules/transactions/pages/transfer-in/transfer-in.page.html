@@ -1,0 +1,97 @@
+<ion-header>
+  <ion-toolbar>
+    <ion-title>Transfer In</ion-title>
+    <ion-buttons slot="start">
+      <ion-back-button text="" defaultHref="/transactions"></ion-back-button>
+    </ion-buttons>
+    <ion-buttons slot="primary">
+      <ion-button (click)="filter()">
+        <ion-icon slot="icon-only" name="filter"></ion-icon>
+      </ion-button>
+    </ion-buttons>
+  </ion-toolbar>
+</ion-header>
+<ion-content [fullscreen]="true">
+  <div class="p-2">
+
+    <ion-list class="list-custom animate__animated animate__fadeIn" lines="full">
+      <app-search-dropdown title="Location" [masterDropdownList]="objectService.locationMasterList" [selectedId]="objectService.selectedLocation" (onActionComplete)="onLocationChanged($event)"></app-search-dropdown>
+    </ion-list>
+      
+    <ion-list-header class="ion-list-header-small ion-flex ion-text-center" *ngIf="objectService.selectedLocation && pendingObject && pendingObject.length > 0">
+      <ion-label>Pending Doc.</ion-label>
+    </ion-list-header>
+
+    <ion-list-header class="ion-list-header-small ion-flex ion-text-center" *ngIf="pendingObject && pendingObject.length === 0">
+      <ion-label>No Pending Doc.</ion-label>
+    </ion-list-header>
+
+    <ion-list class="list-custom animate__animated animate__fadeIn" lines="full">
+      <ion-item button detail="false" class="ion-no-padding no-ripple" *ngFor="let po of pendingObject" (click)="selectDoc(po)">
+        <ion-grid class="ion-no-padding py-2 pl-2">
+          <ion-row>
+            <ion-col class="ion-flex ion-margin-auto justify-content-between">
+              <div class="font-bold"> Doc. Num.</div>
+              <div>{{po.interTransferNum}}</div>
+            </ion-col>
+          </ion-row>
+          <ion-row>
+            <ion-col class="ion-flex ion-margin-auto justify-content-between">
+              <div class="font-bold"> Doc. Date</div>
+              <div>{{po.trxDate|date:"dd/MM/yyyy"}}</div>              
+            </ion-col>
+          </ion-row>
+          <ion-row>
+            <ion-col class="ion-flex ion-margin-auto justify-content-between">
+              <div class="font-bold"> From Location</div>
+              <div>{{po.locationId|idMapping:objectService.locationMasterList}}</div>              
+            </ion-col>
+          </ion-row>
+        </ion-grid>
+      </ion-item>
+    </ion-list>
+      
+    <ion-list-header class="ion-list-header-small ion-flex ion-text-center" *ngIf="objects && objects.length > 0">
+      <ion-label>Completed Doc.</ion-label>
+    </ion-list-header>
+      
+    <ion-list-header class="ion-list-header-small ion-flex ion-text-center" *ngIf="objects && objects.length === 0">
+      <ion-label>No Completed Doc.</ion-label>
+    </ion-list-header>
+    
+    <ng-container *ngFor="let m of uniqueGrouping">
+      <ion-list-header class="ion-list-header-small ion-flex ion-text-center">
+        <ion-label>{{m|date:'dd MMM yyyy'}}</ion-label>
+      </ion-list-header>
+      <ion-list class="list-custom animate__animated animate__fadeIn" lines="full">
+        <ion-item [button]="false" [detail]="false" class="ion-no-padding" (click)="goToDetail(object.interTransferId)" *ngFor="let object of getObjects(m)">
+          <ion-grid class="ion-no-padding py-2 pl-2">
+            <ion-row>
+              <ion-col class="ion-flex ion-margin-auto font-bold">
+                <ion-icon class="ion-flex mr-2" name="ellipse" [class]="object.isCompleted?'color-success':'color-danger'"></ion-icon>
+                <div class="ion-flex mr-2">{{object.interTransferNum}}</div>
+              </ion-col>
+              <ion-col class="ion-flex ion-margin-auto justify-content-end"><ion-badge><div class="ion-text-right">{{object.trxDate|date:'dd/MM/yyyy'}}</div></ion-badge></ion-col>
+            </ion-row>
+            <ion-row>
+              <ion-col size="auto" class="ion-flex ion-margin-auto">
+                <ion-badge>{{object.fromLocationCode}}</ion-badge>
+              </ion-col>
+              <ion-col class="ion-flex ion-margin-auto">
+                <div class="ion-flex my-auto ml-2">{{object.fromLocationDesc}}</div>
+              </ion-col>
+            </ion-row>
+            <ion-row>
+              <ion-col size="auto" class="ion-flex ion-margin-auto">
+                <ion-badge>{{object.toLocationCode}}</ion-badge>
+              </ion-col>
+              <ion-col class="ion-flex ion-margin-auto">
+                <div class="ion-flex my-auto ml-2">{{object.toLocationDesc}}</div>
+              </ion-col>
+            </ion-row>
+          </ion-grid>
+        </ion-item>
+      </ion-list>
+    </ng-container>
+  </div>
+</ion-content>

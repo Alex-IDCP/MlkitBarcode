@@ -1,0 +1,13 @@
+.image-container {
+   max-width: 100%;
+   max-height: 100%;
+   overflow: hidden; /* This ensures that the image does not overflow its container */
+ }
+ 
+ .image-container img {
+   max-width: 100%;
+   max-height: 100%;
+   display: block;
+   transition: transform 0.3s ease-out; /* This sets up a smooth transition when the image is scaled */
+ }
+ 

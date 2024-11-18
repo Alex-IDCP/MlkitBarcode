@@ -1,0 +1,9 @@
+.my-pagination ::ng-deep .ngx-pagination {
+   padding: 0.25rem;
+   margin-top: 0.25rem;
+   margin-bottom: 0.25rem;
+ }
+
+ .my-pagination ::ng-deep .ngx-pagination a:hover {
+  background: transparent;
+}

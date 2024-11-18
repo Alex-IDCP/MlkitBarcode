@@ -1,0 +1,44 @@
+<ion-header>
+   <ion-toolbar>
+      <ion-title>Inventory Level</ion-title>
+      <ion-buttons slot="start">
+         <ion-back-button text="" defaultHref="/reports"></ion-back-button>
+      </ion-buttons>
+   </ion-toolbar>
+</ion-header>
+
+<ion-content>
+   <div class="p-2" style="overflow:auto">
+
+      <ion-list class="list-custom" lines="none" slot="content">
+         <ion-item id="open-calendar-modal">
+            <!-- <ion-icon icon="calendar-outline" slot="start" color="primary"></ion-icon> -->
+            <ion-label position="stacked" class="font-bold">By Date</ion-label>
+            <ion-text class="ion-no-padding-end pb-3">{{formattedDateString}}</ion-text>
+         </ion-item>
+         <ion-modal class="ion-modal-calendar" trigger="open-calendar-modal">
+            <ng-template>
+               <ion-content>
+               <ion-datetime #datetime [value]="dateValue" size="cover" (ionChange)="onTrxDateSelected(datetime.value)" [preferWheel]="true" showDefaultTitle="true" presentation="date" [max]="maxDate">
+                  <ion-buttons slot="buttons">
+                     <ion-button (click)="dateDismiss()" color="danger">Dismiss</ion-button>
+                     <ion-button (click)="dateSelect()" color="primary">Select</ion-button>
+                  </ion-buttons>
+               </ion-datetime>
+               </ion-content>
+            </ng-template>
+         </ion-modal>
+
+         <app-search-multi-dropdown title="Location" [showHeaderLabel]="true" [showBoldHeader]="true" [showCode]="true" [masterDropdownList]="locationMasterList" [selectedIds]="selectedLocation" (onActionComplete)="onLocationSelected($event)"></app-search-multi-dropdown>
+         <app-search-multi-dropdown title="Item Brand" [showHeaderLabel]="true" [showBoldHeader]="true" [showCode]="true" [masterDropdownList]="itemBrandList" [selectedIds]="selectedItemBrand" (onActionComplete)="onItemBrandSelected($event)"></app-search-multi-dropdown>
+         <app-search-multi-dropdown title="Item Department" [showHeaderLabel]="true" [showBoldHeader]="true" [showCode]="true" [masterDropdownList]="itemDepartmentList" [selectedIds]="selectedItemDepartment" (onActionComplete)="onItemDepartmentSelected($event)"></app-search-multi-dropdown>
+         <app-search-multi-dropdown title="Item Group" [showHeaderLabel]="true" [showBoldHeader]="true" [showCode]="true" [masterDropdownList]="itemGroupList" [selectedIds]="selectedItemGroup" (onActionComplete)="onItemGroupSelected($event)"></app-search-multi-dropdown>
+         <app-search-multi-dropdown title="Item Category" [showHeaderLabel]="true" [showBoldHeader]="true" [showCode]="true" [masterDropdownList]="itemCategoryList" [selectedIds]="selectedItemCategory" (onActionComplete)="onItemCateogrySelected($event)"></app-search-multi-dropdown>
+         <app-search-multi-dropdown title="Item" [showHeaderLabel]="true" [showBoldHeader]="true" [showCode]="true" [masterDropdownList]="itemList" [selectedIds]="selectedItem" (onActionComplete)="onItemSelected($event)"></app-search-multi-dropdown>
+         
+      </ion-list>
+
+      <ion-button class="pt-2" expand="block" size="default" (click)="downloadReport()">Download</ion-button>
+
+   </div>
+</ion-content>

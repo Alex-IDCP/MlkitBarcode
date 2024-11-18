@@ -1,0 +1,316 @@
+<div class="p-2">
+	<ion-segment value="pending" [(ngModel)]="selectedSegment">
+		<ion-segment-button value="pending">
+			<ion-label>Pending</ion-label>
+		</ion-segment-button>
+		<ion-segment-button value="completed">
+			<ion-label>Completed</ion-label>
+		</ion-segment-button>
+	</ion-segment>
+	<hr class="hr-small">
+	<ion-list class="list-custom animate__animated animate__fadeIn" lines="full" *ngIf="selectedSegment === 'pending'">
+		<ion-item-sliding *ngFor="let rowData of pendingDocList">
+			<ion-item button detail="false" class="ion-no-padding no-ripple" (click)="goToDetail(rowData)">
+				<ion-grid class="ion-no-padding py-2 pl-2">
+					<ion-row>
+						<ion-col class="ion-flex ion-margin-auto">
+							<ng-container *ngIf="rowData.posApprovalType === 'RF'">
+								<span class="font-bold">Refund: {{rowData.posBillNum}}</span>
+								<!-- <a routerLink="/rm/pos-bill" [queryParams]="{id: item.posBillId}" target="_blank">{{item.posBillNum}} <i class="pi pi-external-link" pTooltip="Browse document"></i></a> -->
+							</ng-container>
+							<ng-container *ngIf="rowData.posApprovalType === 'SE'">
+								<span class="font-bold">Exchange: {{rowData.posSpecialExchangeNum}}</span>
+							</ng-container>
+							<ng-container *ngIf="rowData.posApprovalType === 'RD'">
+								<span class="font-bold">Recall: {{rowData.salesDepositNum}}</span>
+								<!-- <a routerLink="/rm/pos-bill" [queryParams]="{id: item.posBillId}" target="_blank">{{item.posBillNum}} <i class="pi pi-external-link" pTooltip="Browse document"></i></a> -->
+							</ng-container>
+						</ion-col>
+					</ion-row>
+					<ng-container *ngIf="rowData.posApprovalType === 'RF'">
+						<ion-row>
+							<ion-col class="ion-flex ion-margin-auto">
+								<span class="block">Refund Amount: {{rowData.posRefundAmount|number: '1.2-2'}}</span>
+							</ion-col>
+						</ion-row>
+						<ion-row>
+							<ion-col class="ion-flex ion-margin-auto">
+								<span class="block">Refund From:
+									{{rowData.posRefundMethodId|idMapping:posRefundMethodMasterList}}</span>
+							</ion-col>
+						</ion-row>
+						<ion-row>
+							<ion-col class="ion-flex ion-margin-auto">
+								<span class="block">Reason: {{rowData.reason}}</span>
+							</ion-col>
+						</ion-row>
+						<ion-row>
+							<ion-col class="ion-flex ion-margin-auto">
+								<span class="block font-semibold" *ngIf="rowData.remark">HQ Remark: {{rowData.remark}}</span>
+							</ion-col>
+						</ion-row>
+					</ng-container>
+					<ng-container *ngIf="rowData.posApprovalType === 'SE'">
+						<ion-row>
+							<ion-col class="ion-flex ion-margin-auto">
+								<span class="block">Channel Details: {{rowData.posSpecialExchangeDetails}}</span>
+							</ion-col>
+						</ion-row>
+						<ion-row>
+							<ion-col class="ion-flex ion-margin-auto">
+								<span class="block">Reason: {{rowData.reason}}</span>
+							</ion-col>
+						</ion-row>
+						<ion-row>
+							<ion-col class="ion-flex ion-margin-auto">
+								<span class="block font-semibold" *ngIf="rowData.remark">HQ Remark: {{rowData.remark}}</span>
+							</ion-col>
+						</ion-row>
+						<ion-row>
+							<ion-col class="ion-flex ion-margin-auto">
+								<span class="block">Created By: {{rowData.createdBy}} {{rowData.createdAt|date:"dd/MM/yy hh:mm a"}}</span>
+							</ion-col>
+						</ion-row>
+					</ng-container>
+					<ng-container *ngIf="rowData.posApprovalType === 'RD'">
+						<ion-row>
+							<ion-col class="ion-flex ion-margin-auto">
+								<span class="block">Recall Amount: {{rowData.salesDepositAmount|number: '1.2-2'}}</span>
+							</ion-col>
+						</ion-row>
+						<ion-row>
+							<ion-col class="ion-flex ion-margin-auto">
+								<span class="block">Reason: {{rowData.reason}}</span>
+							</ion-col>
+						</ion-row>
+						<ion-row>
+							<ion-col class="ion-flex ion-margin-auto">
+								<span class="block font-semibold" *ngIf="rowData.remark">HQ Remark: {{rowData.remark}}</span>
+							</ion-col>
+						</ion-row>
+					</ng-container>
+					<ion-row>
+						<ion-col class="ion-flex ion-margin-auto">
+							<span class="ion-text-wrap badge-other px-1"><ion-icon name="calendar-number-outline"></ion-icon> {{rowData.trxDate|date:'dd/MM/yyyy'}}</span>
+							<span class="ion-text-wrap badge-green px-1"><ion-icon name="person-outline"></ion-icon>{{rowData.locationCode}}</span>
+							<span class="ion-text-wrap badge-purple px-1"><ion-icon name="globe-outline"></ion-icon>{{rowData.createdBy}}</span>
+						</ion-col>
+					</ion-row>
+				</ion-grid>
+			</ion-item>
+			<ion-item-options side="start" *ngIf="transactionProcessingCount.isAllowApprove">
+				<ion-item-option color="danger" (click)="presentConfirmAlert('REJECT', rowData.posApprovalId, rowData)"><ion-icon name="close-outline" slot="bottom"></ion-icon>Reject</ion-item-option>
+			</ion-item-options>
+			<ion-item-options side="end" *ngIf="transactionProcessingCount.isAllowApprove">
+				<ion-item-option color="success" (click)="presentConfirmAlert('CONFIRM', rowData.posApprovalId, rowData)"><ion-icon name="checkmark-outline" slot="bottom"></ion-icon>Confirm</ion-item-option>
+			</ion-item-options>
+		</ion-item-sliding>
+	</ion-list>
+	<ion-list class="list-custom animate__animated animate__fadeIn" [lines]="completedDocList?.length > 0 ? 'full' : 'none'" *ngIf="selectedSegment === 'completed'">
+		<ion-item button detail="false" class="ion-no-padding no-ripple" (click)="goToDetail(rowData)" *ngFor="let rowData of completedDocList">
+			<ion-grid class="ion-no-padding py-2 pl-2">
+				<ion-row>
+					<ion-col class="ion-flex ion-margin-auto">
+						<ng-container *ngIf="rowData.posApprovalType === 'RF'">
+							<span class="font-bold">Refund: {{rowData.posBillNum}}</span>
+							<!-- <a routerLink="/rm/pos-bill" [queryParams]="{id: item.posBillId}" target="_blank">{{item.posBillNum}} <i class="pi pi-external-link" pTooltip="Browse document"></i></a> -->
+						</ng-container>
+						<ng-container *ngIf="rowData.posApprovalType === 'SE'">
+							<span class="font-bold">Exchange: {{rowData.posSpecialExchangeNum}}</span>
+						</ng-container>
+						<ng-container *ngIf="rowData.posApprovalType === 'RD'">
+							<span class="font-bold">Recall: {{rowData.salesDepositNum}}</span>
+							<!-- <a routerLink="/rm/pos-bill" [queryParams]="{id: item.posBillId}" target="_blank">{{item.posBillNum}} <i class="pi pi-external-link" pTooltip="Browse document"></i></a> -->
+						</ng-container>
+					</ion-col>
+				</ion-row>
+				<ng-container *ngIf="rowData.posApprovalType === 'RF'">
+					<ion-row>
+						<ion-col class="ion-flex ion-margin-auto">
+							<span class="block">Refund Amount: {{rowData.posRefundAmount|number: '1.2-2'}}</span>
+						</ion-col>
+					</ion-row>
+					<ion-row>
+						<ion-col class="ion-flex ion-margin-auto">
+							<span class="block">Refund From:
+								{{rowData.posRefundMethodId|idMapping:posRefundMethodMasterList}}</span>
+						</ion-col>
+					</ion-row>
+					<ion-row>
+						<ion-col class="ion-flex ion-margin-auto">
+							<span class="block">Reason: {{rowData.reason}}</span>
+						</ion-col>
+					</ion-row>
+					<ion-row>
+						<ion-col class="ion-flex ion-margin-auto">
+							<span class="block font-semibold" *ngIf="rowData.remark">HQ Remark: {{rowData.remark}}</span>
+						</ion-col>
+					</ion-row>
+				</ng-container>
+				<ng-container *ngIf="rowData.posApprovalType === 'SE'">
+					<ion-row>
+						<ion-col class="ion-flex ion-margin-auto">
+							<span class="block">Channel Details: {{rowData.posSpecialExchangeDetails}}</span>
+						</ion-col>
+					</ion-row>
+					<ion-row>
+						<ion-col class="ion-flex ion-margin-auto">
+							<span class="block">Reason: {{rowData.reason}}</span>
+						</ion-col>
+					</ion-row>
+					<ion-row>
+						<ion-col class="ion-flex ion-margin-auto">
+							<span class="block font-semibold" *ngIf="rowData.remark">HQ Remark: {{rowData.remark}}</span>
+						</ion-col>
+					</ion-row>
+               <ion-row>
+                  <ion-col class="ion-flex ion-margin-auto">
+                     <span class="block">Created By: {{rowData.createdBy}} {{rowData.createdAt|date:"dd/MM/yy hh:mm a"}}</span>
+                  </ion-col>
+               </ion-row>
+				</ng-container>
+				<ng-container *ngIf="rowData.posApprovalType === 'RD'">
+					<ion-row>
+						<ion-col class="ion-flex ion-margin-auto">
+							<span class="block">Recall Amount: {{rowData.salesDepositAmount|number: '1.2-2'}}</span>
+						</ion-col>
+					</ion-row>
+					<ion-row>
+						<ion-col class="ion-flex ion-margin-auto">
+							<span class="block">Reason: {{rowData.reason}}</span>
+						</ion-col>
+					</ion-row>
+					<ion-row>
+						<ion-col class="ion-flex ion-margin-auto">
+							<span class="block font-semibold" *ngIf="rowData.remark">HQ Remark: {{rowData.remark}}</span>
+						</ion-col>
+					</ion-row>
+				</ng-container>
+				<ion-row>
+					<ion-col class="ion-flex ion-margin-auto">
+						<span *ngIf="rowData.isApproved" class="ion-text-wrap badge-green px-1"><ion-icon class="ion-margin-auto" name="checkmark-outline"></ion-icon> Approved</span>
+						<span *ngIf="!rowData.isApproved" class="ion-text-wrap badge-red px-1"><ion-icon class="ion-margin-auto" name="close-outline"></ion-icon> Rejected</span>
+						<span class="ion-text-wrap badge-other px-1"><ion-icon name="calendar-number-outline"></ion-icon> {{rowData.trxDate|date:'dd/MM/yyyy'}}</span>
+						<span class="ion-text-wrap badge-green px-1"><ion-icon name="person-outline"></ion-icon> {{rowData.locationCode}}</span>
+						<span class="ion-text-wrap badge-purple px-1"><ion-icon name="globe-outline"></ion-icon> {{rowData.createdBy}}</span>
+					</ion-col>
+				</ion-row>
+			</ion-grid>
+		</ion-item>
+	</ion-list>
+</div>
+
+<ion-modal [isOpen]="exchangeLineModal" (didDismiss)="exchangeLineModal = false">
+	<ng-template>
+		<ion-header>
+			<ion-toolbar>
+				<ion-title>
+					<div class="ion-text-wrap">
+						Exchange Item Line
+					</div>
+				</ion-title>
+				<ion-buttons slot="start">
+					<ion-button (click)="hideExchangeLineModal()">Done</ion-button>
+				</ion-buttons>
+			</ion-toolbar>
+		</ion-header>
+		<ion-content>
+			<div class="p-2">
+				<ion-list class="list-custom animate__animated animate__fadeIn" lines="full">
+					<ion-item button detail="false" class="ion-no-padding no-ripple">
+						<ion-grid class="ion-no-padding py-2 pl-2">
+							<ion-row>
+								<ion-col size="1" class="ion-flex ion-margin-auto">
+									<div class="font-bold">#</div>
+								</ion-col>
+								<ion-col class="ion-flex ion-margin-auto">
+									<div class="font-bold">Item Info</div>
+								</ion-col>
+								<ion-col size="1" class="ion-flex ion-margin-auto">
+									<div class="font-bold">Qty.</div>
+								</ion-col>
+							</ion-row>
+						</ion-grid>
+					</ion-item>
+					<ion-item button detail="false" class="ion-no-padding no-ripple" *ngFor="let rowData of exchangeLines; let rowIndex = index">
+						<ion-grid class="ion-no-padding py-2 pl-2">
+							<ion-row *ngIf="rowData.promotionDesc">
+								<ion-col class="ion-margin-auto">
+									<ion-badge color="success">{{rowData.promotionDesc}}</ion-badge>
+								</ion-col>
+							</ion-row>
+							<ion-row>
+								<ion-col size="1" class="ion-flex ion-margin-auto">
+									<div>{{rowIndex+1}}</div>
+								</ion-col>
+								<ion-col>
+									<ion-grid class="ion-no-padding py-2 pl-2">
+										<ion-row>
+											<ion-col class="ion-flex ion-margin-auto">
+												<div class="font-bold">{{rowData.itemBarcode}}</div>
+											</ion-col>
+										</ion-row>
+										<ion-row>
+											<ion-col class="ion-flex ion-margin-auto">
+												<div>{{rowData.itemCode}}</div>
+												<span class="badge-green ion-text-wrap ion-flex my-auto px-1 mx-1" *ngIf="rowData.itemVariationXDesc"> {{rowData.itemVariationXDesc}}</span>
+												<span class="badge-purple ion-text-wrap ion-flex my-auto px-1" *ngIf="rowData.itemVariationYDesc"> {{rowData.itemVariationYDesc}}</span>
+											</ion-col>
+										</ion-row>
+										<ion-row>
+											<ion-col class="ion-flex ion-margin-auto">
+												<div>{{rowData.description}}</div>
+											</ion-col>
+										</ion-row>
+									</ion-grid>
+								</ion-col>
+								<ion-col size="1" class="ion-flex ion-margin-auto">
+									<ion-badge>{{rowData.qtyRequest}}</ion-badge>
+								</ion-col>
+							</ion-row>
+							<ion-row>
+								<ion-col>
+									<div class="font-bold">
+										Unit Price
+									</div>
+								</ion-col>
+								<ion-col>
+									<div class="font-bold">
+										Disc. Code
+									</div>
+								</ion-col>
+								<ion-col>
+									<div class="font-bold justify-content-end">
+										Disc. Amt
+									</div>
+								</ion-col>
+								<ion-col>
+									<div class="font-bold justify-content-end">
+										SubTotal
+									</div>
+								</ion-col>
+							</ion-row>
+							<ion-row>
+								<ion-col>
+									<div>{{rowData.unitPrice|number:"1.0-2"}}</div>
+								</ion-col>
+								<ion-col>
+									<div class="ion-flex">
+										<div>{{rowData.discountGroupCode1}}</div>
+										<div *ngIf="rowData.discountExpression"> [{{rowData.discountExpression}}]</div>
+									</div>
+								</ion-col>
+								<ion-col class="justify-content-end">
+									<div>{{(rowData.discountAmt??0)|number:"1.2"}}</div>
+								</ion-col>
+								<ion-col class="justify-content-end">
+									<div>{{(rowData.totalAmt??0)|number:"1.2"}}</div>
+								</ion-col>
+							</ion-row>
+						</ion-grid>
+					</ion-item>
+				</ion-list>
+			</div>
+		</ion-content>
+	</ng-template>
+</ion-modal>

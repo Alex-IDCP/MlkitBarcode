@@ -1,0 +1,201 @@
+<ion-header>
+   <ion-toolbar>
+      <ion-title>
+         Settings
+      </ion-title>
+   </ion-toolbar>
+</ion-header>
+<ion-content [fullscreen]="true">
+   <div class="p-2">
+      <ion-list-header class="ion-list-header-small ion-flex">
+         <ion-label class="pl-2">
+            <div class="font-bold">{{companyInfo?.name}}</div>
+         </ion-label>
+      </ion-list-header>
+      <ion-list-header class="ion-list-header-small ion-flex">
+         <ion-label class="pl-2">
+            <div>Signed in as: {{loginName}} ({{loginEmail}})</div>
+         </ion-label>
+      </ion-list-header>
+      <ion-list-header class="ion-list-header-small ion-flex">
+         <ion-label class="pl-2">
+            <div>User Type: {{userType}}</div>
+         </ion-label>
+      </ion-list-header>
+      <ng-container *ngIf="configService.loginUser">
+         <ion-list-header class="ion-list-header-small ion-flex" *ngIf="configService.loginUser.procurementAgentId && procurementAgentMasterList && procurementAgentMasterList.length > 0">
+            <ion-label class="pl-2">
+               <div>Procurement Agent: {{configService.loginUser.procurementAgentId|idMapping:procurementAgentMasterList}}
+               </div>
+            </ion-label>
+         </ion-list-header>
+         <ion-list-header class="ion-list-header-small ion-flex" *ngIf="configService.loginUser.warehouseAgentId && warehouseAgentMasterList && warehouseAgentMasterList.length > 0">
+            <ion-label class="pl-2">
+               <div>Warehouse Agent: {{configService.loginUser.warehouseAgentId|idMapping:warehouseAgentMasterList}}</div>
+            </ion-label>
+         </ion-list-header>
+         <ion-list-header class="ion-list-header-small ion-flex" *ngIf="configService.loginUser.salesAgentId && salesAgentMasterList && salesAgentMasterList.length > 0">
+            <ion-label class="pl-2">
+               <div>Sales Agent: {{configService.loginUser.salesAgentId|idMapping:salesAgentMasterList}}</div>
+            </ion-label>
+         </ion-list-header>
+         <ion-list-header class="ion-list-header-small ion-flex ion-text-center">
+            <ion-label class="pl-2">Quick Actions</ion-label>
+         </ion-list-header>
+         <ion-list class="list-custom animate__animated animate__fadeIn" lines="full">
+            <ion-item detail="false">
+               <ion-label>
+                  <h3>Manual sync</h3>
+                  <p class="font-size-smallest">Last sync: {{last_sync_datetime|date:'yyyy-MM-dd hh:mm:ss'}}</p>
+               </ion-label>
+               <ion-button slot="end" (click)="sync()">
+                  Sync now
+               </ion-button>
+            </ion-item>
+            <ion-item detail="false" *ngIf="configService.loginUser && configService.loginUser.locationId.length > 0" (click)="showLocationModal()">
+               <ion-label>
+                  <h3>Switch Location</h3>
+                  <p class="font-size-smallest">Selected: {{configService.selected_location|idMapping:dashboardService.locationMasterList}}</p>
+               </ion-label>
+            </ion-item>
+         </ion-list>
+      </ng-container>
+      <hr class="hr-medium">
+      <ion-list class="list-custom animate__animated animate__fadeIn" lines="full">
+         <ion-item button detail="false" (click)="showLocalConfig()" *ngIf="false">
+            <ion-avatar slot="start" class="ion-avatar-default-icon">
+               <ion-icon color="primary" name="settings-outline"></ion-icon>
+            </ion-avatar>
+            <ion-label color="primary">
+               <h3>Local Config</h3>
+            </ion-label>
+         </ion-item>
+         <ion-item button detail="false" (click)="addNewActivation()">
+            <ion-avatar slot="start" class="ion-avatar-success-icon">
+               <ion-icon color="success" name="add-circle-outline"></ion-icon>
+            </ion-avatar>
+            <ion-label color="success">
+               <h3>Activate New Company</h3>
+            </ion-label>
+         </ion-item>
+         <ng-container *ngIf="configService.sys_parameter && configService.sys_parameter.length > 1">
+            <ion-item button detail="false" (click)="switchCompany()">
+               <ion-avatar slot="start" class="ion-avatar-warning-icon">
+                  <ion-icon color="warning" name="swap-horizontal-outline"></ion-icon>
+               </ion-avatar>
+               <ion-label color="warning">
+                  <h3>Switch Company</h3>
+               </ion-label>
+            </ion-item>
+         </ng-container>
+         <ion-item button detail="false" (click)="signOut()">
+            <ion-avatar slot="start" class="ion-avatar-danger-icon">
+               <ion-icon color="danger" name="log-out-outline"></ion-icon>
+            </ion-avatar>
+            <ion-label color="danger">
+               <h3>Sign Out</h3>
+            </ion-label>
+         </ion-item>
+      </ion-list>
+      <div class="ion-text-center ion-margin-top">
+         <ion-text color="medium">
+            <small>&copy; {{current_year}} iDCP Systems Sdn Bhd v{{currentVersion}}</small>
+         </ion-text>
+      </div>
+   </div>
+</ion-content>
+
+<ion-modal [isOpen]="selectLocationModal" (didPresent)="searchBar.setFocus()" (didDismiss)="selectLocationModal = false">
+   <ng-template>
+      <ion-header>
+         <ion-toolbar>
+            <ion-title>
+               <div class="ion-text-wrap">
+                  Select Location
+               </div>
+            </ion-title>
+            <ion-buttons slot="start">
+               <ion-button (click)="hideLocationModal()">Done</ion-button>
+            </ion-buttons>
+         </ion-toolbar>
+         <ion-toolbar>
+            <ion-searchbar #searchBar class="p-0" enterkeyhint="search" [(ngModel)]="searchText" showCancelButton="never" showClearButton="focus" animated="true" [placeholder]="'Search for Location'" (keydown)="onKeyDown($event)" (ionClear)="resetFilter();"></ion-searchbar>
+         </ion-toolbar>
+      </ion-header>
+      <ion-content>
+         <div class="p-2">
+            <ion-list class="list-custom animate__animated animate__fadeIn" lines="full">
+               <ion-item button="false" *ngFor="let rowData of tempDropdownList" (click)="setDefaultLocation(rowData)">
+                  <div slot="start">
+                     <ion-grid class="ion-no-padding">
+                        <ion-row>
+                           <ion-col class="ion-margin-auto">
+                              <ion-badge style="display:inline-flex" *ngIf="rowData && rowData?.code">
+                                 <div>{{rowData?.code}}</div>
+                              </ion-badge>
+                           </ion-col>
+                        </ion-row>
+                     </ion-grid>
+                  </div>
+                  <div class="ion-text-wrap">{{rowData?.description}}</div>
+               </ion-item>
+            </ion-list>
+         </div>
+      </ion-content>
+   </ng-template>
+</ion-modal>
+
+<ion-modal [isOpen]="switchCompanyModal" (didDismiss)="switchCompanyModal = false">
+   <ng-template>
+      <ion-header>
+         <ion-toolbar>
+            <ion-title>Companies</ion-title>
+            <ion-buttons slot="end">
+               <ion-button (click)="hideSwitchCompanyModal()">Cancel</ion-button>
+            </ion-buttons>
+         </ion-toolbar>
+      </ion-header>
+      <ion-content class="p-2">
+         <ion-list class="list-custom animate__animated animate__fadeIn" lines="full">
+            <ion-item button detail="false" *ngFor="let rowData of getAvailableSysParameters()" (click)="chooseCompany(rowData)">
+               <div>
+                  {{rowData.companyName}}
+               </div>
+            </ion-item>
+         </ion-list>
+      </ion-content>
+   </ng-template>
+</ion-modal>
+
+<ion-modal [isOpen]="localConfigModal" (didDismiss)="localConfigModal = false">
+   <ng-template>
+      <ion-header>
+         <ion-toolbar>
+            <ion-title>Configs</ion-title>
+            <ion-buttons slot="end">
+               <ion-button (click)="hideLocalConfig()">Cancel</ion-button>
+            </ion-buttons>
+         </ion-toolbar>
+      </ion-header>
+      <ion-content class="p-2">
+         <ion-list class="list-custom animate__animated animate__fadeIn" lines="full">
+            <ion-item button detail="false" *ngFor="let rowData of getAvailableJsonConfig()">
+               <div>
+                  <ion-grid class="ion-no-padding">
+                     <ion-row>
+                        <ion-col class="ion-flex ion-margin-auto">
+                           <h3>{{rowData.name}}</h3>
+                        </ion-col>
+                     </ion-row>
+                     <ion-row>
+                        <ion-col class="ion-flex ion-margin-auto">
+                           <p class="font-size-smallest">{{rowData.description}}</p>
+                        </ion-col>
+                     </ion-row>
+                  </ion-grid>
+               </div>
+            </ion-item>
+         </ion-list>
+      </ion-content>
+   </ng-template>
+</ion-modal>

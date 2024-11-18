@@ -1,0 +1,74 @@
+<ion-header>
+  <ion-toolbar>
+    <ion-title>Generate OTP</ion-title>
+    <ion-buttons slot="start">
+      <ion-back-button text="Back" defaultHref="/others"></ion-back-button>
+    </ion-buttons>
+  </ion-toolbar>
+</ion-header>
+<ion-content fulscreen>
+  <div class="p-2">
+    <ion-list class="list-custom animate__animated animate__fadeIn" lines="none">
+
+      <app-search-dropdown #usersDropdown title="Users" optionLabel="description" [searchDropdownList]="userSearchDropDownList" (onActionComplete)="onUserChanged($event)"></app-search-dropdown>
+      <app-search-dropdown #validityDropdown title="Validity" optionLabel="description" [masterDropdownList]="lovStatics" (onActionComplete)="onValidityChanged($event)" [hidden]="selectedUser==null"></app-search-dropdown>
+      <app-search-dropdown #appsDropdown [hidden]="selectedValidity !== 'SINGLE'" title="App" optionLabel="description" [searchDropdownList]="appsSearchDropdownList" (onActionComplete)="onAppChanged($event)"></app-search-dropdown>
+      <app-search-multi-dropdown #appsMultiDropdown [hidden]="selectedValidity !== 'MULTIPLE'" title="App" [showHeaderLabel]="true" [showBoldHeader]="false" [showCode]="true" optionLabel="description" [searchDropdownList]="appsSearchDropdownList" (onActionComplete)="onAppChanged($event)"></app-search-multi-dropdown>
+      
+      <ion-item color="none">
+        <ion-checkbox #checkBox slot="end" (ionChange)="onCheckBoxChecked($event)" [(ngModel)]="checkboxValue"></ion-checkbox>
+        <ion-label>Default Expiry</ion-label>
+      </ion-item>
+      
+      <ion-item id="open-calendar-modal" [hidden]="checkBox.checked">
+        <!-- <ion-icon icon="calendar-outline" slot="start" color="primary"></ion-icon> -->
+        <ion-label position="stacked" class="font-bold">Expiry Date</ion-label>
+        <ion-text class="ion-no-padding-end pb-3">{{formattedDateString}}</ion-text>
+      </ion-item>
+      <ion-modal class="ion-modal-calendar" trigger="open-calendar-modal">
+        <ng-template>
+          <ion-content>
+            <ion-datetime #date [value]="dateValue" size="cover" (ionChange)="onTrxDateSelected(date.value)" [preferWheel]="true" showDefaultTitle="true" presentation="date" [max]="maxDate">
+              <ion-buttons slot="buttons">
+                <ion-button (click)="dateDismiss()" color="danger">Dismiss</ion-button>
+                <ion-button (click)="dateSelect()" color="primary">Select</ion-button>
+              </ion-buttons>
+            </ion-datetime>
+          </ion-content>
+        </ng-template>
+      </ion-modal>
+      <!-- <app-calendar-input #calendar [hidden]="checkBox.checked" title="Expiry Date" [date_value]="expiryDate" [presentation]="'date'" (onDateSelected)="onDateSelected($event)"></app-calendar-input> -->
+      
+      <ion-item id="open-time-modal" [hidden]="checkBox.checked">
+        <!-- <ion-icon icon="calendar-outline" slot="start" color="primary"></ion-icon> -->
+        <ion-label position="stacked" class="font-bold">Expiry Time</ion-label>
+        <ion-text class="ion-no-padding-end pb-3">{{formattedTimeString}}</ion-text>
+      </ion-item>
+      <ion-modal class="ion-modal-calendar" trigger="open-time-modal">
+        <ng-template>
+          <ion-content>
+            <ion-datetime #time [value]="timeValue" size="cover" (ionChange)="onTrxTimeSelected(time.value)" [preferWheel]="true" showDefaultTitle="true" presentation="time">
+              <ion-buttons slot="buttons">
+                <ion-button (click)="timeDismiss()" color="danger">Dismiss</ion-button>
+                <ion-button (click)="timeSelect()" color="primary">Select</ion-button>
+              </ion-buttons>
+            </ion-datetime>
+          </ion-content>
+        </ng-template>
+      </ion-modal>
+
+      <ion-item button [detail]="false">
+        <ion-label position="stacked" class="font-bold">Remark</ion-label>
+        <ion-textarea autoGrow="true" inputmode="text" type="text" enterkeyhint="enter" placeholder="Enter Remark" [(ngModel)]="remark"></ion-textarea>
+      </ion-item>
+    </ion-list>
+  </div>
+</ion-content>
+<ion-footer>
+  <ion-item class="ion-justify-content-center ion-align-items-end" *ngIf="generatedOtpCode" color="none">
+    <ion-label>Copied OTP: {{generatedOtpCode}}</ion-label>
+  </ion-item>
+  <ion-toolbar class="ion-no-border">
+    <ion-button class="ion-margin" expand="block" (click)="generateOtp()" [disabled]="submit_attempt">Generate</ion-button>
+  </ion-toolbar>
+</ion-footer>

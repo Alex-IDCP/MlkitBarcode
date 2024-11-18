@@ -1,0 +1,53 @@
+<ion-content>
+  <swiper class="swiper-welcome" #swiper [config]="swiperConfig" (slideChange)="swiperSlideChanged($event)" (reachEnd)="onLastSlide()">
+    <ng-template swiperSlide>
+      <ion-img src="../../../../assets/idcp/logo-idcp.svg" class="animate__animated animate__fadeInDown" alt="iDCP Logo"></ion-img>
+      <h3 class="animate__animated animate__fadeInUp">iDCP Mobile</h3>
+      <p class="animate__animated animate__fadeInUp">Initial Setup. Press next to insert activation code.</p>
+    </ng-template>
+    <ng-template swiperSlide>
+      <div class="p-2 ion-full-height ion-flex ion-flex-center">
+        <ion-img src="../../../../assets/idcp/logo-idcp.svg" class="animate__animated animate__fadeInDown" style="margin-top: 82px" alt="iDCP Logo"></ion-img>
+        <h3>Activation Code</h3>
+        <ion-grid class="px-2">
+          <ion-row>
+            <ion-col class="ion-flex ion-margin-auto">
+              <ion-input #input1 id="input1" class="ion-text-center" type="text" inputmode="text" enterkeyhint="next" clearOnEdit="true" [maxlength]="1" [(ngModel)]="activationCode[0]" (ionChange)="uppercase($event); setFocus(input1, input2)" (keydown)="handleKeydown($event, null, input1)"></ion-input>
+            </ion-col>
+            <ion-col class="ion-flex ion-margin-auto">
+              <ion-input #input2 id="input2" class="ion-text-center" type="text" inputmode="text" enterkeyhint="next" clearOnEdit="true" [maxlength]="1" [(ngModel)]="activationCode[1]" (ionChange)="uppercase($event); setFocus(input2, input3)" (keydown)="handleKeydown($event, input1, input2)"></ion-input>
+            </ion-col>
+            <ion-col class="ion-flex ion-margin-auto">
+              <ion-input #input3 id="input3" class="ion-text-center" type="text" inputmode="text" enterkeyhint="next" clearOnEdit="true" [maxlength]="1" [(ngModel)]="activationCode[2]" (ionChange)="uppercase($event); setFocus(input3, input4)" (keydown)="handleKeydown($event, input2, input3)"></ion-input>
+            </ion-col>
+            <ion-col class="ion-flex ion-margin-auto">
+              <ion-input #input4 id="input4" class="ion-text-center" type="text" inputmode="text" enterkeyhint="next" clearOnEdit="true" [maxlength]="1" [(ngModel)]="activationCode[3]" (ionChange)="uppercase($event); setFocus(input4, input5)" (keydown)="handleKeydown($event, input3, input4)"></ion-input>
+            </ion-col>
+            <ion-col class="ion-flex ion-margin-auto">
+              <ion-input #input5 id="input5" class="ion-text-center" type="text" inputmode="text" enterkeyhint="next" clearOnEdit="true" [maxlength]="1" [(ngModel)]="activationCode[4]" (ionChange)="uppercase($event); setFocus(input5, input6)" (keydown)="handleKeydown($event, input4, input5)"></ion-input>
+            </ion-col>
+            <ion-col class="ion-flex ion-margin-auto">
+              <ion-input #input6 id="input6" class="ion-text-center" type="text" inputmode="text" enterkeyhint="next" clearOnEdit="true" [maxlength]="1" [(ngModel)]="activationCode[5]" (ionChange)="uppercase($event);" (keydown)="handleKeydown($event, input5, input6)"></ion-input>
+            </ion-col>
+          </ion-row>
+          <ion-row class="mt-3" *ngIf="configService.sys_parameter && configService.sys_parameter.length > 0">
+            <ion-col class="ion-flex ion-margin-auto justify-content-center">
+              <ion-text color="medium" (click)="backToLogin()">
+                <small>back to login?</small>
+              </ion-text>
+            </ion-col>
+          </ion-row>
+        </ion-grid>
+      </div>
+    </ng-template>
+  </swiper>
+</ion-content>
+
+<ion-footer class="ion-padding-bottom-large animate__animated animate__fadeInUp p-0">
+  <ion-button class="ion-margin" expand="block" (click)="nextSlide()" *ngIf="!last_slide">
+    Next
+  </ion-button>
+  <ion-button class="ion-margin" expand="block" (click)="getStarted()" *ngIf="last_slide">
+    Activate now
+  </ion-button>
+</ion-footer>

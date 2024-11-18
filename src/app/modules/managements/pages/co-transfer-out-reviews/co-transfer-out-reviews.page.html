@@ -1,0 +1,21 @@
+<ion-header>
+  <ion-toolbar>
+    <ion-title>
+      <div class="ion-text-wrap">CO Transfer Out Reviews
+      </div>
+    </ion-title>
+    <ion-buttons slot="start">
+      <ion-back-button text="" defaultHref="/managements"></ion-back-button>
+    </ion-buttons>
+    <ion-buttons slot="primary">
+      <ion-button (click)="filter()">
+        <ion-icon slot="icon-only" name="filter"></ion-icon>
+      </ion-button>
+    </ion-buttons>
+  </ion-toolbar>
+</ion-header>
+<ion-content fullscreen>
+  <app-transaction-processing [pendingObjects]="pendingObjects" [completedObjects]="completedObjects"
+    (onObjectUpdated)="onObjectUpdated($event)" parentType="transfer-out"
+    processType="REVIEWS"></app-transaction-processing>
+</ion-content>

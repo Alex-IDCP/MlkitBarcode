@@ -1,0 +1,190 @@
+<ion-header [hidden]="scanActive">
+   <ion-toolbar>
+      <ion-title>
+         <div class="ion-text-wrap" *ngIf="objectService.objectHeader?.palletAssemblyId; else default">
+            {{objectService.objectHeader?.palletAssemblyNum}}
+         </div>
+         <ng-template #default>
+            <div class="ion-text-wrap">
+               Line
+            </div>
+         </ng-template>
+      </ion-title>
+      <ion-buttons slot="start">
+         <ion-button (click)="previousStep()"><ion-icon slot="start" name="chevron-back-outline"></ion-icon></ion-button>
+      </ion-buttons>
+      <ion-buttons slot="end">
+         <ion-button (click)="showPopover($event)"><ion-icon slot="icon-only" name="menu-outline"></ion-icon></ion-button>
+      </ion-buttons>
+   </ion-toolbar>
+</ion-header>
+
+<ion-popover #popover [isOpen]="isPopoverOpen" (didDismiss)="isPopoverOpen = false">
+   <ng-template>
+      <ion-content class="p-2">
+         <ion-list class="list-custom animate__animated animate__fadeIn" lines="full">
+            <ion-item (click)="popover.dismiss(); showPalletInfo = !showPalletInfo">
+               <ion-icon slot="end" name="{{showPalletInfo?'eye-off-outline':'eye-outline'}}"></ion-icon>
+               <ion-label>
+                  <div>{{showPalletInfo?"Hide Pallet Info":"Show Pallet Info"}}</div>
+               </ion-label>
+            </ion-item>
+            <ion-item (click)="popover.dismiss(); addPallet()">
+               <ion-icon slot="end" name="add-circle-outline" color="success"></ion-icon>
+               <ion-label>
+                  <div>Add Pallet</div>
+               </ion-label>
+            </ion-item>
+            <ion-item (click)="popover.dismiss(); deletePallet()">
+               <ion-icon slot="end" name="close-circle-outline" color="danger"></ion-icon>
+               <ion-label>
+                  <div>Remove Pallet</div>
+               </ion-label>
+            </ion-item>
+            <ion-item (click)="popover.dismiss(); sendForDebug()">
+               <ion-icon slot="end" name="push-outline" color="danger"></ion-icon>
+               <ion-label>
+                  <div>Debug</div>
+               </ion-label>
+            </ion-item>
+         </ion-list>
+      </ion-content>
+   </ng-template>
+</ion-popover>
+
+<ion-content [fullscreen]="true" [hidden]="scanActive">
+   <div class="p-2">
+      <ion-segment class="mb-2" [scrollable]="true" [(ngModel)]="selectedPalletNum" *ngIf="objectService.objectDetail && objectService.objectDetail.length > 0" (ionChange)="onPalletNumChanged($event)">
+         <ion-segment-button *ngFor="let pallet of objectService.objectDetail" [value]="pallet.palletNum" (click)="onPalletNumClicked(pallet.palletNum)">
+            <ion-label>Pallet {{pallet.palletNum}}</ion-label>
+         </ion-segment-button>
+      </ion-segment>
+      <ion-list class="list-custom animate__animated animate__fadeIn" lines="full" *ngIf="palletToShow && showPalletInfo">
+         <app-search-dropdown title="Location Bin" [searchDropdownList]="binSearchList" [optionValue]="'code'" [selectedCode]="palletToShow.binCode" (onActionComplete)="onLocationBinSelected($event)"></app-search-dropdown>
+         <ion-item>
+            <ion-label position="stacked">Pallet Code</ion-label>
+            <ion-input [(ngModel)]="palletToShow.palletCode" [disabled]="true" placeholder="System Generated"></ion-input>
+         </ion-item>
+         <ion-item>
+            <ion-label position="stacked">Description</ion-label>
+            <ion-input [(ngModel)]="palletToShow.description" placeholder="Description"></ion-input>
+         </ion-item>
+         <ion-item>
+            <ion-label position="stacked">Reference</ion-label>
+            <ion-input [(ngModel)]="palletToShow.referenceNum" placeholder="Reference"></ion-input>
+         </ion-item>
+         <ion-item>
+            <ion-label position="stacked">Dimension (H x W x L)</ion-label>
+            <ion-grid class="ion-no-padding">
+               <ion-row>
+                  <ion-col class="ion-flex my-auto justify-content-between">
+                     <div class="font-bold my-auto">H</div>
+                     <ion-input class="ion-text-center" [(ngModel)]="palletToShow.palletHeight" inputmode="decimal" placeholder="Height"></ion-input>
+                  </ion-col>
+                  <ion-col class="ion-flex my-auto justify-content-between">
+                     <div class="font-bold my-auto">W</div>
+                     <ion-input class="ion-text-center" [(ngModel)]="palletToShow.palletWidth" inputmode="decimal" placeholder="Width"></ion-input>
+                  </ion-col>
+                  <ion-col class="ion-flex my-auto justify-content-between">
+                     <div class="font-bold my-auto">L</div>
+                     <ion-input class="ion-text-center" [(ngModel)]="palletToShow.palletLength" inputmode="decimal" placeholder="Length"></ion-input>
+                  </ion-col>
+               </ion-row>
+            </ion-grid>
+         </ion-item>
+         <ion-item>
+            <ion-label position="stacked">Weight</ion-label>
+            <ion-input [(ngModel)]="palletToShow.palletWeight" inputmode="decimal" placeholder="Weight"></ion-input>
+         </ion-item>
+      </ion-list>
+      <app-barcode-scan-input #barcodescaninput (onItemAdd)="onItemAdd($event)" (onCameraStatusChanged)="onCameraStatusChanged($event)" (onDoneScanning)="onDoneScanning($event)" [itemVariationXMasterList]="objectService.itemVariationXMasterList" [itemVariationYMasterList]="objectService.itemVariationYMasterList" [itemUomMasterList]="objectService.itemUomMasterList"></app-barcode-scan-input>
+      <ng-container *ngIf="palletToShow?.palletItemList && palletToShow?.palletItemList?.length > 0">
+         <ion-list class="list-custom animate__animated animate__fadeIn" lines="full">
+            <ion-item button detail="false" class="ion-no-padding no-ripple">
+               <ion-grid class="ion-no-padding py-2 pl-2">
+                  <ion-row>
+                     <ion-col size="1" class="ion-flex my-auto">
+                        <div class="font-bold">#</div>
+                     </ion-col>
+                     <ion-col class="ion-flex my-auto">
+                        <div class="font-bold">Item Info</div>
+                     </ion-col>
+                     <ion-col size="2" class="ion-flex my-auto">
+                        <div class="font-bold">Qty</div>
+                     </ion-col>
+                  </ion-row>
+               </ion-grid>
+            </ion-item>
+         </ion-list>
+         <ion-list class="list-custom animate__animated animate__fadeIn" lines="full">
+            <ion-item-sliding #slidingItem *ngFor="let rowData of palletToShow.palletItemList; let rowIndex = index" (click)="qtyRequest.setFocus()">
+               <ion-item button detail="false" class="ion-no-padding no-ripple">
+                  <ion-grid class="ion-no-padding py-2 pl-2">
+                     <ion-row>
+                        <ion-col size="1" class="ion-flex my-auto">
+                           <div>{{rowIndex+1}}</div>
+                        </ion-col>
+                        <ion-col>
+                           <ion-grid class="ion-no-padding">
+                              <ion-row>
+                                 <ion-col class="ion-flex my-auto">
+                                    <div>{{rowData.itemBarcode}}</div>
+                                 </ion-col>
+                              </ion-row>
+                              <ion-row>
+                                 <ion-col class="ion-flex my-auto">
+                                    <div>{{rowData.itemCode}}</div>
+                                    <!-- <span class="badge-green ion-text-wrap ion-flex my-auto px-1 mx-1" *ngIf="rowData.itemVariationXDescription">{{rowData.itemVariationXDescription}}</span>
+                                    <span class="badge-purple ion-text-wrap ion-flex my-auto px-1" *ngIf="rowData.itemVariationYDescription">{{rowData.itemVariationYDescription}}</span> -->
+                                 </ion-col>
+                              </ion-row>
+                              <ion-row>
+                                 <ion-col class="ion-flex my-auto">
+                                    <div>{{rowData.description}}</div>
+                                 </ion-col>
+                              </ion-row>
+                           </ion-grid>
+                        </ion-col>
+                        <ion-col size="2" class="ion-flex my-auto">
+                           <ion-input #qtyRequest inputmode="decimal" [min]="0" placeholder="0" [(ngModel)]="rowData.qtyRequest" (keypress)="eventHandler($event.keyCode, rowData)"></ion-input>
+                           <!-- <div>{{rowData.qtyRequest|number:"1.0"}}</div> -->
+                        </ion-col>
+                     </ion-row>
+                  </ion-grid>
+               </ion-item>
+               <ion-item-options>
+                  <ion-item-option color="danger" (click)="slidingItem.close(); deletePalletItemList(rowIndex)">
+                     <ion-icon slot="top" name="trash-outline"></ion-icon>Delete
+                  </ion-item-option>
+               </ion-item-options>
+            </ion-item-sliding>
+         </ion-list>
+      </ng-container>
+   </div>
+</ion-content>
+<ion-footer class="ion-padding-bottom-large animate__animated animate__fadeInUp p-0" style="background-color: white;" [hidden]="scanActive">
+
+   <ion-grid class="ion-no-padding">
+      <ion-row>
+         <!-- <ion-col>
+        <ion-button class="ion-margin" expand="block" size="default" color="warning" (click)="submit_attempt = true; nextStepLocal()" [disabled]="submit_attempt">
+          Save Local
+          <ion-icon slot="end" name="cloud-offline-outline"></ion-icon>
+        </ion-button>
+      </ion-col> -->
+         <ion-col>
+            <ion-button class="ion-margin" expand="block" size="default" color="success" (click)="submit_attempt = true; nextStep()" [disabled]="submit_attempt">
+               Save
+               <ion-icon slot="end" name="cloud-done-outline"></ion-icon>
+            </ion-button>
+         </ion-col>
+      </ion-row>
+   </ion-grid>
+</ion-footer>
+
+<ion-row class="scanner-buttons" [hidden]="!scanActive">
+   <ion-col class="ion-no-padding">
+      <ion-button expand="full" (click)="stopScanner()">Stop</ion-button>
+   </ion-col>
+</ion-row>
+<div class="scan-box" [hidden]="!scanActive"></div>

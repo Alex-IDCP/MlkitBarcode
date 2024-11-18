@@ -1,0 +1,143 @@
+<ion-header>
+   <ion-toolbar>
+      <ion-title>
+         <div class="ion-text-wrap">
+            {{objectService.objectHeader?.binCountNum}}
+         </div>
+      </ion-title>
+      <ion-buttons slot="start">
+         <ion-back-button text="" defaultHref="/transactions/bin-count" routerDirection="back"></ion-back-button>
+      </ion-buttons>
+      <ion-buttons slot="primary">
+         <ion-button (click)="edit()">
+            <ion-icon slot="icon-only" name="create-outline"></ion-icon>
+         </ion-button>
+      </ion-buttons>
+   </ion-toolbar>
+</ion-header>
+<ion-content [fullscreen]="true">
+   <div class="p-2">
+      <ion-list class="list-custom animate__animated animate__fadeIn" lines="full" *ngIf="objectService.objectHeader">
+         <ion-item button detail="false" class="ion-no-padding no-ripple">
+            <ion-grid class="ion-no-padding py-2 pl-2">
+               <ion-row>
+                  <ion-col class="ion-flex ion-margin-auto">
+                     <div class="font-bold">Doc. Num.</div>
+                  </ion-col>
+                  <ion-col class="ion-flex ion-margin-auto justify-content-end">
+                     <div>{{objectService.objectHeader?.binCountNum}}</div>
+                  </ion-col>
+               </ion-row>
+               <ion-row>
+                  <ion-col class="ion-flex ion-margin-auto">
+                     <div class="font-bold">Doc. Date</div>
+                  </ion-col>
+                  <ion-col class="ion-flex ion-margin-auto justify-content-end">
+                     <div>{{objectService.objectHeader?.trxDate|date:"dd/MM/yyyy"}}</div>
+                  </ion-col>
+               </ion-row>
+               <ion-row>
+                  <ion-col class="ion-flex ion-margin-auto">
+                     <div class="font-bold">Location</div>
+                  </ion-col>
+                  <ion-col class="ion-flex ion-margin-auto justify-content-end">
+                     <div>{{objectService.objectHeader?.locationId|idMapping:objectService.locationMasterList}}</div>
+                  </ion-col>
+               </ion-row>
+               <ion-row *ngIf="objectService.objectHeader?.sectionCode">
+                  <ion-col class="ion-flex ion-margin-auto">
+                     <div class="font-bold">Section</div>
+                  </ion-col>
+                  <ion-col class="ion-flex ion-margin-auto justify-content-end">
+                     <div>{{objectService.objectHeader?.sectionCode}}</div>
+                  </ion-col>
+               </ion-row>
+               <ion-row *ngIf="objectService.objectHeader?.rackCode">
+                  <ion-col class="ion-flex ion-margin-auto">
+                     <div class="font-bold">Rack</div>
+                  </ion-col>
+                  <ion-col class="ion-flex ion-margin-auto justify-content-end">
+                     <div>{{objectService.objectHeader?.rackCode}}</div>
+                  </ion-col>
+               </ion-row>
+               <ion-row *ngIf="objectService.objectHeader?.levelCode">
+                  <ion-col class="ion-flex ion-margin-auto">
+                     <div class="font-bold">Level</div>
+                  </ion-col>
+                  <ion-col class="ion-flex ion-margin-auto justify-content-end">
+                     <div>{{objectService.objectHeader?.levelCode}}</div>
+                  </ion-col>
+               </ion-row>
+               <ion-row>
+                  <ion-col class="ion-flex ion-margin-auto">
+                     <div class="font-bold">Total Quantity</div>
+                  </ion-col>
+                  <ion-col class="ion-flex ion-margin-auto justify-content-end">
+                     <div>{{objectService.objectDetail|sum:"qtyRequest"|number}}</div>
+                  </ion-col>
+               </ion-row>
+               <ion-row>
+                  <ion-col class="ion-flex ion-margin-auto">
+                     <div class="font-bold">Created By</div>
+                  </ion-col>
+                  <ion-col class="ion-flex ion-margin-auto justify-content-end">
+                     <div>{{objectService.objectHeader?.createdBy}} {{objectService.objectHeader?.createdAt|date:"dd/MM/yy hh:mm a"}}</div>
+                  </ion-col>
+               </ion-row>
+            </ion-grid>
+         </ion-item>
+      </ion-list>
+      <ion-list-header class="ion-list-header-small ion-flex ion-text-center">
+         <ion-label>Details</ion-label>
+      </ion-list-header>
+      <ion-list class="list-custom animate__animated animate__fadeIn" lines="full">
+         <ion-item button detail="false" class="ion-no-padding no-ripple">
+            <ion-grid class="ion-no-padding py-2 pl-2">
+               <ion-row>
+                  <ion-col size="1" class="ion-flex ion-margin-auto">
+                     <div class="font-bold">#</div>
+                  </ion-col>
+                  <ion-col class="ion-flex ion-margin-auto">
+                     <div class="font-bold">Bin Code</div>
+                  </ion-col>
+                  <ion-col class="ion-flex justify-content-center">
+                     <div class="font-bold">Qty</div>
+                  </ion-col>
+               </ion-row>
+            </ion-grid>
+         </ion-item>
+      </ion-list>
+      <ion-list class="list-custom animate__animated animate__fadeIn" lines="full">
+         <ion-item-sliding #slidingItem *ngFor="let rowData of objectService.flatDetail; let rowIndex = index">
+            <ion-item button detail="false" class="no-ripple ion-no-padding">
+               <ion-grid class="ion-no-padding pt-2 pl-2">
+                  <ion-row>
+                     <ion-col size="1" class="ion-flex ion-margin-auto">
+                        <div>{{rowData.sequence}}</div>
+                     </ion-col>
+                     <ion-col class="ion-flex ion-margin-auto">
+                        <div>{{rowData.binCode}}</div>
+                     </ion-col>
+                     <ion-col class="ion-flex justify-content-center">
+                        <div>{{rowData.detail|sum:"qtyRequest"}}</div>
+                     </ion-col>
+                  </ion-row>
+                  <ion-row *ngFor="let rowData2 of rowData.detail; let rowIndex2 = index">
+                     <ion-col size="1" class="ion-flex ion-margin-auto">
+   
+                     </ion-col>
+                     <ion-col class="ion-flex ion-margin-auto">
+                        <div>{{rowData2.itemCode}}</div>
+                        <span class="badge-green ion-text-wrap ion-flex my-auto px-1 mx-1" *ngIf="rowData2.itemVariationXId"> {{rowData2.itemVariationXId|idMapping:objectService.itemVariationXMasterList}}</span>
+                        <span class="badge-purple ion-text-wrap ion-flex my-auto px-1" *ngIf="rowData2.itemVariationYId"> {{rowData2.itemVariationYId|idMapping:objectService.itemVariationYMasterList}}</span>
+                     </ion-col>
+                     <ion-col class="ion-flex justify-content-center">
+                        <div>{{rowData2.qtyRequest|number:"1.0"}}</div>
+                     </ion-col>
+                  </ion-row>
+               </ion-grid>
+            </ion-item>
+         </ion-item-sliding>
+      </ion-list>  
+   </div>
+</ion-content>

@@ -1,0 +1,11 @@
+<ion-item (click)="toggleDate()">
+  <ion-label position="stacked" class="font-bold"> {{title}}</ion-label>
+  <ion-input readonly type="text" [placeholder]="title" class="ion-no-padding-end" (click)="toggleDate()" [disabled]="disabled" [(ngModel)]="date_display"></ion-input>
+</ion-item>
+
+<ion-datetime #ionDateTime class="animate__animated animate__fadeIn pb-2" *ngIf="date_active" color="primary" locale="en-EN" size="cover" [presentation]="presentation" (ionChange)="onDateSelect($event)" [value]="date_value_here.toISOString()" [max]="maxDateToday?today.toISOString():undefined" [preferWheel]="true">
+  <ion-buttons slot="buttons">
+    <ion-button color="danger" (click)="ionDateTime.cancel(); date_active=false">Cancel</ion-button>
+    <ion-button color="primary" (click)="ionDateTime.confirm()">Done</ion-button>
+  </ion-buttons>
+</ion-datetime>

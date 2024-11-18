@@ -1,0 +1,163 @@
+<ion-searchbar #searchbar class="p-0" showCancelButton="never" showClearButton="focus" animated="true" placeholder="Search for Item" enterkeyhint="search" [(ngModel)]="itemSearchText" (ionFocus)="highlight(searchbar)" (keydown)="onKeyDown($event)"></ion-searchbar>
+
+<div class="main-card">
+  <ion-grid class="ion-no-padding" *ngIf="availableItems.length > 0">
+    <ion-row *ngIf="showImage">
+      <ion-col size="6" *ngFor="let item of availableItems">
+        <ion-card class="m-1">
+          <ion-img style="height: 120px" [src]="matchImage(item.itemId)"></ion-img>
+          <ion-grid class="m-2">
+            <ion-row>
+              <ion-col class="ion-flex ion-margin-auto">
+                <div class="font-bold">{{item.itemCode}}</div>
+                <div class="ml-1" *ngIf="item?.oldItemCode"> | {{item?.oldItemCode}}</div>
+              </ion-col>
+            </ion-row>
+            <ion-row class="pb-1">
+              <ion-col>
+                <div>{{item.description}}</div>
+              </ion-col>
+            </ion-row>
+            <ion-row *ngIf="item.variationTypeCode === '0'">
+              <ion-col class="ion-flex ion-margin-auto justify-content-center">
+                <ion-button class="ion-button-custom" fill="clear" color="primary" size="small"(click)="decreaseQty(item)">
+                  <ion-icon slot="icon-only" name="remove-circle"></ion-icon>
+                </ion-button>
+              </ion-col>
+              <ion-col>
+                <ion-input #input class="ion-text-center" type="number" [(ngModel)]="item.qtyRequest" placeholder="0"></ion-input>
+              </ion-col>
+              <ion-col class="ion-flex ion-margin-auto justify-content-center">
+                <ion-button class="ion-button-custom" fill="clear" color="primary" size="small" (click)="increaseQty(item)">
+                  <ion-icon slot="icon-only" name="add-circle"></ion-icon>
+                </ion-button>
+              </ion-col>
+            </ion-row>
+            <ion-row *ngIf="item.variationTypeCode === '1' || item.variationTypeCode === '2'">
+              <ion-col class="ion-flex ion-margin-auto justify-content-end">
+                <ion-button expand="block" size="small" style="width: 100%" (click)="showModal(item)">Variation</ion-button>
+              </ion-col>
+            </ion-row>
+            <ion-row *ngIf="item.qtyRequest > 0">
+              <ion-col>
+                <ion-button expand="block" size="small" style="width: 100%;" (click)="addToCart(item)">Add to Cart</ion-button>
+              </ion-col>
+            </ion-row>
+          </ion-grid>
+        </ion-card>
+      </ion-col>
+    </ion-row>
+
+    <ion-row *ngIf="!showImage">
+      <ion-col size="12" class="py-0" *ngFor="let item of availableItems">        
+        <ion-card class="m-1">
+          <ion-grid class="ion-no-padding p-2">
+            <ion-row *ngIf="item.variationTypeCode === '0'">
+              <ion-col size="8" class="ion-flex ion-margin-auto">
+                <div class="font-bold">{{item.itemCode}}</div>
+                <div class="ml-1" *ngIf="item?.oldItemCode"> | {{item?.oldItemCode}}</div>
+              </ion-col>
+              <ion-col size="1" class="ion-flex ion-margin-auto justify-content-center">
+                <ion-button class="ion-button-custom" fill="clear" color="primary" size="small" (click)="decreaseQty(item)">
+                  <ion-icon slot="icon-only" name="remove-circle"></ion-icon>
+                </ion-button>
+              </ion-col>
+              <ion-col size="2">
+                <ion-input #input class="ion-text-center" type="number" [(ngModel)]="item.qtyRequest" placeholder="0"></ion-input>
+              </ion-col>
+              <ion-col size="1" class="ion-flex ion-margin-auto justify-content-center">
+                <ion-button class="ion-button-custom" fill="clear" color="primary" size="small"(click)="increaseQty(item)">
+                  <ion-icon slot="icon-only" name="add-circle"></ion-icon>
+                </ion-button>
+              </ion-col>
+            </ion-row>
+            <ion-row *ngIf="item.variationTypeCode === '1' || item.variationTypeCode === '2'">
+              <ion-col size="8" class="ion-flex ion-margin-auto">
+                <div class="font-bold">{{item.itemCode}}</div>
+                <div class="ml-1" *ngIf="item?.oldItemCode"> | {{item?.oldItemCode}}</div>
+              </ion-col>
+              <ion-col size="4" class="ion-flex ion-margin-auto justify-content-end">
+                <ion-button expand="block" size="small" style="width: 100%" (click)="showModal(item)">Variation</ion-button>
+              </ion-col>
+            </ion-row>
+            <ion-row class="pb-1">
+              <ion-col>{{item.description}}</ion-col>
+            </ion-row>
+            <ion-row *ngIf="item.qtyRequest > 0">
+              <ion-col>
+                <ion-button expand="block" size="small" style="width: 100%;" (click)="addToCart(item)">Add to Cart</ion-button>
+              </ion-col>
+            </ion-row>
+          </ion-grid>
+        </ion-card>
+      </ion-col>
+    </ion-row>
+
+  </ion-grid>
+</div>    
+
+<ion-modal [isOpen]="isModalOpen" (didDismiss)="isModalOpen = false">
+  <ng-template>
+    <ion-header>
+      <ion-toolbar>
+        <ion-title>Variations</ion-title>
+        <ion-buttons slot="start">
+          <ion-button (click)="hideModal()">Cancel</ion-button>
+        </ion-buttons>
+      </ion-toolbar>
+    </ion-header>
+    <ion-content>
+      <ion-item button detail="false" class="no-ripple" *ngIf="selectedItem">
+        <ion-grid class="p-0">
+          <ion-row>
+            <ion-col class="ion-flex ion-margin-auto">
+              <div>{{selectedItem.itemCode}} - {{selectedItem.description}}</div>
+            </ion-col>
+          </ion-row>
+          <div *ngFor="let vd of selectedItem.variationDetails">
+            <div *ngFor="let d of vd.details">
+              <ion-row class="py-0">
+                <ion-col size="8" class="ion-flex ion-margin-auto">
+                  <ion-grid class="ion-no-padding">
+                    <ion-row>
+                      <ion-col class="ion-flex ion-margin-auto">
+                        <div class="ion-flex">
+                          <span class="badge-green ion-text-wrap ion-flex my-auto px-1 mx-1" *ngIf="vd.itemVariationXId"> {{vd.itemVariationXId|idMapping:itemVariationXMasterList}}</span>
+                          <span class="badge-purple ion-text-wrap ion-flex my-auto px-1" *ngIf="d.itemVariationYId"> {{d.itemVariationYId|idMapping:itemVariationYMasterList}}</span>
+                        </div>
+                      </ion-col>
+                    </ion-row>
+                  </ion-grid>
+                </ion-col>
+                <ion-col size="4" class="ion-margin-auto p-0">
+                  <ion-grid class="ion-no-padding">
+                    <ion-row>
+                      <ion-col class="ion-flex ion-margin-auto justify-content-center">
+                        <ion-button class="ion-button-custom" fill="clear" color="primary" size="small" (click)="decreaseVariationQty(d)">
+                          <ion-icon slot="icon-only" name="remove-circle"></ion-icon>
+                        </ion-button>
+                      </ion-col>
+                      <ion-col class="ion-flex ion-margin-auto justify-content-center">
+                        <ion-input #input class="ion-text-center" type="number" [min]="0" [(ngModel)]="d.qtyRequest" placeholder="0"></ion-input>
+                      </ion-col>
+                      <ion-col class="ion-flex ion-margin-auto justify-content-center">
+                        <ion-button class="ion-button-custom" fill="clear" color="primary" size="small" (click)="increaseVariationQty(d)">
+                          <ion-icon slot="icon-only" name="add-circle"></ion-icon>
+                        </ion-button>
+                      </ion-col>
+                    </ion-row>
+                  </ion-grid>
+                </ion-col>
+              </ion-row>
+            </div>
+          </div>
+        </ion-grid>
+      </ion-item>
+    </ion-content>
+    <ion-footer class="ion-padding-bottom-large animate__animated animate__fadeInUp p-0" style="background-color: white;">
+      <ion-button class="ion-margin" expand="block" (click)="addVariationToCart()">
+        Add to Cart
+      </ion-button>
+    </ion-footer>
+  </ng-template>
+</ion-modal>

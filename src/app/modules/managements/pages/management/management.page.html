@@ -1,0 +1,431 @@
+<ion-header>
+   <ion-toolbar>
+      <ion-title>Management</ion-title>
+   </ion-toolbar>
+</ion-header>
+<ion-content [fullscreen]="true">
+   <div class="p-2">
+
+      <ng-container *ngIf="showQuotationReview || showQuotationApproval">
+         <ion-list-header class="ion-list-header-small ion-flex ion-text-center">
+            <ion-label>Quotation</ion-label>
+         </ion-list-header>
+         <ion-list class="list-custom animate__animated animate__fadeIn" lines="full">
+            <ion-item button routerLink="quotation-reviews" *ngIf="showQuotationReview">
+               <ion-icon name="list-outline" slot="start"></ion-icon>
+               <ion-label>
+                  <h3>Reviews</h3>
+               </ion-label>
+            </ion-item>
+            <ion-item button routerLink="quotation-approvals" *ngIf="showQuotationApproval">
+               <ion-icon name="checkmark-done-outline" slot="start"></ion-icon>
+               <ion-label>
+                  <h3>Approvals</h3>
+               </ion-label>
+            </ion-item>
+         </ion-list>
+      </ng-container>
+
+      <ng-container *ngIf="showSalesOrderReview || showSalesOrderApproval || showSalesOrderPricingApproval || showSoCreditApproval || showSoCodReview || showSoCodApproval || showMxqApproval">
+         <ion-list-header class="ion-list-header-small ion-flex ion-text-center">
+            <ion-label>Sales Order</ion-label>
+         </ion-list-header>
+         <ion-list class="list-custom animate__animated animate__fadeIn" lines="full">
+            <ion-item button routerLink="sales-order-reviews" *ngIf="showSalesOrderReview">
+               <ion-icon name="list-outline" slot="start"></ion-icon>
+               <ion-label>
+                  <h3>Reviews</h3>
+               </ion-label>
+            </ion-item>
+            <ion-item button routerLink="sales-order-approvals" *ngIf="showSalesOrderApproval">
+               <ion-icon name="checkmark-done-outline" slot="start"></ion-icon>
+               <ion-label>
+                  <h3>Approvals</h3>
+               </ion-label>
+            </ion-item>
+            <ion-item button routerLink="pricing-approvals" *ngIf="showSalesOrderPricingApproval">
+               <ion-icon name="checkmark-done-outline" slot="start"></ion-icon>
+               <ion-label>
+                  <h3>Pricing Approvals</h3>
+               </ion-label>
+            </ion-item>
+            <ion-item button routerLink="so-credit-approvals" *ngIf="showSoCreditApproval">
+               <ion-icon name="checkmark-done-outline" slot="start"></ion-icon>
+               <ion-label>
+                  <h3>Credit Approvals</h3>
+               </ion-label>
+            </ion-item>
+            <ion-item button routerLink="so-cod-reviews" *ngIf="showSoCodReview">
+               <ion-icon name="list-outline" slot="start"></ion-icon>
+               <ion-label>
+                  <h3>COD Reviews</h3>
+               </ion-label>
+            </ion-item>
+            <ion-item button routerLink="so-cod-approvals" *ngIf="showSoCodApproval">
+               <ion-icon name="checkmark-done-outline" slot="start"></ion-icon>
+               <ion-label>
+                  <h3>COD Approvals</h3>
+               </ion-label>
+            </ion-item>
+            <ion-item button routerLink="somxq-approvals" *ngIf="showMxqApproval">
+               <ion-icon name="checkmark-done-outline" slot="start"></ion-icon>
+               <ion-label>
+                  <h3>Max Qty Approvals</h3>
+               </ion-label>
+            </ion-item>
+         </ion-list>
+      </ng-container>
+
+      <ng-container *ngIf="showBackToBackOrderReview || showBackToBackOrderApproval || showBackToBackOrderPricingApproval || showB2bCreditApproval || showB2bCodReview ||  showB2bCodApproval">
+         <ion-list-header class="ion-list-header-small ion-flex ion-text-center">
+            <ion-label>Back To Back Order</ion-label>
+         </ion-list-header>
+         <ion-list class="list-custom animate__animated animate__fadeIn" lines="full">
+            <ion-item button routerLink="b2bo-reviews" *ngIf="showBackToBackOrderReview">
+               <ion-icon name="list-outline" slot="start"></ion-icon>
+               <ion-label>
+                  <h3>Reviews</h3>
+               </ion-label>
+            </ion-item>
+            <ion-item button routerLink="b2bo-approvals" *ngIf="showBackToBackOrderApproval">
+               <ion-icon name="checkmark-done-outline" slot="start"></ion-icon>
+               <ion-label>
+                  <h3>Approvals</h3>
+               </ion-label>
+            </ion-item>
+            <ion-item button routerLink="b2bopricing-approvals" *ngIf="showBackToBackOrderPricingApproval">
+               <ion-icon name="checkmark-done-outline" slot="start"></ion-icon>
+               <ion-label>
+                  <h3>Pricing Approvals</h3>
+               </ion-label>
+            </ion-item>
+            <ion-item button routerLink="b2b-credit-approvals" *ngIf="showB2bCreditApproval">
+               <ion-icon name="checkmark-done-outline" slot="start"></ion-icon>
+               <ion-label>
+                  <h3>Credit Approvals</h3>
+               </ion-label>
+            </ion-item>
+            <ion-item button routerLink="b2b-cod-reviews" *ngIf="showB2bCodReview">
+               <ion-icon name="list-outline" slot="start"></ion-icon>
+               <ion-label>
+                  <h3>COD Reviews</h3>
+               </ion-label>
+            </ion-item>
+            <ion-item button routerLink="b2b-cod-approvals" *ngIf="showB2bCodApproval">
+               <ion-icon name="checkmark-done-outline" slot="start"></ion-icon>
+               <ion-label>
+                  <h3>COD Approvals</h3>
+               </ion-label>
+            </ion-item>
+         </ion-list>
+      </ng-container>
+
+      <ng-container *ngIf="showDefectReqApproval || showDefectReqReview">
+         <ion-list-header class="ion-list-header-small ion-flex ion-text-center">
+            <ion-label>Defect Request</ion-label>
+         </ion-list-header>
+         <ion-list class="list-custom animate__animated animate__fadeIn" lines="full">
+            <ion-item button routerLink="defect-request-reviews" *ngIf="showDefectReqApproval">
+               <ion-icon name="list-outline" slot="start"></ion-icon>
+               <ion-label>
+                  <h3>Reviews</h3>
+               </ion-label>
+            </ion-item>
+            <ion-item button routerLink="defect-request-approvals" *ngIf="showDefectReqReview">
+               <ion-icon name="checkmark-done-outline" slot="start"></ion-icon>
+               <ion-label>
+                  <h3>Approvals</h3>
+               </ion-label>
+            </ion-item>
+         </ion-list>
+      </ng-container>
+
+      <ng-container *ngIf="showPurchaseReqReview || showPurchaseReqApproval">
+         <ion-list-header class="ion-list-header-small ion-flex ion-text-center">
+            <ion-label>Purchase Req</ion-label>
+         </ion-list-header>
+         <ion-list class="list-custom animate__animated animate__fadeIn" lines="full">
+            <ion-item button routerLink="purchase-req-reviews" *ngIf="showPurchaseReqReview">
+               <ion-icon name="list-outline" slot="start"></ion-icon>
+               <ion-label>
+                  <h3>Reviews</h3>
+               </ion-label>
+            </ion-item>
+            <ion-item button routerLink="purchase-req-approvals" *ngIf="showPurchaseReqApproval">
+               <ion-icon name="checkmark-done-outline" slot="start"></ion-icon>
+               <ion-label>
+                  <h3>Approvals</h3>
+               </ion-label>
+            </ion-item>
+         </ion-list>
+      </ng-container>
+
+      <ng-container *ngIf="showPurchaseOrderReview || showPurchaseOrderApproval">
+         <ion-list-header class="ion-list-header-small ion-flex ion-text-center">
+            <ion-label>Purchase Order</ion-label>
+         </ion-list-header>
+         <ion-list class="list-custom animate__animated animate__fadeIn" lines="full">
+            <ion-item button routerLink="purchase-order-reviews" *ngIf="showPurchaseOrderReview">
+               <ion-icon name="list-outline" slot="start"></ion-icon>
+               <ion-label>
+                  <h3>Reviews</h3>
+               </ion-label>
+            </ion-item>
+            <ion-item button routerLink="purchase-order-approvals" *ngIf="showPurchaseOrderApproval">
+               <ion-icon name="checkmark-done-outline" slot="start"></ion-icon>
+               <ion-label>
+                  <h3>Approvals</h3>
+               </ion-label>
+            </ion-item>
+         </ion-list>
+      </ng-container>
+
+      <ng-container *ngIf="showNonTradePurchaseReqReview || showNonTradePurchaseReqApproval">
+         <ion-list-header class="ion-list-header-small ion-flex ion-text-center">
+            <ion-label>Non Trade Purchase Req</ion-label>
+         </ion-list-header>
+         <ion-list class="list-custom animate__animated animate__fadeIn" lines="full">
+            <ion-item button routerLink="non-trade-purchase-req-reviews" *ngIf="showNonTradePurchaseReqReview">
+               <ion-icon name="list-outline" slot="start"></ion-icon>
+               <ion-label>
+                  <h3>Reviews</h3>
+               </ion-label>
+            </ion-item>
+            <ion-item button routerLink="non-trade-purchase-req-approvals" *ngIf="showNonTradePurchaseReqApproval">
+               <ion-icon name="checkmark-done-outline" slot="start"></ion-icon>
+               <ion-label>
+                  <h3>Approvals</h3>
+               </ion-label>
+            </ion-item>
+         </ion-list>
+      </ng-container>
+
+      <ng-container *ngIf="showNonTradePurchaseOrderReview || showNonTradePurchaseOrderApproval">
+         <ion-list-header class="ion-list-header-small ion-flex ion-text-center">
+            <ion-label>Non Trade Purchase Order</ion-label>
+         </ion-list-header>
+         <ion-list class="list-custom animate__animated animate__fadeIn" lines="full">
+            <ion-item button routerLink="non-trade-purchase-order-reviews" *ngIf="showNonTradePurchaseOrderReview">
+               <ion-icon name="list-outline" slot="start"></ion-icon>
+               <ion-label>
+                  <h3>Reviews</h3>
+               </ion-label>
+            </ion-item>
+            <ion-item button routerLink="non-trade-purchase-order-approvals" *ngIf="showNonTradePurchaseOrderApproval">
+               <ion-icon name="checkmark-done-outline" slot="start"></ion-icon>
+               <ion-label>
+                  <h3>Approvals</h3>
+               </ion-label>
+            </ion-item>
+         </ion-list>
+      </ng-container>
+
+      <ng-container *ngIf="showTransferOutApproval || showTransferOutReview || showCoTransferOutApproval || showCoTransferOutReview">
+         <ion-list-header class="ion-list-header-small ion-flex ion-text-center">
+            <ion-label>Transfer Out</ion-label>
+         </ion-list-header>
+         <ion-list class="list-custom animate__animated animate__fadeIn" lines="full">
+            <ion-item button routerLink="retail-transfer-out-reviews" *ngIf="showTransferOutReview">
+               <ion-icon name="list-outline" slot="start"></ion-icon>
+               <ion-label>
+                  <h3>Reviews</h3>
+               </ion-label>
+            </ion-item>
+            <ion-item button routerLink="retail-transfer-out-approvals" *ngIf="showTransferOutApproval">
+               <ion-icon name="checkmark-done-outline" slot="start"></ion-icon>
+               <ion-label>
+                  <h3>Approvals</h3>
+               </ion-label>
+            </ion-item>
+         </ion-list>
+         <ion-list class="list-custom animate__animated animate__fadeIn" lines="full">
+            <ion-item button routerLink="co-transfer-out-reviews" *ngIf="showCoTransferOutReview">
+               <ion-icon name="list-outline" slot="start"></ion-icon>
+               <ion-label>
+                  <h3>CO Reviews</h3>
+               </ion-label>
+            </ion-item>
+            <ion-item button routerLink="co-transfer-out-approvals" *ngIf="showCoTransferOutApproval">
+               <ion-icon name="checkmark-done-outline" slot="start"></ion-icon>
+               <ion-label>
+                  <h3>CO Approvals</h3>
+               </ion-label>
+            </ion-item>
+         </ion-list>
+      </ng-container>
+
+         <ng-container *ngIf="showBranchReceivingReview || showBranchReceivingApproval">
+            <ion-list-header class="ion-list-header-small ion-flex ion-text-center">
+               <ion-label>Branch Receiving</ion-label>
+            </ion-list-header>
+            <ion-list class="list-custom animate__animated animate__fadeIn" lines="full">
+               <ion-item button routerLink="branch-receiving-reviews" *ngIf="showBranchReceivingReview">
+                  <ion-icon name="list-outline" slot="start"></ion-icon>
+                  <ion-label>
+                     <h3>Reviews</h3>
+                  </ion-label>
+               </ion-item>
+               <ion-item button routerLink="branch-receiving-approvals" *ngIf="showBranchReceivingApproval">
+                  <ion-icon name="checkmark-done-outline" slot="start"></ion-icon>
+                  <ion-label>
+                     <h3>Approvals</h3>
+                  </ion-label>
+               </ion-item>
+            </ion-list>
+         </ng-container>
+
+      <ng-container *ngIf="showRefundApproval">
+         <ion-list-header class="ion-list-header-small ion-flex ion-text-center">
+            <ion-label>Refund Approval</ion-label>
+         </ion-list-header>
+         <ion-list class="list-custom animate__animated animate__fadeIn" lines="full">
+            <ion-item button routerLink="refund-approvals">
+               <ion-icon name="checkmark-done-outline" slot="start"></ion-icon>
+               <ion-label>
+                  <h3>Approvals</h3>
+               </ion-label>
+            </ion-item>
+         </ion-list>
+      </ng-container>
+
+      <ng-container *ngIf="showExchangeApproval">
+         <ion-list-header class="ion-list-header-small ion-flex ion-text-center">
+            <ion-label>Exchange Approval</ion-label>
+         </ion-list-header>
+         <ion-list class="list-custom animate__animated animate__fadeIn" lines="full">
+            <ion-item button routerLink="exchange-approvals">
+               <ion-icon name="checkmark-done-outline" slot="start"></ion-icon>
+               <ion-label>
+                  <h3>Approvals</h3>
+               </ion-label>
+            </ion-item>
+         </ion-list>
+      </ng-container>
+
+      <ng-container *ngIf="showRecallDepositApproval">
+         <ion-list-header class="ion-list-header-small ion-flex ion-text-center">
+            <ion-label>Recall Deposit Approval</ion-label>
+         </ion-list-header>
+         <ion-list class="list-custom animate__animated animate__fadeIn" lines="full">
+            <ion-item button routerLink="recall-deposit-approvals">
+               <ion-icon name="checkmark-done-outline" slot="start"></ion-icon>
+               <ion-label>
+                  <h3>Approvals</h3>
+               </ion-label>
+            </ion-item>
+         </ion-list>
+      </ng-container>
+
+      <ng-container *ngIf="showInventoryProcessingReview || showInventoryProcessingApproval">
+         <ion-list-header class="ion-list-header-small ion-flex ion-text-center">
+            <ion-label>Inventory Processing</ion-label>
+         </ion-list-header>
+         <ion-list class="list-custom animate__animated animate__fadeIn" lines="full">
+            <ion-item button routerLink="inventory-processing-reviews" *ngIf="showInventoryProcessingReview">
+               <ion-icon name="list-outline" slot="start"></ion-icon>
+               <ion-label>
+                  <h3>Reviews</h3>
+               </ion-label>
+            </ion-item>
+            <ion-item button routerLink="inventory-processing-approvals" *ngIf="showInventoryProcessingApproval">
+               <ion-icon name="checkmark-done-outline" slot="start"></ion-icon>
+               <ion-label>
+                  <h3>Approvals</h3>
+               </ion-label>
+            </ion-item>
+         </ion-list>
+      </ng-container>
+
+      <ng-container *ngIf="showInventoryAdjReqReview || showInventoryAdjReqApproval">
+         <ion-list-header class="ion-list-header-small ion-flex ion-text-center">
+            <ion-label>Inventory Adjustment Req.</ion-label>
+         </ion-list-header>
+         <ion-list class="list-custom animate__animated animate__fadeIn" lines="full">
+            <ion-item button routerLink="inventory-adj-req-reviews" *ngIf="showInventoryAdjReqReview">
+               <ion-icon name="list-outline" slot="start"></ion-icon>
+               <ion-label>
+                  <h3>Reviews</h3>
+               </ion-label>
+            </ion-item>
+            <ion-item button routerLink="inventory-adj-req-approvals" *ngIf="showInventoryAdjReqApproval">
+               <ion-icon name="checkmark-done-outline" slot="start"></ion-icon>
+               <ion-label>
+                  <h3>Approvals</h3>
+               </ion-label>
+            </ion-item>
+         </ion-list>
+      </ng-container>
+
+      <ng-container *ngIf="showPaymentArrangementReview || showPaymentArrangementApproval">
+         <ion-list-header class="ion-list-header-small ion-flex ion-text-center">
+            <ion-label>Payment Arrangement</ion-label>
+         </ion-list-header>
+         <ion-list class="list-custom animate__animated animate__fadeIn" lines="full">
+            <ion-item button routerLink="payment-arrangement-reviews" *ngIf="showPaymentArrangementReview">
+               <ion-icon name="list-outline" slot="start"></ion-icon>
+               <ion-label>
+                  <h3>Reviews</h3>
+               </ion-label>
+            </ion-item>
+            <ion-item button routerLink="payment-arrangement-approvals" *ngIf="showPaymentArrangementApproval">
+               <ion-icon name="checkmark-done-outline" slot="start"></ion-icon>
+               <ion-label>
+                  <h3>Approvals</h3>
+               </ion-label>
+            </ion-item>
+         </ion-list>
+      </ng-container>
+
+      <ng-container *ngIf="showMultiCoPrApproval || showMultiCoPoApproval || showMultiCoPaReview || showMultiCoPaApproval">
+         <ion-list-header class="ion-list-header-small ion-flex ion-text-center">
+            <ion-label>Multi Co. Approval</ion-label>
+         </ion-list-header>
+         <ion-list class="list-custom animate__animated animate__fadeIn" lines="full">
+            <ion-item button routerLink="multi-co-pr-approvals" *ngIf="showMultiCoPrApproval">
+               <ion-icon name="list-outline" slot="start"></ion-icon>
+               <ion-label>
+                  <h3>Purchase Requisition Approvals</h3>
+               </ion-label>
+            </ion-item>
+            <ion-item button routerLink="multi-co-po-approvals" *ngIf="showMultiCoPoApproval">
+               <ion-icon name="checkmark-done-outline" slot="start"></ion-icon>
+               <ion-label>
+                  <h3>Purchase Order Approvals</h3>
+               </ion-label>
+            </ion-item>
+            <ion-item button routerLink="multi-co-pa-reviews" *ngIf="showMultiCoPaReview">
+               <ion-icon name="list-outline" slot="start"></ion-icon>
+               <ion-label>
+                  <h3>Payment Arrangement Reviews</h3>
+               </ion-label>
+            </ion-item>
+            <ion-item button routerLink="multi-co-pa-approvals" *ngIf="showMultiCoPaApproval">
+               <ion-icon name="checkmark-done-outline" slot="start"></ion-icon>
+               <ion-label>
+                  <h3>Payment Arrangement Approvals</h3>
+               </ion-label>
+            </ion-item>
+         </ion-list>
+      </ng-container>
+
+      <ng-container *ngIf="showOtpConfig">
+         <ion-list-header class="ion-list-header-small ion-flex ion-text-center">
+            <ion-label>OTP Configuration</ion-label>
+         </ion-list-header>
+         <ion-list class="list-custom animate__animated animate__fadeIn" lines="full">
+            <ion-item button routerLink="otp-configuration">
+               <ion-icon name="mail-open-outline" slot="start"></ion-icon>
+               <ion-label>
+                  <h3>Generate OTP</h3>
+               </ion-label>
+            </ion-item>
+            <ion-item button routerLink="otp-config-list">
+               <ion-icon name="time-outline" slot="start"></ion-icon>
+               <ion-label>
+                  <h3>OTP History</h3>
+               </ion-label>
+            </ion-item>
+         </ion-list>
+      </ng-container>
+   </div>
+</ion-content>

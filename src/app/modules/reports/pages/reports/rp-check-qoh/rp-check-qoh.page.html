@@ -1,0 +1,65 @@
+<ion-header>
+  <ion-toolbar>
+    <ion-title>Check QOH</ion-title>
+    <ion-buttons slot="start">
+      <ion-back-button text="" defaultHref="/reports"></ion-back-button>
+    </ion-buttons>
+  </ion-toolbar>
+</ion-header>
+
+<ion-content>  
+  <div class="px-2 pb-2">
+    <ion-searchbar #searchbar class="p-0" showCancelButton="never" showClearButton="focus" animated="true" placeholder="Search for Item" enterkeyhint="search" (ionFocus)="highlight(searchbar)" (keydown)="onKeyDown($event, searchbar.value)" (ionChange)="itemSearchText=''; objects=[]; realObject=[];"></ion-searchbar>
+    <div class="prefix-css" *ngIf="realObject && realObject.length > 0">
+      <ion-list-header class="ion-list-header ion-flex ion-text-center" *ngIf="!realObject || realObject?.length === 0">
+        <ion-label>Nothing found!</ion-label>
+      </ion-list-header>
+      <ngx-datatable
+         class="fullscreen material mt-2"
+         [rows]="realObject" 
+         [rowHeight]="'auto'" 
+         [columns]="columns"
+         [columnMode]="'force'" 
+         [scrollbarH]="true">
+
+        <ngx-datatable-column prop="itemCode" name="Stock" [width]="100">
+          <ng-template let-row="row" ngx-datatable-cell-template>
+            <div class="flex ion-text-wrap font-half-size">
+              <div class="font-bold">{{row.itemCode}}</div> - {{row.itemDescription}}</div>
+          </ng-template>
+        </ngx-datatable-column>
+        <ngx-datatable-column prop="qoh" name="QOH" [width]="150">
+          <ng-template let-row="row" ngx-datatable-cell-template>
+            <div class="flex ion-text-wrap font-half-size font-bold" [ngClass]="{'color-danger': row.qoh < 0 }"><span *ngIf="row.qoh < 0">{{'('}}</span>{{Math.abs(row.qoh) | number: "1.0"}}<span *ngIf="(row.qoh) < 0">{{')'}}</span></div>
+            <ng-container *ngIf="hasInventoryLevel(row)">
+               <div class="ion-flex font-x-smaller" *ngFor="let rowData of getInventoryLevel(row)">
+                  <span class="font-bold mr-2">{{rowData.locationCode}} </span> 
+                  <div class="font-align-right" [ngClass]="{'color-danger': (rowData.qty - rowData.openQty) < 0 }"><span *ngIf="(rowData.qty - rowData.openQty) < 0">{{'('}}</span>{{Math.abs(rowData.qty - rowData.openQty) | number: "1.0"}}<span *ngIf="(rowData.qty - rowData.openQty) < 0">{{')'}}</span></div>
+               </div>
+            </ng-container>
+          </ng-template>
+        </ngx-datatable-column>
+
+        <ngx-datatable-column prop="price" name="Segment">
+          <ng-template ngx-datatable-header-template>
+            <div class="flex ion-text-wrap font-half-size">Price</div>
+          </ng-template>
+          <ng-template let-row="row" ngx-datatable-cell-template>
+            <div class="flex ion-text-wrap font-half-size" *ngFor="let p of row.price; let rowIndex = index">
+               <ng-container *ngIf="rowIndex > 0">
+                  <br />
+               </ng-container>
+               <span> {{p.priceSegmentCode}} </span>
+               <span *ngIf="p.discountGroupCode">  {{p.discountGroupCode}} </span>
+               <span *ngIf="p.discountExpression"> [{{p.discountExpression}}] </span>
+               <br />
+               <span> Unit Price: {{p.unitPrice|number:precisionSales.localFormat}} </span>
+               <br />
+               <span *ngIf="p.discountGroupCode || p.discountExpression" class="font-bold"> Nett Price: {{getNettPrice(p)|number:precisionSales.localFormat}} </span>
+            </div>
+          </ng-template>
+        </ngx-datatable-column>
+      </ngx-datatable>
+    </div>
+  </div>
+</ion-content>

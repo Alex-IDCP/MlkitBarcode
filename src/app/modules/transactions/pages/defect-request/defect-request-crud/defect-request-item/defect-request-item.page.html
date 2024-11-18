@@ -1,0 +1,174 @@
+<ion-header>
+   <ion-toolbar>
+      <ion-title>Search Item</ion-title>
+      <ion-buttons slot="start" *ngIf="!(objectService.object?.header?.defectRequestId > 0)">
+         <ion-button (click)="previousStep()"><ion-icon slot="start" name="chevron-back-outline"></ion-icon></ion-button>
+      </ion-buttons>
+      <ion-buttons slot="start" *ngIf="objectService.object?.header?.defectRequestId > 0">
+         <ion-button (click)="backToDetail()"><ion-icon slot="start" name="chevron-back-outline"></ion-icon></ion-button>
+      </ion-buttons>
+   </ion-toolbar>
+</ion-header>
+
+<ion-content [fullscreen]="true">
+   <div class="px-2 pb-2">
+      <ion-list-header class="ion-list-header ion-flex ion-text-center" *ngIf="!availableItem">
+         <ion-label>Nothing found!</ion-label>
+      </ion-list-header>
+      <ion-searchbar #searchbar class="p-0" showCancelButton="never" showClearButton="focus" animated="true" placeholder="Search for Item" enterkeyhint="search" (ionFocus)="highlight(searchbar)" (ionChange)="availableItem = []; startIndex = 0" (keydown)="onKeyDown($event, searchbar.value)"></ion-searchbar>
+      <ng-container>
+         <ion-list class="list-custom animate__animated animate__fadeIn">
+            <ion-grid class="ion-no-padding">
+               <ion-row>
+                  <ion-col size="12" *ngFor="let rowData of availableItem; let rowIndex = index">
+                     <ion-item-sliding #sliding>
+                        <ion-item class="ion-no-padding no-ripple" lines="full">
+                           <ion-grid class="ion-no-padding pl-2 pb-2">
+                              <ion-row>
+                                 <ion-col size="8" class="ion-flex ion-margin-auto">
+                                    <div *ngIf="rowData?.vendorItemCode" class="font-bold ion-text-wrap">{{rowData.itemCode}} | {{rowData?.vendorItemCode}}</div>
+                                    <div *ngIf="!rowData?.vendorItemCode" class="font-bold ion-text-wrap">{{rowData.itemCode}}</div>
+                                    <div class="ion-flex ml-2" *ngIf="objectService.configSystemWideActivateMultiUOM && rowData.uomMaster && rowData.uomMaster.length > 1">
+                                       <span class="badge-warning ion-text-wrap ion-flex my-auto px-1">UOM</span>
+                                    </div>
+                                 </ion-col>
+                                 <ng-container>
+                                    <ng-container *ngIf="rowData.variationTypeCode === '0'">
+                                       <ion-col size="1" class="ion-flex ion-margin-auto justify-content-center">
+                                          <ion-button class="ion-button-custom" fill="clear" color="primary" size="small" (click)="decreaseQty(rowData)">
+                                             <ion-icon slot="icon-only" name="remove-circle"></ion-icon>
+                                          </ion-button>
+                                       </ion-col>
+                                       <ion-col size="2">
+                                          <ion-input #input class="ion-text-center" type="number" [(ngModel)]="rowData.qtyRequest" placeholder="0"></ion-input>
+                                       </ion-col>
+                                       <ion-col size="1" class="ion-flex ion-margin-auto justify-content-center">
+                                          <ion-button class="ion-button-custom" fill="clear" color="primary" size="small" (click)="increaseQty(rowData)">
+                                             <ion-icon slot="icon-only" name="add-circle"></ion-icon>
+                                          </ion-button>
+                                       </ion-col>
+                                    </ng-container>
+                                    <ng-container *ngIf="rowData.variationTypeCode === '1' || rowData.variationTypeCode === '2'">
+                                       <ion-col size="4" class="ion-flex ion-margin-auto justify-content-end pt-1">
+                                          <ion-button expand="block" size="small" style="width:100%" (click)="showModal(rowData)">Variation</ion-button>
+                                       </ion-col>
+                                    </ng-container>
+                                 </ng-container>
+                              </ion-row>
+                              <ion-row>
+                                 <ion-col>
+                                    <div><ion-textarea [value]="rowData.description" [rows]="1" autoGrow readonly></ion-textarea></div>
+                                 </ion-col>
+                              </ion-row>
+                              <ng-container *ngIf="rowData.qtyRequest > 0">
+                                 <ion-row>
+                                    <ion-col>
+                                       <ion-button expand="block" size="small" style="width:100%;" (click)="addToCart(rowData)">Add to Cart</ion-button>
+                                    </ion-col>
+                                 </ion-row>
+                              </ng-container>
+                           </ion-grid>
+                        </ion-item>
+                     </ion-item-sliding>
+                  </ion-col>
+               </ion-row>
+            </ion-grid>
+         </ion-list>
+      </ng-container>
+   </div>
+
+   <ion-infinite-scroll (ionInfinite)="onIonInfinite($event)" threshold="30%">
+      <ion-infinite-scroll-content></ion-infinite-scroll-content>
+   </ion-infinite-scroll>
+   
+</ion-content>
+
+<ion-modal [isOpen]="isModalOpen" (didDismiss)="isModalOpen = false">
+   <ng-template>
+      <ion-header>
+         <ion-toolbar>
+            <ion-title>Variations</ion-title>
+            <ion-buttons slot="start">
+               <ion-button (click)="hideModal()">Cancel</ion-button>
+            </ion-buttons>
+         </ion-toolbar>
+      </ion-header>
+      <ion-content>
+         <ion-grid class="p-0" *ngIf="selectedItem">
+            <ion-row>
+               <ion-col class="ion-margin-auto ion-text-center">
+                  <div>{{selectedItem.itemCode}}</div>
+               </ion-col>
+            </ion-row>
+            <ng-container *ngIf="!objectService.configItemVariationShowMatrix">
+               <div *ngFor="let vd of selectedItem.variationDetails">
+                  <div *ngFor="let d of vd.details">
+                     <ion-row class="py-0" *ngIf="d.deactivated === false">
+                        <ion-col size="6" class="ion-flex ion-margin-auto">
+                           <ion-grid class="ion-no-padding">
+                              <ion-row>
+                                 <ion-col class="ion-flex ion-margin-auto">
+                                    <span class="badge-green ion-text-wrap ion-flex my-auto px-1 mx-1" style="font-size:x-small" *ngIf="vd.itemVariationXId">
+                                       {{vd.itemVariationXId|idMapping:objectService.itemVariationXMasterList}}</span>
+                                    <span class="badge-purple ion-text-wrap ion-flex my-auto px-1" style="font-size:x-small" *ngIf="d.itemVariationYId">
+                                       {{d.itemVariationYId|idMapping:objectService.itemVariationYMasterList}}</span>
+                                 </ion-col>
+                              </ion-row>
+                           </ion-grid>
+                        </ion-col>
+                        <ion-col size="6" class="ion-margin-auto p-0">
+                           <ion-grid class="ion-no-padding">
+                              <ion-row>
+                                 <ion-col class="ion-flex ion-margin-auto justify-content-center">
+                                    <ion-button class="ion-button-custom" fill="clear" color="primary" size="small" (click)="decreaseVariationQty(d)">
+                                       <ion-icon slot="icon-only" name="remove-circle"></ion-icon>
+                                    </ion-button>
+                                 </ion-col>
+                                 <ion-col class="ion-flex ion-margin-auto justify-content-center">
+                                    <ion-input #input class="ion-text-center" type="number" [min]="0" [(ngModel)]="d.qtyRequest" placeholder="0"></ion-input>
+                                 </ion-col>
+                                 <ion-col class="ion-flex ion-margin-auto justify-content-center">
+                                    <ion-button class="ion-button-custom" fill="clear" color="primary" size="small" (click)="increaseVariationQty(d)">
+                                       <ion-icon slot="icon-only" name="add-circle"></ion-icon>
+                                    </ion-button>
+                                 </ion-col>
+                              </ion-row>
+                           </ion-grid>
+                        </ion-col>
+                     </ion-row>
+                  </div>
+               </div>
+            </ng-container>
+            <ng-container *ngIf="objectService.configItemVariationShowMatrix">
+               <table id="qtyMatrix">
+                  <tr>
+                     <th class="p-1 font-half-size ion-text-left">Variety</th>
+                     <th class="p-1 font-half-size" *ngFor="let rowData of selectedItem.variationY">
+                        {{rowData|idMapping:objectService.itemVariationYMasterList}}
+                     </th>
+                  </tr>
+                  <tr *ngFor="let rowData of selectedItem.variationDetails">
+                     <td class="p-1 font-half-size">
+                        {{rowData.itemVariationXId|idMapping:objectService.itemVariationXMasterList}}
+                     </td>
+                     <td class="p-1 font-half-size ion-text-right" *ngFor="let rowData2 of rowData.details">
+                        <ion-input #input class="ion-text-center" type="number" [min]="0" [(ngModel)]="rowData2.qtyRequest" placeholder="0"></ion-input>
+                     </td>
+                  </tr>
+               </table>
+            </ng-container>
+         </ion-grid>
+      </ion-content>
+      <ion-footer class="ion-padding-bottom-large animate__animated animate__fadeInUp p-0" style="background-color:white;">
+         <ion-button class="ion-margin" expand="block" (click)="addVariationToCart()">
+            Add to Cart
+         </ion-button>
+      </ion-footer>
+   </ng-template>
+</ion-modal>
+
+<ion-footer class="ion-padding-bottom-large animate__animated animate__fadeInUp p-0" style="background-color: white;">
+  <ion-button class="ion-margin" expand="block" size="default" (click)="nextStep()">
+    Next ({{objectService.object?.details?.length??0}})
+  </ion-button>
+</ion-footer>

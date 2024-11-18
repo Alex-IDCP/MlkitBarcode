@@ -1,0 +1,85 @@
+<ion-header [hidden]="scanActive">
+   <ion-toolbar>
+      <ion-title>Details</ion-title>
+      <ion-buttons slot="start">
+         <ion-button (click)="cancelInsert()"><ion-icon slot="start" name="chevron-back-outline"></ion-icon></ion-button>
+      </ion-buttons>
+      <ion-buttons slot="primary">
+         <ion-button (click)="showPopover($event)"><ion-icon slot="icon-only" name="menu-outline"></ion-icon></ion-button>
+      </ion-buttons>
+   </ion-toolbar>
+</ion-header>
+
+<ion-popover #popover [isOpen]="isPopoverOpen" (didDismiss)="isPopoverOpen = false">
+   <ng-template>
+      <ion-content class="p-2">
+         <ion-list class="list-custom animate__animated animate__fadeIn" lines="full">
+            <ion-item (click)="popover.dismiss(); sendForDebug()">
+               <ion-icon slot="end" name="push-outline" color="danger"></ion-icon>
+               <ion-label>
+                  <div>Debug</div>
+               </ion-label>
+            </ion-item>
+         </ion-list>
+      </ion-content>
+   </ng-template>
+</ion-popover>
+<ion-content [fullscreen]="true" [hidden]="scanActive">
+   <div class="p-2">
+      <app-barcode-scan-input #barcodescaninput (onItemAdd)="onItemAdd($event)" (onCameraStatusChanged)="onCameraStatusChanged($event)" (onDoneScanning)="onDoneScanning($event)" [itemVariationXMasterList]="objectService.itemVariationXMasterList" [itemVariationYMasterList]="objectService.itemVariationYMasterList"></app-barcode-scan-input>
+      <ion-list class="list-custom animate__animated animate__fadeIn" lines="full" *ngIf="selectedObject">
+         <ion-item-sliding *ngFor="let l of selectedObject?.line; let i = index">
+            <ion-item>
+               <ion-grid class="ion-no-padding">
+                  <ion-row class="py-1">
+                     <ion-col size="9" class="ion-flex ion-margin-auto">
+                        <ion-grid class="ion-no-padding">
+                           <ion-row>
+                              <ion-col class="ion-flex ion-margin-auto">
+                                 <div class="font-bold">{{l.itemCode}}</div>
+                              </ion-col>
+                           </ion-row>
+                           <ion-row *ngIf="l.xDesc || l.yDesc">
+                              <ion-col class="ion-flex ion-margin-auto">
+                                 <span class="badge-green ion-text-wrap ion-flex my-auto px-1 mx-1" *ngIf="l.xDesc">{{l.xDesc}}</span>
+                                 <span class="badge-purple ion-text-wrap ion-flex my-auto px-1" *ngIf="l.yDesc">{{l.yDesc}}</span>
+                              </ion-col>
+                           </ion-row>
+                           <ion-row>
+                              <ion-col class="ion-flex ion-margin-auto">
+                                 <div>{{l.itemDesc}}</div>
+                              </ion-col>
+                           </ion-row>
+                           <ion-row class="pb-1">
+                              <ion-col class="ion-flex ion-margin-auto">
+                                 <div>{{l.barcode}}</div>
+                              </ion-col>
+                           </ion-row>
+                        </ion-grid>
+                     </ion-col>
+                     <ion-col size="3" class="ion-flex ion-margin-auto justify-content-end">
+                        <div>
+                           <ion-input class="ml-3 custom ion-text-center" type="number" inputmode="numeric" [min]="0" [(ngModel)]="l.qtyReceive"></ion-input>
+                        </div>
+                     </ion-col>
+                  </ion-row>
+               </ion-grid>
+            </ion-item>
+            <ion-item-options>
+               <ion-item-option [disabled]="l.qty !==0" color="danger" (click)="deleteLine(i)">Delete</ion-item-option>
+            </ion-item-options>
+         </ion-item-sliding>
+      </ion-list>
+   </div>
+</ion-content>
+<ion-footer class="ion-padding-bottom-large animate__animated animate__fadeInUp p-0" style="background-color: white;" [hidden]="scanActive">
+   <ion-button class="ion-margin" expand="block" size="default" (click)="nextStep()">
+      Save
+   </ion-button>
+</ion-footer>
+<ion-row class="scanner-buttons" [hidden]="!scanActive">
+   <ion-col class="ion-no-padding">
+      <ion-button expand="full" (click)="stopScanner()">Stop</ion-button>
+   </ion-col>
+</ion-row>
+<div class="scan-box" [hidden]="!scanActive"></div>

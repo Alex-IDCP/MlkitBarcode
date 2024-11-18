@@ -1,0 +1,140 @@
+<ion-header [hidden]="scanActive">
+   <ion-toolbar>
+      <ion-title>
+         <div class="ion-text-wrap">
+            DO Ack.
+         </div>
+      </ion-title>
+      <ion-buttons slot="start">
+         <ion-back-button text="" defaultHref="/transactions"></ion-back-button>
+      </ion-buttons>
+   </ion-toolbar>
+</ion-header>
+<ion-content [fullscreen]="true" [hidden]="scanActive">
+   <div class="p-2">
+      <ion-list class="list-custom animate__animated animate__fadeIn" lines="full">
+
+         <app-general-scan-input #don placeholder="Delivery Order Num" [clearSearchValue]="false" (onScanCompleted)="onDONChanged($event)" (onCameraStatusChanged)="onCameraStatusChanged($event)" (onDoneScanning)="onDONDoneScanning($event)"></app-general-scan-input>
+
+      </ion-list>
+   </div>
+   <div class="p-2">
+      <ion-list-header class="ion-list-header ion-flex ion-text-center" *ngIf="objects && objects.length === 0">
+         <ion-label>Nothing found!</ion-label>
+      </ion-list-header>
+      <ng-container *ngIf="objects?.length > 0">
+         <ion-list *ngFor="let object of objects" class="list-custom animate__animated animate__fadeIn" lines="full">
+            <ion-item detail="false" class="ion-no-padding">
+               <ion-grid class="ion-no-padding py-2 pl-2">
+                  <ion-row>
+                     <ion-col class="ion-margin-auto">
+                        <ion-row *ngIf="object.truckArrangementNum">
+                           <ion-col class="ion-flex ion-margin-auto font-bold">
+                              {{object.truckArrangementNum}}
+                           </ion-col>
+                        </ion-row>
+                        <ion-row>
+                           <ion-col class="ion-flex ion-margin-auto font-bold">
+                              {{object.deliveryOrderNum}}
+                           </ion-col>
+                        </ion-row>
+                        <ion-row>
+                           <ion-col size="auto" class="ion-flex ion-margin-auto">
+                              <ion-badge>{{object.customerCode}}</ion-badge>
+                           </ion-col>
+                           <ion-col class="ion-flex ion-margin-auto">
+                              <div class="ion-flex my-auto ml-2">{{object.customerName}}</div>
+                           </ion-col>
+                        </ion-row>
+                     </ion-col>
+                     <ion-col size="auto" class="ion-flex ion-margin-auto justify-content-end" (click)="acknowledge(object)">
+                        <ion-button fill="clear" size="default">
+                           <ion-icon slot="icon-only" name="checkmark-done-circle-sharp"></ion-icon>
+                        </ion-button>
+                     </ion-col>
+                  </ion-row>
+               </ion-grid>
+            </ion-item>
+         </ion-list>
+      </ng-container>
+   </div>
+   <ion-fab class="ion-fab-custom" vertical="bottom" horizontal="center" slot="fixed" (click)="selectAction()">
+      <ion-fab-button>
+         <ion-icon name="search"></ion-icon>
+      </ion-fab-button>
+   </ion-fab>
+</ion-content>
+
+<ion-modal [isOpen]="signatureModal" (didDismiss)="signModalDidDismiss();" [keyboardClose]="true" [showBackdrop]="true" [backdropDismiss]="false">
+   <ng-template>
+      <ion-header>
+         <ion-toolbar>
+            <ion-buttons slot="start">
+               <ion-button (click)="cancel()">
+                  Cancel
+               </ion-button>
+            </ion-buttons>
+            <ion-title>
+               E-signature
+            </ion-title>
+            <ion-buttons slot="end">
+               <ion-button (click)="clear()">
+                  Clear
+               </ion-button>
+            </ion-buttons>
+         </ion-toolbar>
+      </ion-header>
+      <ion-content [fullscreen]="true">
+         <div class="p-2">
+
+            <ion-list class="list-custom animate__animated animate__fadeIn" lines="full">
+
+               <app-search-dropdown #locationDropdown title="Vehicle" optionLabel="description" [masterDropdownList]="objectService.vehicleMasterList" [selectedId]="selectedVehicleId" (onActionComplete)="onVehicleChanged($event)"></app-search-dropdown>
+               <ion-item>
+                  <ion-label position="stacked" class="font-bold">Remark</ion-label>
+                  <ion-textarea autoGrow="true" inputmode="text" type="text" enterkeyhint="next" placeholder="Remark" [(ngModel)]="remark"></ion-textarea>
+               </ion-item>
+
+            </ion-list>
+
+            <div class="border-dotted">
+               <signature-pad #signaturePad [options]="signaturePadOptions"></signature-pad>
+            </div>
+            <div class="mt-2">
+               <ion-button fill="clear" expand="full" color="dark" (click)="presentAlert()">
+                  <ion-icon slot="start" name="camera"></ion-icon>
+                  Upload Image
+               </ion-button>
+               <ion-item *ngFor="let file of images; let i = index">
+                  <ion-thumbnail slot="start">
+                     <ion-img [src]="file.data"></ion-img>
+                  </ion-thumbnail>
+                  <ion-label class="ion-text-wrap"> {{ file.name }} </ion-label>
+                  <ion-button slot="end" fill="clear" (click)="deleteImage(file)">
+                     <ion-icon slot="icon-only" name="trash"></ion-icon>
+                  </ion-button>
+               </ion-item>
+            </div>
+         </div>
+      </ion-content>
+      <ion-footer class="ion-padding-bottom-large animate__animated animate__fadeInUp p-0"
+         style="background-color: white;">
+         <ion-grid class="ion-no-padding">
+            <ion-row>
+               <ion-col>
+                  <ion-button class="ion-margin" expand="block" size="default" (click)="submit_attempt = true; save()" [disabled]="submit_attempt">
+                     Save
+                  </ion-button>
+               </ion-col>
+            </ion-row>
+         </ion-grid>
+      </ion-footer>
+   </ng-template>
+</ion-modal>
+
+<ion-row class="scanner-buttons" [hidden]="!scanActive">
+   <ion-col class="ion-no-padding">
+      <ion-button expand="full" (click)="stopScanner()">Stop</ion-button>
+   </ion-col>
+</ion-row>
+<div class="scan-box" [hidden]="!scanActive"></div>

@@ -1,0 +1,50 @@
+<ion-header>
+  <ion-toolbar>
+    <ion-title>      
+      <div class="ion-text-wrap">
+        Consignment Count
+      </div>
+    </ion-title>
+    <ion-buttons slot="start">
+      <ion-button (click)="cancelInsert()"><ion-icon slot="start" name="chevron-back-outline"></ion-icon></ion-button>
+    </ion-buttons>
+  </ion-toolbar>
+</ion-header>
+<ion-content fullscreen>
+  <div class="p-2"> 
+    <ion-list class="list-custom animate__animated animate__fadeIn" lines="full" [formGroup]="objectForm">
+      
+      <ion-item id="open-calendar-modal" [disabled]="objectForm?.controls?.consignmentCountId?.value > 0">
+        <ion-label position="stacked" class="font-bold">Transaction Date</ion-label>
+        <ion-text class="ion-no-padding-end pb-3">{{formattedDateString}}</ion-text>
+      </ion-item>
+      <ion-modal class="ion-modal-calendar" trigger="open-calendar-modal">
+        <ng-template>
+          <ion-content>
+            <ion-datetime #datetime [value]="dateValue" size="cover" (ionChange)="onTrxDateSelected(datetime.value)" [ngModel]="dateValue" [ngModelOptions]="{standalone:true}" showDefaultTitle="true" presentation="date" [max]="maxDate" >
+              <ion-buttons slot="buttons">
+                <ion-button (click)="dateDismiss()" color="danger">Dismiss</ion-button>
+                <ion-button (click)="dateSelect()" color="primary">Select</ion-button>
+              </ion-buttons>
+            </ion-datetime>
+          </ion-content>
+        </ng-template>
+      </ion-modal>
+
+      <app-search-dropdown title="Location" [masterDropdownList]="objectService.locationMasterList" [selectedId]="objectForm.controls.locationId?.value" (onActionComplete)="onLocationSelected($event)" [disabled]="objectService.objectHeader?.consignmentCountId > 0"></app-search-dropdown>
+      <ion-item>
+        <ion-label position="stacked" class="font-bold">Rack</ion-label>
+        <ion-textarea autoGrow="true" inputmode="text" type="text" enterkeyhint="enter" placeholder="Enter Rack" formControlName="rack"></ion-textarea>
+      </ion-item>
+      <ion-item>
+        <ion-label position="stacked" class="font-bold">Zone</ion-label>
+        <ion-textarea autoGrow="true" inputmode="text" type="text" enterkeyhint="enter" placeholder="Enter Zone" formControlName="zone"></ion-textarea>
+      </ion-item>
+    </ion-list>
+  </div>
+</ion-content>
+<ion-footer class="ion-padding-bottom-large animate__animated animate__fadeInUp p-0" style="background-color: white;">
+  <ion-button class="ion-margin" expand="block" size="default" (click)="nextStep()" [disabled]="!objectForm.valid">
+    Next
+  </ion-button>
+</ion-footer>

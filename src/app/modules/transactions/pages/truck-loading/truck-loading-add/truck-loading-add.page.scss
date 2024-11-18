@@ -1,0 +1,17 @@
+input {
+   width: 100%;
+   background-color: transparent;
+   border: none;
+}
+
+input[type=text]:focus {
+   border: none;
+   outline: none;
+}
+
+ion-textarea.custom-textarea {
+   --padding-end: 0;
+   --padding-start: 0;
+   --padding-bottom: 0;
+   --padding-top: 0;
+ }

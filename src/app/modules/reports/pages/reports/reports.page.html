@@ -1,0 +1,106 @@
+<ion-header>
+  <ion-toolbar>
+    <ion-title>
+      Reports
+    </ion-title>
+  </ion-toolbar>
+</ion-header>
+<ion-content [fullscreen]="true">
+  <div class="p-2">
+    
+    <ion-list class="list-custom animate__animated animate__fadeIn" lines="full">
+      <ion-item button (click)="goToReport('debtor-latest-outstanding')" *ngIf="showDebtorLatestOutstanding">
+        <ion-label>
+          <div>Debtor Latest Outstanding</div>
+        </ion-label>
+      </ion-item>
+      <ion-item button (click)="goToReport('rp-so-listing')" *ngIf="showSOListing">
+        <ion-label>
+          <div>SO Listing</div>
+        </ion-label>
+      </ion-item>
+      <ion-item button (click)="goToReport('rp-bo-listing')" *ngIf="showBOListing">
+        <ion-label>
+          <div>B2B Listing</div>
+        </ion-label>
+      </ion-item>
+      <ion-item button (click)="goToReport('rp-sales-performance')" *ngIf="showSalesAgentPerformanceAll">
+        <ion-label>
+          <div>Sales Agent Performance (All)</div>
+        </ion-label>
+      </ion-item>
+      <ion-item button (click)="goToReport('rp-sales-customer')" *ngIf="showSalesByDebtor">
+        <ion-label>
+          <div>Sales by Debtor</div>
+        </ion-label>
+      </ion-item>
+      <ion-item button (click)="goToReport('rp-check-qoh')" *ngIf="showCheckQOH">
+        <ion-label>
+          <div>Check QOH</div>
+        </ion-label>
+      </ion-item>
+      <ion-item button (click)="goToReport('rp-check-qoh-variation')" *ngIf="showCheckQOHVariation">
+        <ion-label>
+          <div>Check QOH Variation</div>
+        </ion-label>
+      </ion-item>
+      <ion-item button (click)="goToReport('rp-check-cn')" *ngIf="showCheckCreditNote">
+        <ion-label>
+          <div>Check Credit Note</div>
+        </ion-label>
+      </ion-item>
+      <ion-item button (click)="goToReport('transaction-inquiry')" *ngIf="showTransactionInquiry">
+        <ion-label>
+          <div>Transaction Inquiry</div>
+        </ion-label>
+      </ion-item>
+      <ion-item button (click)="goToReport('item-sales-analysis')" *ngIf="showItemSalesAnalysis">
+         <ion-label>
+            <div>Item Sales Analysis</div>
+         </ion-label>
+      </ion-item>  
+    </ion-list>
+
+    <ng-container *ngIf="showSalesAnalysis || showConsignmentCountAnalysis || showConsignmentSalesReport">
+      <ion-list-header class="ion-list-header-small ion-flex ion-text-center">
+        <ion-label>Consignment Reports</ion-label>
+      </ion-list-header>
+      <ion-list class="list-custom animate__animated animate__fadeIn" lines="full">
+         <ion-item button (click)="goToReport('sales-analysis')" *ngIf="showSalesAnalysis">
+            <ion-label>
+            <div>Consignment Sales Analysis</div>
+            </ion-label>
+         </ion-item>
+         <ion-item button (click)="goToReport('consignment-count-analysis')" *ngIf="showConsignmentCountAnalysis">
+            <ion-label>
+            <div>Consignment Count Analysis</div>
+            </ion-label>
+         </ion-item>
+         <ion-item button (click)="goToReport('custom-consignment-sales-report')" *ngIf="showConsignmentSalesReport">
+            <ion-label>
+            <div>Consignment Sales Report</div>
+            </ion-label>
+         </ion-item>
+      </ion-list>
+    </ng-container>
+    
+    <ng-container *ngIf="showCustomerDetail || showInventoryLevel">
+      <ion-list-header class="ion-list-header-small ion-flex ion-text-center">
+        <ion-label>Personal (PDF)</ion-label>
+      </ion-list-header>
+      <ion-list class="list-custom animate__animated animate__fadeIn" lines="full">
+        <ion-item button (click)="downloadCustomerDetails()" *ngIf="showCustomerDetail">
+          <ion-label>
+            <div>My Customer Detail</div>
+          </ion-label>
+        </ion-item>
+        <ion-item button (click)="goToReport('rp-inventory-level')" *ngIf="showInventoryLevel">
+          <ion-label>
+            <div>Inventory Level</div>
+          </ion-label>
+        </ion-item>
+      </ion-list>
+    </ng-container>
+
+  </div>
+</ion-content>

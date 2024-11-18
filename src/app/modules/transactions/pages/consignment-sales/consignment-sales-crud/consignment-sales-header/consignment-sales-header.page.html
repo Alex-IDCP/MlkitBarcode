@@ -1,0 +1,42 @@
+<ion-header>
+  <ion-toolbar>
+    <ion-title>
+      <div class="ion-text-wrap">
+        Consignment Sales
+      </div>
+    </ion-title>
+    <ion-buttons slot="start">
+      <ion-button (click)="cancelInsert()"><ion-icon slot="start" name="chevron-back-outline"></ion-icon></ion-button>
+    </ion-buttons>
+  </ion-toolbar>
+</ion-header>
+<ion-content fullscreen>
+  <div class="p-2"> 
+    <ion-list class="list-custom animate__animated animate__fadeIn" lines="full">
+      <ion-item id="open-calendar-modal" [disabled]="objectService.objectDetail && objectService.objectDetail.length > 0">
+        <ion-label position="stacked" class="font-bold">Transaction Date</ion-label>
+        <ion-text class="ion-no-padding-end pb-3">{{formattedDateString}}</ion-text>
+      </ion-item>
+      <ion-modal class="ion-modal-calendar" trigger="open-calendar-modal">
+        <ng-template>
+          <ion-content>
+            <ion-datetime #datetime [value]="dateValue" size="cover" (ionChange)="onTrxDateSelected(datetime.value)" [ngModel]="dateValue" showDefaultTitle="true" presentation="date" [max]="maxDate">
+              <ion-buttons slot="buttons">
+                <ion-button (click)="dateDismiss()" color="danger">Dismiss</ion-button>
+                <ion-button (click)="dateSelect()" color="primary">Select</ion-button>
+              </ion-buttons>
+            </ion-datetime>
+          </ion-content>
+        </ng-template>
+      </ion-modal>
+      <app-search-dropdown title="Location" optionLabel="description" [masterDropdownList]="objectService.locationMasterList" (onActionComplete)="onLocationChanged($event)" [selectedId]="objectForm.controls.toLocationId.value" [disabled]="true"></app-search-dropdown>
+      <app-search-dropdown title="Customer" optionLabel="description" [masterDropdownList]="objectService.customerMasterList" [selectedId]="objectForm.controls.customerId.value" [disabled]="true"></app-search-dropdown>
+      <app-search-dropdown title="Sales Agent" optionLabel="description" [masterDropdownList]="objectService.salesAgentMasterList" [selectedId]="objectForm.controls.salesAgentId.value" [disabled]="true"></app-search-dropdown>
+    </ion-list>
+  </div>
+</ion-content>
+<ion-footer class="ion-padding-bottom-large animate__animated animate__fadeInUp p-0" style="background-color: white;">
+  <ion-button class="ion-margin" expand="block" size="default" (click)="nextStep()" [disabled]="!objectForm.valid">
+    Next
+  </ion-button>
+</ion-footer>

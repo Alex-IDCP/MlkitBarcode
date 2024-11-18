@@ -1,0 +1,97 @@
+export interface CreditorApplicationList {
+    vendorPreId: number
+    name: string
+    procurementAgentName: any
+    creditLimit: any
+    termPeriodCode: any
+    termPeriodDesc: any
+    deactivated: boolean
+    createdAt: string
+    companyRegNum: any
+    countryId: any
+    countryCode: string
+    countryName: string
+    pendingStatus: string
+    workFlowTransactionId: number
+}
+
+export interface CreditorApplicationRoot {
+    header: CreditorApplicationHeader
+    approvalHistory: any[]
+    attachmentFile: any[]
+    comment: any[]
+}
+
+export interface CreditorApplicationHeader {
+    vendorPreId: number
+    vendorId: number
+    vendorPreCode: string
+    typeCode: string
+    name: string
+    oldVendorCode: string
+    companyRegNum: string
+    taxNum: string
+    termPeriodId: number
+    currencyId: number
+    countryId: number
+    paymentMethodId: number
+    bankAcct: any
+    controlAccountId: number
+    locationId: number
+    procurementAgentId: number
+    creditLimit: any
+    outstanding: any
+    addPDLimit: any
+    email: string
+    phone: string
+    fax: string
+    salesEmailAddress: string
+    internalPurchaserEmailAddress: string
+    billAddress: string
+    billPostcode: string
+    billContact: string
+    billAreaId: number
+    shipAddress: string
+    shipPostcode: string
+    shipContact: string
+    shipAreaId: number
+    masterUDGroup1: number
+    masterUDGroup2: number
+    masterUDGroup3: number
+    vendorUDField1: any
+    vendorUDField2: any
+    vendorUDField3: any
+    vendorUDOption1: any
+    vendorUDOption2: any
+    vendorUDOption3: any
+    logoFileId: any
+    purchaseTaxId: number
+    isPrimary: boolean
+    isItemPriceTaxInclusive: boolean
+    isDisplayTaxInclusive: boolean
+    etaDuration: number
+    etdDuration: number
+    cancelDuration: number
+    sequence: number
+    createdById: number
+    createdBy: string
+    createdAt: string
+    modifiedById: number
+    modifiedBy: string
+    modifiedAt: string
+    deactivated: boolean
+    purchaseControlAccountId: number
+    isLocal: boolean
+    isBearPromo: boolean
+    isBearShortOver: boolean
+    marginMode: string
+    invoiceMode: string
+    shortName: string
+    payeeName: string
+    payeeIdNum: string
+    payeeEmail: string
+    isPosVisible: boolean
+    isAutoClosePO: boolean
+    remark: string
+    isCompletelyFilled: boolean
+}

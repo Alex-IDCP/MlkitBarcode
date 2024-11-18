@@ -1,0 +1,243 @@
+<ion-header [hidden]="scanActive">
+   <ion-toolbar>
+      <ion-title>Line</ion-title>
+      <ion-buttons slot="start">
+         <ion-button (click)="previousStep()"><ion-icon slot="start" name="chevron-back-outline"></ion-icon></ion-button>
+      </ion-buttons>
+      <ion-buttons slot="primary">
+         <ion-button (click)="showPopover($event)"><ion-icon slot="icon-only" name="menu-outline"></ion-icon></ion-button>
+      </ion-buttons>
+   </ion-toolbar>
+</ion-header>
+
+<ion-popover #popover [isOpen]="isPopoverOpen" (didDismiss)="isPopoverOpen = false">
+   <ng-template>
+      <ion-content class="p-2">
+         <ion-list class="list-custom animate__animated animate__fadeIn" lines="full">
+            <ion-item (click)="popover.dismiss(); viewAttachment()">
+               <ion-icon slot="end" name="attach-outline"></ion-icon>
+               <ion-label>
+                  <div>Attachment</div>
+               </ion-label>
+            </ion-item>
+            <ion-item (click)="popover.dismiss(); sendForDebug()">
+               <ion-icon slot="end" name="push-outline" color="danger"></ion-icon>
+               <ion-label>
+                  <div>Debug</div>
+               </ion-label>
+            </ion-item>
+         </ion-list>
+      </ion-content>
+   </ng-template>
+</ion-popover>
+
+<ion-content [fullscreen]="true" [hidden]="scanActive">
+   <div class="p-2">
+
+      <app-barcode-scan-input #barcodescaninput (onItemAdd)="onItemAdd($event)" (onCameraStatusChanged)="onCameraStatusChanged($event)" (onDoneScanning)="onDoneScanning($event)" [itemVariationXMasterList]="objectService.itemVariationXMasterList" [itemVariationYMasterList]="objectService.itemVariationYMasterList"></app-barcode-scan-input>
+
+      <ion-list class="list-custom animate__animated animate__fadeIn" lines="full" *ngIf="objectService.objectDetail">
+         <ion-item button detail="false" class="ion-no-padding no-ripple" (click)="showTotalByCarton = !showTotalByCarton">
+            <ion-grid class="ion-no-padding py-2 pl-2">
+               <ion-row>
+                  <ion-col class="ion-flex ion-margin-auto">
+                     <ion-icon style="position:relative; top:0.1rem" *ngIf="!showTotalByCarton" name="add-circle-outline"></ion-icon>
+                     <ion-icon style="position:relative; top:0.1rem" *ngIf="showTotalByCarton" name="remove-circle-outline"></ion-icon>
+                     <div class="font-bold">Total Quantity</div>
+                  </ion-col>
+                  <ion-col class="ion-margin-auto justify-content-end">
+                     <div>{{objectService.objectDetail|sum:"lineQty"|number:"1.0"}}</div>
+                  </ion-col>
+               </ion-row>
+               <ng-container *ngIf="showTotalByCarton">
+                  <ion-row *ngFor="let rowData of getTotalByCarton()|keyvalue">
+                     <ion-col class="ion-flex ion-margin-auto">
+                        <div>[Ctr. {{rowData.key}}]</div>
+                     </ion-col>
+                     <ion-col class="ion-margin-auto justify-content-end">
+                        <div>{{rowData.value}}</div>
+                     </ion-col>
+                  </ion-row>
+               </ng-container>
+               <ion-row>
+                  <ion-col class="ion-flex ion-margin-auto">
+                     <div class="font-bold">Total Amount</div>
+                  </ion-col>
+                  <ion-col class="ion-margin-auto justify-content-end">
+                     <div>{{objectService.objectDetail|sum:"subTotal"|number:"1.2"}}</div>
+                  </ion-col>
+               </ion-row>
+               <ion-row>
+                  <ion-col size="1" class="ion-flex ion-margin-auto">
+                     <div class="font-bold">#</div>
+                  </ion-col>
+                  <ion-col class="ion-flex ion-margin-auto">
+                     <div class="font-bold">Item Info</div>
+                  </ion-col>
+               </ion-row>
+            </ion-grid>
+         </ion-item>
+
+         <!-- <ion-item button detail="false" class="ion-no-padding no-ripple" lines="full"> -->
+            <div *ngIf="objectService.configTransferOutActivateContainerNum" class="ion-flex">
+               <ion-button class="ion-button-custom" fill="clear" color="primary" size="small" (click)="modifyPageNum('M')">
+                  <ion-icon slot="icon-only" name="remove-circle"></ion-icon>
+               </ion-button>
+               <div class="my-auto">
+                  Carton <span class="font-bold">{{objectService.pageNum}}</span>
+               </div>
+               <ion-button class="ion-button-custom" fill="clear" color="primary" size="small" (click)="modifyPageNum('A')">
+                  <ion-icon slot="icon-only" name="add-circle"></ion-icon>
+               </ion-button>
+            </div>
+         <!-- </ion-item> -->
+
+         <ion-item-sliding #slidingItem *ngFor="let rowData of objectService.objectDetail; let rowIndex = index">
+            <ion-item button detail="false" class="ion-no-padding no-ripple" (click)="qtyInput.setFocus()">
+               <ion-grid class="ion-no-padding py-2 pl-2">
+                  <ion-row>
+                     <ion-col size="1" class="ion-flex ion-margin-auto">
+                        <div>{{rowIndex+1}}</div>
+                     </ion-col>
+                     <ion-col size="9">
+                        <ion-grid class="ion-no-padding">
+                           <ion-row>
+                              <ion-col class="ion-flex ion-margin-auto">
+                                 <div class="font-bold">{{rowData.itemCode}}</div>
+                                 <div class="ion-flex">
+                                    <span class="badge-green ion-text-wrap ion-flex my-auto px-1 mx-1" *ngIf="rowData.xDesc"> {{rowData.xDesc}}</span>
+                                    <span class="badge-purple ion-text-wrap ion-flex my-auto px-1" *ngIf="rowData.yDesc"> {{rowData.yDesc}}</span>
+                                 </div>
+                              </ion-col>
+                              <ion-col class="ion-flex ion-margin-auto justify-content-end" *ngIf="objectService.configTransferOutActivateContainerNum && rowData.containerNum">
+                                 <div class="ion-text-wrap font-bold">[Ctr. {{rowData.containerNum}}]</div>
+                              </ion-col>
+                           </ion-row>
+                           <ion-row>
+                              <ion-col class="ion-flex ion-margin-auto">
+                                 <div class="ion-text-wrap">{{rowData.itemDesc}}</div>
+                              </ion-col>
+                           </ion-row>
+                           <ion-row>
+                              <ion-col class="ion-flex ion-margin-auto">
+                                 <div class="ion-text-wrap">{{rowData.barcode}}</div>
+                              </ion-col>
+                           </ion-row>
+                        </ion-grid>
+                     </ion-col>
+                     <ion-col size="2" class="ion-flex ion-margin-auto justify-content-center">
+                        <ion-input #qtyInput class="ion-text-center" type="number" [min]="0" [(ngModel)]="rowData.lineQty" placeholder="0" (ionBlur)="qtyInputBlur($event, rowIndex)"></ion-input>
+                     </ion-col>
+                  </ion-row>
+                  <ion-row>
+                     <ion-col>
+                        <div class="font-bold">
+                           Unit Price
+                        </div>
+                     </ion-col>
+                     <ion-col>
+                        <div class="font-bold">
+                           Disc. Code
+                        </div>
+                     </ion-col>
+                     <ion-col>
+                        <div class="font-bold justify-content-end">
+                           Disc. Amt
+                        </div>
+                     </ion-col>
+                     <ion-col>
+                        <div class="font-bold justify-content-end">
+                           SubTotal
+                        </div>
+                     </ion-col>
+                  </ion-row>
+                  <ion-row>
+                     <ion-col>
+                        <div>{{rowData.unitPrice|number:"1.0-2"}}</div>
+                     </ion-col>
+                     <ion-col>
+                        <div class="ion-flex">
+                           <div>{{rowData.discountGroupCode}}</div>
+                           <div *ngIf="rowData.discountExpression"> [{{rowData.discountExpression}}]</div>
+                        </div>
+                     </ion-col>
+                     <ion-col class="justify-content-end">
+                        <div>{{(rowData.discountAmt??0)|number:"1.0-2"}}</div>
+                     </ion-col>
+                     <ion-col class="justify-content-end">
+                        <div>{{(rowData.subTotal??0)|number:"1.0-2"}}</div>
+                     </ion-col>
+                  </ion-row>
+               </ion-grid>
+            </ion-item>
+            <ion-item-options>
+               <ion-item-option color="danger" (click)="slidingItem.close(); deleteLine(rowIndex, rowData);">
+                  <ion-icon slot="top" name="trash-outline"></ion-icon>Delete
+               </ion-item-option>
+            </ion-item-options>
+         </ion-item-sliding>
+      </ion-list>
+
+   </div>
+</ion-content>
+
+<ion-modal [isOpen]="attachmentModel" (didDismiss)="attachmentModel = false">
+   <ng-template>
+      <ion-header>
+         <ion-toolbar>
+            <ion-title>Attachments</ion-title>
+            <ion-buttons slot="start">
+               <ion-button (click)="hideAttachmentModal()">Done</ion-button>
+            </ion-buttons>
+         </ion-toolbar>
+      </ion-header>
+      <ion-content>
+         <div class="p-2">
+            <ion-list class="list-custom animate__animated animate__fadeIn" lines="full">
+               <div *ngIf="objectService.attachment && objectService.attachment.length > 0">
+                  <ion-list-header class="ion-list-header-small ion-flex ion-text-center">
+                     <ion-label>Attachments</ion-label>
+                  </ion-list-header>
+                  <ion-item *ngFor="let file of objectService.attachment">
+                     <ion-thumbnail slot="start">
+                        <img [src]="file.imageUrl">
+                     </ion-thumbnail>
+                     <ion-label class="ion-text-wrap"> {{ file.filesName }} </ion-label>
+                     <ion-button slot="end" fill="clear" (click)="presentDeleteOnlineImageAlert(file)">
+                        <ion-icon slot="icon-only" name="trash"></ion-icon>
+                     </ion-button>
+                  </ion-item>
+               </div>
+               <div class="mt-2">
+                  <ion-button fill="clear" expand="full" color="dark" (click)="imageAction()">
+                     <ion-icon slot="start" name="camera"></ion-icon>
+                     Upload Image
+                  </ion-button>
+                  <ion-item *ngFor="let file of images; let i = index">
+                     <ion-thumbnail slot="start">
+                        <ion-img [src]="file.data"></ion-img>
+                     </ion-thumbnail>
+                     <ion-label class="ion-text-wrap"> {{ file.name }} </ion-label>
+                     <ion-button slot="end" fill="clear" (click)="deleteAction(file)">
+                        <ion-icon slot="icon-only" name="trash"></ion-icon>
+                     </ion-button>
+                  </ion-item>
+               </div>
+            </ion-list>
+         </div>
+      </ion-content>
+   </ng-template>
+</ion-modal>
+
+<ion-footer class="ion-padding-bottom-large animate__animated animate__fadeInUp p-0" style="background-color: white;" [hidden]="scanActive || authService.hideFooter">
+   <ion-button class="ion-margin" expand="block" size="default" (click)="nextStep()">
+      Save
+   </ion-button>
+</ion-footer>
+
+<ion-row class="scanner-buttons" [hidden]="!scanActive">
+   <ion-col class="ion-no-padding">
+      <ion-button expand="full" (click)="stopScanner()">Stop</ion-button>
+   </ion-col>
+</ion-row>
+<div class="scan-box" [hidden]="!scanActive"></div>

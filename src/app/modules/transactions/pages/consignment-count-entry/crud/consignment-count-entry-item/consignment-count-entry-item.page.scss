@@ -1,0 +1,60 @@
+input {
+   width: 100%;
+   background-color: transparent;
+   border: none;
+}
+
+input[type=text]:focus {
+   border: none;
+   outline: none;
+}
+
+.table-container {
+   overflow-x: auto;
+   overflow-y: auto;
+   max-height: calc(100vh - 180px);
+}
+
+table {
+   height: 100%;
+   width: 100%;
+   border-collapse: collapse;
+}
+
+th {
+   border: 1px solid #000000;
+   height: 2.5rem;
+}
+
+td {
+   border: 1px solid #000000;
+
+   ion-input {
+      min-width: 2.5rem;
+      width: 100%;
+   }
+}
+
+ion-list.custom-border {
+   border-radius: 0;
+}
+
+th.sticky-top {
+   min-width: 2.5rem;
+   width: 100%;
+   position: sticky;
+   top: 0;
+   background-color: lightgray;
+   z-index: 1;
+   font-weight: bold;
+}
+
+td.sticky-left {
+   min-width: 2.5rem;
+   width: 100%;
+   position: sticky;
+   left: 0;
+   background-color: lightgray;
+   z-index: 1;
+   font-weight: bold;
+}

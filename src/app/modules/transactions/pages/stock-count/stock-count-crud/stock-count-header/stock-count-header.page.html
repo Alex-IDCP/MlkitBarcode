@@ -1,0 +1,102 @@
+<ion-header>
+   <ion-toolbar>
+      <ion-title>Stock Count</ion-title>
+      <ion-buttons slot="start">
+         <ion-button (click)="cancelInsert()"><ion-icon slot="start" name="chevron-back-outline"></ion-icon></ion-button>
+      </ion-buttons>
+   </ion-toolbar>
+</ion-header>
+<ion-content fullscreen>
+   <div class="p-2">
+      <ion-list class="list-custom animate__animated animate__fadeIn" lines="full">
+         <ng-container *ngIf="objectService.objectHeader?.inventoryCountId && objectService.objectHeader?.inventoryCountId > 0">
+            <ion-item button detail="false" class="ion-no-padding no-ripple">
+               <ion-grid class="ion-no-padding py-2 pl-2">
+                  <ion-row>
+                     <ion-col class="ion-flex ion-margin-auto">
+                        <div class="font-bold">Doc. Num.</div>
+                     </ion-col>
+                     <ion-col class="ion-flex ion-margin-auto justify-content-end">
+                        <div>{{objectService.objectHeader?.inventoryCountNum}}</div>
+                     </ion-col>
+                  </ion-row>
+                  <ion-row>
+                     <ion-col class="ion-flex ion-margin-auto">
+                        <div class="font-bold">Doc. Date</div>
+                     </ion-col>
+                     <ion-col class="ion-flex ion-margin-auto justify-content-end">
+                        <div>{{objectService.objectHeader?.trxDate|date:'dd/MM/yyyy'}}</div>
+                     </ion-col>
+                  </ion-row>
+                  <ion-row>
+                     <ion-col class="ion-flex ion-margin-auto">
+                        <div class="font-bold">Location</div>
+                     </ion-col>
+                     <ion-col class="ion-flex ion-margin-auto justify-content-end">
+                        <div>{{objectService.objectHeader?.locationId|idMapping:objectService.locationMasterList}}</div>
+                     </ion-col>
+                  </ion-row>
+                  <ion-row>
+                     <ion-col class="ion-flex ion-margin-auto">
+                        <div class="font-bold">Inventory Count Batch</div>
+                     </ion-col>
+                     <ion-col class="ion-flex ion-margin-auto justify-content-end">
+                        <div>{{objectService.objectHeader?.inventoryCountBatchNum}}</div>
+                     </ion-col>
+                  </ion-row>
+               </ion-grid>
+            </ion-item>
+         </ng-container>
+         <ng-container *ngIf="objectService.objectHeader?.inventoryCountId === null || objectService.objectHeader?.inventoryCountId === undefined || objectService.objectHeader?.inventoryCountId === 0">
+            <ion-item id="open-calendar-modal">
+               <!-- <ion-icon icon="calendar-outline" slot="start" color="primary"></ion-icon> -->
+               <ion-label position="stacked" class="font-bold">Transaction Date</ion-label>
+               <ion-text class="ion-no-padding-end pb-3">{{formattedDateString}}</ion-text>
+            </ion-item>
+            <ion-modal class="ion-modal-calendar" trigger="open-calendar-modal">
+               <ng-template>
+                  <ion-content>
+                     <ion-datetime #datetime [value]="dateValue" size="cover" (ionChange)="onTrxDateSelected(datetime.value)" [preferWheel]="true" showDefaultTitle="true" presentation="date" [max]="maxDate" [disabled]="objectService.objectHeader?.inventoryCountId && objectService.objectHeader?.inventoryCountId > 0">
+                        <ion-buttons slot="buttons">
+                           <ion-button (click)="dateDismiss()" color="danger">Dismiss</ion-button>
+                           <ion-button (click)="dateSelect()" color="primary">Select</ion-button>
+                        </ion-buttons>
+                     </ion-datetime>
+                  </ion-content>
+               </ng-template>
+            </ion-modal>
+            <app-search-dropdown title="Location" optionLabel="description" [masterDropdownList]="objectService.locationMasterList" [selectedId]="objectForm?.controls?.locationId?.value" (onActionComplete)="onLocationSelected($event)" [disabled]="objectService.objectHeader?.inventoryCountId && objectService.objectHeader?.inventoryCountId > 0"></app-search-dropdown>
+            <app-search-dropdown #inventoryCountBatchSdd title="Inventory Count Batch" optionLabel="description" [searchDropdownList]="inventoryCountBatchDdl" [selectedId]="objectForm?.controls?.inventoryCountBatchId?.value" (onActionComplete)="onInventoryCountBatchChanged($event)" emptyMessage="This Location does not have Inventory Count Batch" [disabled]="objectService.objectHeader?.inventoryCountId && objectService.objectHeader?.inventoryCountId > 0"></app-search-dropdown>
+         </ng-container>
+      </ion-list>
+      <ion-list class="list-custom animate__animated animate__fadeIn" lines="full" [formGroup]="objectForm">
+         <ng-container *ngIf="!objectService.configInvCountFreeTextZoneRack">
+            <app-search-dropdown #rackSsd title="Rack" optionLabel="description" [masterDropdownList]="objectService.rackMasterList" [selectedId]="objectForm?.controls?.rackId?.value" (onActionComplete)="onRackChanged($event)"></app-search-dropdown>
+            <app-search-dropdown #zoneSsd title="Zone" optionLabel="description" [masterDropdownList]="objectService.zoneMasterList" [selectedId]="objectForm?.controls?.zoneId?.value" (onActionComplete)="onZoneChanged($event)"></app-search-dropdown>
+         </ng-container>
+         <ng-container *ngIf="objectService.configInvCountFreeTextZoneRack">
+            <ion-item button [detail]="false" class="no-ripple">
+               <ion-label position="stacked" class="font-bold">Zone Desc.</ion-label>
+               <ion-input formControlName="zoneDesc" placeholder="Zone Desc."></ion-input>
+            </ion-item>
+            <ion-item button [detail]="false" class="no-ripple">
+               <ion-label position="stacked" class="font-bold">Rack Desc.</ion-label>
+               <ion-input formControlName="rackDesc" placeholder="Rack Desc."></ion-input>
+            </ion-item>
+         </ng-container>
+         <ion-item button [detail]="false" class="no-ripple">
+            <ion-label position="stacked" class="font-bold">Carton Desc.</ion-label>
+            <ion-input formControlName="cartonDesc" placeholder="Carton Desc."></ion-input>
+         </ion-item>
+         <ion-item button [detail]="false" class="no-ripple">
+           <ion-label position="stacked" class="font-bold">Remark</ion-label>
+           <ion-textarea autoGrow="true" inputmode="text" type="text" enterkeyhint="enter" placeholder="Enter Remark" formControlName="remark"></ion-textarea>
+         </ion-item>
+      </ion-list>
+   </div>
+</ion-content>
+<ion-footer class="ion-padding-bottom-large animate__animated animate__fadeInUp p-0" style="background-color: white;" [hidden]="authService.hideFooter">
+   <ion-button class="ion-margin" expand="block" size="default" (click)="nextStep()" [disabled]="!objectForm.valid">
+      Next
+   </ion-button>
+</ion-footer>

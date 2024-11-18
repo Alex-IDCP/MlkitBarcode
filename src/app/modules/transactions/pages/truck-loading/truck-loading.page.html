@@ -1,0 +1,36 @@
+<ion-header>
+   <ion-toolbar>
+      <ion-title><div class="ion-text-wrap">Truck Loading</div></ion-title>
+      <ion-buttons slot="start">
+         <ion-back-button text="" defaultHref="/transactions"></ion-back-button>
+      </ion-buttons>
+   </ion-toolbar>
+</ion-header>
+<ion-content [fullscreen]="true">
+   <div class="p-2">
+      <div *ngFor="let m of uniqueGrouping">
+         <ion-list-header class="ion-list-header-small ion-flex ion-text-center">
+            <ion-label>{{m|date:'dd MMM yyyy'}}</ion-label>
+         </ion-list-header>
+         <ion-list class="list-custom animate__animated animate__fadeIn" lines="full">
+            <ion-item button detail="false" class="ion-no-padding" *ngFor="let object of getObjects(m)" (click)="goToDetail(object.truckLoadingId)">
+               <ion-grid class="ion-no-padding py-2 pl-2">
+                  <ion-row>
+                     <ion-col class="ion-flex ion-margin-auto font-bold">{{object.truckLoadingNum}}</ion-col>
+                     <ion-col class="ion-flex ion-margin-auto justify-content-end">{{object.trxDate|date:'dd/MM/yyyy'}}</ion-col>
+                  </ion-row>
+                  <ion-row>
+                     <ion-col class="ion-flex ion-margin-auto">{{object.vendorId|idMapping:objectService.vendorMasterList}}</ion-col>
+                     <ion-col class="ion-flex ion-margin-auto justify-content-end">{{object.shipMethodId|idMapping:objectService.shipMethodMasterList}}</ion-col>
+                  </ion-row>
+               </ion-grid>
+            </ion-item>
+         </ion-list>
+      </div>
+   </div>
+</ion-content>
+<ion-fab class="ion-fab-custom" vertical="bottom" horizontal="center" slot="fixed" (click)="selectAction()">
+   <ion-fab-button>
+      <ion-icon name="add"></ion-icon>
+   </ion-fab-button>
+</ion-fab>

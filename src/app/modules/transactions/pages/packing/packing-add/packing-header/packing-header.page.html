@@ -1,0 +1,416 @@
+<ion-header [hidden]="scanActive">
+   <ion-toolbar>
+      <ion-title>Multi Packing</ion-title>
+      <ion-buttons slot="start">
+         <ion-button (click)="cancelInsert()">
+            <ion-icon slot="start" name="chevron-back-outline"></ion-icon>
+         </ion-button>
+      </ion-buttons>
+      <ion-buttons slot="primary" (click)="swapCustomerLocation()" *ngIf="!objectForm.controls.isWithSo.value">
+         <ion-icon slot="icon-only" name="sync-outline"></ion-icon>
+      </ion-buttons>
+      <ion-buttons slot="primary" *ngIf="objectForm.controls.isWithSo.value">
+         <app-camera-scan-input #cameraScanInput *ngIf="isButtonVisible && objectForm.controls.warehouseAgentId?.value && (isWithType ==='SO' || isWithType === 'B2B')" [scanActive]="scanActive" (onCameraStatusChanged)="onCameraStatusChanged($event)" (onDoneScanning)="onDoneScanning($event)"></app-camera-scan-input>
+      </ion-buttons>
+   </ion-toolbar>
+</ion-header>
+<ion-content fullscreen [hidden]="scanActive">
+   <div class="p-2">
+
+      <ion-list class="list-custom animate__animated animate__fadeIn" lines="full" [formGroup]="objectForm">
+         <app-search-dropdown title="Warehouse Agent" optionLabel="description" [searchDropdownList]="objectService.warehouseAgentMasterList" [selectedId]="objectForm.controls.warehouseAgentId?.value" (onActionComplete)="onWarehouseAgentSelected($event)" [showCamera]="true" [inputReadOnly]="false" [clearSearchValue]="true" (onScanCompleted)="onWAScanCompleted($event)" (onCameraStatusChanged)="onCameraStatusChanged($event)" (onDoneScanning)="onWADoneScanning($event)"></app-search-dropdown>
+         <ion-item class="ion-flex ion-flex-center">
+           <ion-checkbox slot="end" formControlName="isDeemedSupply"></ion-checkbox>
+           <ion-label>
+             <div class="ion-text-small font-bold">Deemed Supply?</div>
+           </ion-label>
+         </ion-item>
+      </ion-list>
+
+      <ng-container *ngIf="objectForm.controls.warehouseAgentId?.value">
+         <ng-container *ngIf="objectForm.controls.multiPackingId?.value === 0">
+            <ion-segment [(ngModel)]="isWithType" (ionChange)="isWithDocChanged($event)" *ngIf="selectedDocs && selectedDocs.length === 0">
+               <ion-segment-button value="SO">
+                  <ion-label>With SO</ion-label>
+               </ion-segment-button>
+               <ion-segment-button value="B2B">
+                  <ion-label>With B2B</ion-label>
+               </ion-segment-button>
+               <ion-segment-button value="NONE">
+                  <ion-label>Without Doc</ion-label>
+               </ion-segment-button>
+            </ion-segment>
+         </ng-container>
+         <div class="mt-2" *ngIf="isWithType === 'NONE'" [formGroup]="objectForm">
+            <ion-list class="list-custom animate__animated animate__fadeIn" lines="full">
+               <app-search-dropdown title="Origin Location" optionLabel="description" [searchDropdownList]="objectService.fLocationMasterList" [selectedId]="selectedLocationId" (onActionComplete)="onOriginChanged($event)"></app-search-dropdown>
+               <ng-container *ngIf="!isByLocation">
+                  <app-search-dropdown title="Customer" optionLabel="description" [searchDropdownList]="objectService.customerMasterList" [selectedId]="selectedCustomerId" (onActionComplete)="onCustomerSelected($event, true)" [disabled]="customerDisabled"></app-search-dropdown>
+                  <app-search-dropdown *ngIf="objectForm.controls.businessModelType.value !== 'T' && objectForm.controls.businessModelType.value !== null" title="Destination Location" optionLabel="description" [masterDropdownList]="selectedCustomerLocationList" [selectedId]="selectedToLocationId" (onActionComplete)="onCustomerLocationSelected($event)"></app-search-dropdown>
+               </ng-container>
+               <ng-container *ngIf="isByLocation">
+                  <app-search-dropdown title="Destination Location" optionLabel="description" [searchDropdownList]="objectService.locationMasterList" [selectedId]="objectForm.controls.toLocationId.value" (onActionComplete)="onFullToLocationSelected($event)"></app-search-dropdown>
+                  <ng-container *ngIf="objectForm.controls.toLocationId.value">
+                     <app-search-dropdown title="Customer" optionLabel="description" [searchDropdownList]="objectService.customerMasterList" [selectedId]="objectForm.controls.customerId.value" (onActionComplete)="onCustomerSelected($event, true)" [disabled]="customerDisabled"></app-search-dropdown>
+                  </ng-container>
+               </ng-container>
+               <app-search-dropdown title="Ship Method" optionLabel="description" [searchDropdownList]="objectService.shipMethodMasterList" [selectedId]="objectForm.controls.shipMethodId.value" (onActionComplete)="onShipMethodSelected($event)"></app-search-dropdown>
+               <ion-item>
+                  <ion-label class="font-bold" position="stacked">Remark</ion-label>
+                  <ion-textarea formControlName="remark" placeholder="Enter Remark" [autoGrow]="true"></ion-textarea>
+               </ion-item>
+            </ion-list>
+         </div>
+         <div *ngIf="(isWithType ==='SO' || isWithType === 'B2B')">
+            <ion-segment [(ngModel)]="groupType" (ionChange)="groupTypeChanged($event)" *ngIf="selectedDocs && selectedDocs.length > 0">
+               <ion-segment-button value="S">
+                  <ion-label>Group By Doc</ion-label>
+               </ion-segment-button>
+               <ion-segment-button value="I">
+                  <ion-label>Group By Item</ion-label>
+               </ion-segment-button>
+            </ion-segment>
+            <ion-grid class="ion-no-padding">
+               <ion-row>
+                  <ion-col class="ion-flex ion-margin-auto" size="10">
+                     <input #barcodeInput hideKeyboard class="p-2 ion-flex ion-text-center" type="text" enterkeyhint="enter" [(ngModel)]="itemSearchValue" [ngModelOptions]="{standalone:true}" placeholder="Enter or Scan Doc" (keydown)="handleSoKeyDown($event)">
+                  </ion-col>
+                  <ion-col class="ion-flex ion-margin-auto justify-content-end">
+                     <ion-button size="small" fill="clear" (click)="showKeyboard($event)">
+                        <i slot="icon-only" class="fas fa-keyboard"></i>
+                     </ion-button>
+                  </ion-col>
+               </ion-row>
+            </ion-grid>
+            <div *ngIf="selectedDocs && selectedDocs.length > 0">
+               <ion-list class="list-custom animate__animated animate__fadeIn" lines="full">
+                  <ion-item button detail="false" class="ion-no-padding no-ripple">
+                     <ion-grid class="ion-no-padding py-2 pl-2">
+                        <ion-row>
+                           <ion-col class="ion-flex ion-margin-auto">
+                              <div class="font-bold">Customer</div>
+                           </ion-col>
+                           <ion-col class="ion-flex ion-margin-auto justify-content-end">
+                              <div>{{selectedCustomerId|idMapping:objectService.customerMasterList}}</div>
+                           </ion-col>
+                        </ion-row>
+                        <ion-row>
+                           <ion-col class="ion-flex ion-margin-auto">
+                              <div class="font-bold">Origin Location</div>
+                           </ion-col>
+                           <ion-col class="ion-flex ion-margin-auto justify-content-end">
+                              <div>{{selectedLocationId|idMapping:objectService.locationMasterList}}</div>
+                           </ion-col>
+                        </ion-row>
+                        <ion-row>
+                           <ion-col class="ion-flex ion-margin-auto">
+                              <div class="font-bold">Destination Location</div>
+                           </ion-col>
+                           <ion-col class="ion-flex ion-margin-auto justify-content-end">
+                              <div>{{selectedToLocationId|idMapping:objectService.locationMasterList}}</div>
+                           </ion-col>
+                        </ion-row>
+                     </ion-grid>
+                  </ion-item>
+               </ion-list>
+               <ion-list class="list-custom animate__animated animate__fadeIn ion-no-padding" lines="none" [formGroup]="objectForm">
+                  <!-- <app-search-dropdown title="Destination Location" optionLabel="description" [searchDropdownList]="objectService.locationMasterList" [selectedId]="selectedToLocationId" (onActionComplete)="onDestinationChanged($event)"></app-search-dropdown> -->
+                  <ion-item class="ion-no-padding pl-2">
+                     <ion-label class="font-bold" position="stacked">Remark</ion-label>
+                     <ion-textarea formControlName="remark" placeholder="Enter Remark" [autoGrow]="true"></ion-textarea>
+                  </ion-item>
+               </ion-list>
+            </div>
+            <div *ngIf="groupType === 'S'">
+               <ion-list class="list-custom animate__animated animate__fadeIn" lines="full">
+                  <ion-item-sliding #slidingSo *ngFor="let so of uniqueDoc">
+                     <ion-item button detail="false" class="ion-no-padding no-ripple" (click)="showDetail()">
+                        <!-- <circle-progress [percent]="objectService.getProgressBySoNum(so)"></circle-progress> -->
+                        <ion-grid class="ion-no-padding py-2 pl-2">
+                           <ion-row>
+                              <ion-col class="ion-flex ion-margin-auto justify-content-center">
+                                 <div class="font-bold color-blue">{{so}}</div>
+                              </ion-col>
+                           </ion-row>
+                           <ion-row>
+                              <ion-col size="1" class="ion-flex ion-margin-auto">
+                                 <div class="font-bold">#</div>
+                              </ion-col>
+                              <ion-col size="4" class="ion-flex ion-margin-auto">
+                                 <div class="font-bold">Item Code</div>
+                              </ion-col>
+                              <ion-col class="ion-flex ion-margin-auto justify-content-center" *ngIf="configSystemWideActivateMultiUOM">
+                                 <div class="font-bold">UOM</div>
+                              </ion-col>
+                              <ion-col class="ion-flex ion-margin-auto justify-content-center">
+                                 <div class="font-bold">SO</div>
+                              </ion-col>
+                              <ion-col class="ion-flex ion-margin-auto justify-content-center">
+                                 <div class="font-bold">Picked</div>
+                              </ion-col>
+                              <ion-col class="ion-flex ion-margin-auto justify-content-end">
+                                 <div class="font-bold">Current (Other)</div>
+                              </ion-col>
+                           </ion-row>
+                           <ng-container *ngFor="let rowData of getUniqueItemBySoNum(so); let rowIndex = index">
+                              <ion-row class="mt-1">
+                                 <ion-col size="1" class="ion-flex ion-margin-auto">
+                                    <div [ngClass]="{'font-underline font-bold color-blue':(rowData.isComponentScan && rowData.assembly && rowData.assembly.length > 0)}">
+                                       {{rowIndex+1}}</div>
+                                 </ion-col>
+                                 <ion-col size="4" class="ion-flex ion-margin-auto">
+                                    <div [ngClass]="{'font-underline font-bold color-blue':(rowData.isComponentScan && rowData.assembly && rowData.assembly.length > 0)}">
+                                       {{rowData.itemCode}}</div>
+                                 </ion-col>
+                                 <ion-col class="ion-flex ion-margin-auto justify-content-center" *ngIf="configSystemWideActivateMultiUOM">
+                                    <div [ngClass]="{'font-underline font-bold color-blue':(rowData.isComponentScan && rowData.assembly && rowData.assembly.length > 0)}">
+                                       {{rowData.itemUomId|idMapping:objectService.itemUomMasterList}}</div>
+                                 </ion-col>
+                                 <ion-col class="ion-flex ion-margin-auto justify-content-center">
+                                    <div [ngClass]="{'font-underline font-bold color-blue':(rowData.isComponentScan && rowData.assembly && rowData.assembly.length > 0)}">
+                                       {{rowData.qtyRequest}}</div>
+                                 </ion-col>
+                                 <ion-col class="ion-flex ion-margin-auto justify-content-center">
+                                    <div [ngClass]="{'font-underline font-bold color-blue':(rowData.isComponentScan && rowData.assembly && rowData.assembly.length > 0)}">
+                                       {{rowData.qtyPicked}}</div>
+                                 </ion-col>
+                                 <ion-col class="ion-flex ion-margin-auto justify-content-end">
+                                    <div [ngClass]="{'font-underline font-bold color-blue':(rowData.isComponentScan && rowData.assembly && rowData.assembly.length > 0)}">
+                                       {{rowData.qtyCurrent|number:"1.0-0"}}</div>
+                                    <div [ngClass]="{'font-underline font-bold color-blue':(rowData.isComponentScan && rowData.assembly && rowData.assembly.length > 0)}">
+                                       ({{rowData.qtyPacked}})</div>
+                                 </ion-col>
+                              </ion-row>
+                              <ng-container *ngIf="rowData.isComponentScan && rowData.assembly && rowData.assembly.length > 0;">
+                                 <ion-row class="mt-1" *ngFor="let rowData2 of rowData.assembly; let rowIndex2 = index">
+                                    <ion-col size="1" class="ion-flex ion-margin-auto">
+                                       <div class="font-italic font-bold">{{rowIndex+1}}.{{rowIndex2+1}}</div>
+                                    </ion-col>
+                                    <ion-col size="4" class="ion-flex ion-margin-auto" *ngIf="isMobile">
+                                       <div class="font-italic font-bold">
+                                          {{(rowData2.itemComponentId|offlineItemIdMapping:configService.item_Masters)}}
+                                       </div>
+                                    </ion-col>
+                                    <ion-col size="4" class="ion-flex ion-margin-auto" *ngIf="!isMobile">
+                                       <div class="font-italic font-bold">N/A</div>
+                                    </ion-col>
+                                    <ion-col size="4" class="ion-flex ion-margin-auto" *ngIf="isMobile">
+                                       <div class="font-italic font-bold"></div>
+                                    </ion-col>
+                                    <ion-col class="ion-flex ion-margin-auto justify-content-center">
+                                       <div class="font-italic font-bold">{{rowData2.qtyRequest}}</div>
+                                    </ion-col>
+                                    <ion-col class="ion-flex ion-margin-auto justify-content-center">
+                                       <div class="font-italic font-bold">{{rowData2.qtyPicked??0}}</div>
+                                    </ion-col>
+                                    <ion-col class="ion-flex ion-margin-auto justify-content-end">
+                                       <div class="font-italic font-bold">{{rowData2.qtyCurrent??0|number:"1.0-0"}}</div>
+                                       <div class="font-italic font-bold">({{rowData2.qtyPacked}})</div>
+                                    </ion-col>
+                                 </ion-row>
+                              </ng-container>
+                           </ng-container>
+                        </ion-grid>
+                     </ion-item>
+                     <ion-item-options side="end">
+                        <ion-item-option color="primary" (click)="slidingSo.close(); showInfoModal(so)">Info</ion-item-option>
+                     </ion-item-options>
+                  </ion-item-sliding>
+               </ion-list>
+            </div>
+            <div *ngIf="groupType === 'I'">
+               <ion-list class="list-custom animate__animated animate__fadeIn" lines="full">
+                  <ion-item button detail="false" class="ion-no-padding no-ripple" *ngFor="let itemCode of uniqueItemCode" (click)="showDetail()">
+                     <circle-progress [percent]="objectService.getProgressByItemCode(itemCode)"></circle-progress>
+                     <ion-grid class="ion-no-padding py-2">
+                        <ion-row>
+                           <ion-col class="ion-flex ion-margin-auto justify-content-center">
+                              <div class="font-bold">{{itemCode}}</div>
+                           </ion-col>
+                        </ion-row>
+                        <ion-row>
+                           <ion-col class="ion-flex ion-margin-auto">
+                              <div>For: {{getSoNumByItemCode(itemCode)}}</div>
+                           </ion-col>
+                        </ion-row>
+                        <ion-row>
+                           <ion-col size="5" class="ion-flex ion-margin-auto">
+                              <div class="font-bold">Item</div>
+                           </ion-col>
+                           <ion-col class="ion-flex ion-margin-auto justify-content-center">
+                              <div class="font-bold">SO</div>
+                           </ion-col>
+                           <ion-col class="ion-flex ion-margin-auto justify-content-center">
+                              <div class="font-bold">Picked</div>
+                           </ion-col>
+                           <ion-col class="ion-flex ion-margin-auto justify-content-end">
+                              <div class="font-bold">Current (Other)</div>
+                           </ion-col>
+                        </ion-row>
+                        <ion-row class="mt-1" *ngFor="let rowData of getSoLineByItemCode(itemCode)">
+                           <ion-col size="5" class="ion-flex ion-margin-auto">
+                              <ion-grid class="ion-no-padding">
+                                 <ion-row>
+                                    <ion-col class="ion-flex ion-margin-auto">
+                                       <div>{{rowData.itemCode}}</div>
+                                       <span class="badge-green ion-text-wrap ion-flex my-auto px-1 mx-1" *ngIf="rowData.itemVariationXId">
+                                          {{rowData.itemVariationXId|idMapping:objectService.itemVariationXMasterList}}</span>
+                                       <span class="badge-purple ion-text-wrap ion-flex my-auto px-1" *ngIf="rowData.itemVariationYId">
+                                          {{rowData.itemVariationYId|idMapping:objectService.itemVariationYMasterList}}</span>
+                                    </ion-col>
+                                 </ion-row>
+                              </ion-grid>
+                           </ion-col>
+                           <ion-col class="ion-flex ion-margin-auto justify-content-center">
+                              <div>{{rowData.qtyRequest|number:"1.0-0"}}</div>
+                           </ion-col>
+                           <ion-col class="ion-flex ion-margin-auto justify-content-center">
+                              <div>{{rowData.qtyPicked|number:"1.0-0"}}</div>
+                           </ion-col>
+                           <ion-col class="ion-flex ion-margin-auto justify-content-end">
+                              <div>{{rowData.qtyCurrent|number:"1.0-0"}}</div>
+                              <div>({{rowData.qtyPacked??0|number:"1.0-0"}})</div>
+                           </ion-col>
+                        </ion-row>
+                     </ion-grid>
+                  </ion-item>
+               </ion-list>
+            </div>
+         </div>
+      </ng-container>
+   </div>
+   <div *ngIf="isWithType === 'NONE'">
+      <ion-button class="ion-margin" expand="block" size="default" (click)="nextStep()">
+         Next
+      </ion-button>
+   </div>
+</ion-content>
+
+<ion-row class="scanner-buttons" [hidden]="!scanActive">
+   <ion-col class="ion-no-padding">
+      <ion-button expand="full" (click)="stopScanner()">Stop</ion-button>
+   </ion-col>
+</ion-row>
+<div class="scan-box" [hidden]="!scanActive"></div>
+
+<ion-modal [isOpen]="infoModal" (didDismiss)="infoModal = false" (ionModalDidDismiss)="onInfoModalHide()">
+   <ng-template>
+      <ion-header>
+         <ion-toolbar>
+            <ion-title>Info</ion-title>
+            <ion-buttons slot="start">
+               <ion-button (click)="hideInfoModal()">Done</ion-button>
+            </ion-buttons>
+            <!-- <ion-buttons slot="end">
+               <ion-button (click)="showPricingPopover($event)"><ion-icon name="menu-outline" slot="icon-only"></ion-icon></ion-button>
+            </ion-buttons> -->
+         </ion-toolbar>
+      </ion-header>
+      <ion-content>
+         <div class="p-2">
+            <ion-list class="list-custom animate__animated animate__fadeIn" lines="full">
+               <ion-item button detail="false" class="ion-no-padding no-ripple" *ngFor="let so of uniqueDoc">
+                  <!-- <circle-progress [percent]="objectService.getProgressBySoNum(so)"></circle-progress> -->
+                  <ion-grid class="ion-no-padding py-2 pl-2">
+                     <ion-row>
+                        <ion-col class="ion-flex ion-margin-auto justify-content-center">
+                           <div class="font-bold color-blue">{{so}}</div>
+                        </ion-col>
+                     </ion-row>
+                     <ion-row>
+                        <ion-col size="1" class="ion-flex ion-margin-auto">
+                           <div class="font-bold">#</div>
+                        </ion-col>
+                        <ion-col size="4" class="ion-flex ion-margin-auto">
+                           <div class="font-bold ion-text-wrap">Item Code</div>
+                        </ion-col>
+                        <ion-col class="ion-flex ion-margin-auto justify-content-end">
+                           <div class="font-bold">Reason</div>
+                        </ion-col>
+                        <!-- <ion-col class="ion-flex ion-margin-auto justify-content-center">
+                           <div class="font-bold">SO</div>
+                        </ion-col>
+                        <ion-col class="ion-flex ion-margin-auto justify-content-center">
+                           <div class="font-bold">Picked</div>
+                        </ion-col>
+                        <ion-col class="ion-flex ion-margin-auto justify-content-end">
+                           <div class="font-bold">Current (Other)</div>
+                        </ion-col> -->
+                     </ion-row>
+                     <ng-container *ngFor="let rowData of getUniqueItemBySoNum(so); let rowIndex = index">
+                        <ion-row>
+                           <ion-col size="1" class="ion-flex ion-margin-auto">
+                              <div [ngClass]="{'font-underline font-bold color-blue':(rowData.isComponentScan && rowData.assembly && rowData.assembly.length > 0)}">
+                                 {{rowIndex+1}}</div>
+                           </ion-col>
+                           <ion-col size="4" class="ion-flex ion-margin-auto">
+                              <div class="ion-text-wrap" [ngClass]="{'font-underline font-bold color-blue':(rowData.isComponentScan && rowData.assembly && rowData.assembly.length > 0)}">
+                                 {{rowData.itemCode}}</div>
+                           </ion-col>
+                           <ion-col class="ion-flex ion-margin-auto justify-content-end">
+                              <ion-item lines="none">
+                                 <ion-select class="m-0 p-0" interface="action-sheet" placeholder="Reason" slot="end" labelPlacement="end" [(ngModel)]="rowData.reasonId" (ionCancel)="rowData.reasonId = null">
+                                    <ion-select-option *ngFor="let selection of objectService.reasonMasterList" [value]="selection.id">{{selection.description}}</ion-select-option>
+                                 </ion-select>
+                              </ion-item>
+                              <!-- <app-search-dropdown title="Reason" optionLabel="description" [searchDropdownList]="objectService.reasonMasterList" [selectedId]="rowData.reasonId"></app-search-dropdown> -->
+                           </ion-col>
+                           <!-- <ion-col class="ion-flex ion-margin-auto justify-content-center">
+                              <div [ngClass]="{'font-underline font-bold color-blue':(rowData.isComponentScan && rowData.assembly && rowData.assembly.length > 0)}">
+                                 {{getSoQtyBySoItemCode(so, rowData.itemCode)}}</div>
+                           </ion-col>
+                           <ion-col class="ion-flex ion-margin-auto justify-content-center">
+                              <div [ngClass]="{'font-underline font-bold color-blue':(rowData.isComponentScan && rowData.assembly && rowData.assembly.length > 0)}">
+                                 {{getPickedBySoItemCode(so, rowData.itemCode)}}</div>
+                           </ion-col>
+                           <ion-col class="ion-flex ion-margin-auto justify-content-end">
+                              <div [ngClass]="{'font-underline font-bold color-blue':(rowData.isComponentScan && rowData.assembly && rowData.assembly.length > 0)}">
+                                 {{getCurrentBySoItemCode(so, rowData.itemCode)}}</div>
+                              <div [ngClass]="{'font-underline font-bold color-blue':(rowData.isComponentScan && rowData.assembly && rowData.assembly.length > 0)}">
+                                 ({{getPackedBySoItemCode(so, rowData.itemCode)}})</div>
+                           </ion-col> -->
+                        </ion-row>
+                        <!-- <ng-container *ngIf="rowData.isComponentScan && rowData.assembly && rowData.assembly.length > 0;">
+                           <ion-row class="mt-1" *ngFor="let rowData2 of rowData.assembly; let rowIndex2 = index">
+                              <ion-col size="1" class="ion-flex ion-margin-auto">
+                                 <div class="font-italic font-bold">{{rowIndex+1}}.{{rowIndex2+1}}</div>
+                              </ion-col>
+                              <ion-col size="4" class="ion-flex ion-margin-auto" *ngIf="isMobile">
+                                 <div class="font-italic font-bold">
+                                    {{(rowData2.itemComponentId|offlineItemIdMapping:configService.item_Masters)}}
+                                 </div>
+                              </ion-col>
+                              <ion-col size="4" class="ion-flex ion-margin-auto" *ngIf="!isMobile">
+                                 <div class="font-italic font-bold">N/A</div>
+                              </ion-col>
+                              <ion-col class="ion-flex ion-margin-auto justify-content-center">
+                                 <div class="font-italic font-bold">{{rowData2.qtyRequest}}</div>
+                              </ion-col>
+                              <ion-col class="ion-flex ion-margin-auto justify-content-center">
+                                 <div class="font-italic font-bold">{{rowData2.qtyPicked??0}}</div>
+                              </ion-col>
+                              <ion-col class="ion-flex ion-margin-auto justify-content-end">
+                                 <div class="font-italic font-bold">{{rowData2.qtyCurrent??0}}</div>
+                                 <div class="font-italic font-bold">({{rowData2.qtyPacked}})</div>
+                              </ion-col>
+                           </ion-row>
+                        </ng-container> -->
+                     </ng-container>
+                  </ion-grid>
+               </ion-item>
+            </ion-list>
+         </div>
+      </ion-content>
+      <ion-footer class="ion-padding-bottom-large animate__animated animate__fadeInUp p-0" style="background-color:white;">
+         <ion-grid class="ion-no-padding">
+            <ion-row>
+               <ion-col>
+                  <ion-button class="ion-margin" expand="block" size="default" (click)="hideInfoModal()">
+                     Done
+                  </ion-button>
+               </ion-col>
+            </ion-row>
+         </ion-grid>
+      </ion-footer>
+   </ng-template>
+</ion-modal>

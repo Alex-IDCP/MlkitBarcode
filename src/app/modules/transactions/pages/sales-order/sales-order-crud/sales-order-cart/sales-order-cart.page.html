@@ -1,0 +1,352 @@
+<ion-header>
+   <ion-toolbar>
+      <ion-title>Cart</ion-title>
+      <ion-buttons slot="start">
+         <ion-button (click)="previousStep()"><ion-icon slot="start" name="chevron-back-outline"></ion-icon></ion-button>
+      </ion-buttons>
+      <ion-buttons slot="primary">
+         <ion-button (click)="showPopover($event)"><ion-icon slot="icon-only" name="menu-outline"></ion-icon></ion-button>
+      </ion-buttons>
+   </ion-toolbar>
+</ion-header>
+
+<ion-popover #popover [isOpen]="isPopoverOpen" (didDismiss)="isPopoverOpen = false">
+   <ng-template>
+      <ion-content class="p-2">
+         <ion-list class="list-custom animate__animated animate__fadeIn" lines="full">
+            <ion-item (click)="popover.dismiss(); showExtraInfo()">
+               <i slot="end" class="fas fa-truck-fast"></i>
+               <ion-label>
+                  <div>Shipping Info</div>
+               </ion-label>
+            </ion-item>
+            <ion-item (click)="popover.dismiss(); showTrxAttr()">
+               <ion-label>
+                  <div>Trx. Attr.</div>
+               </ion-label>
+            </ion-item>
+            <ion-item (click)="popover.dismiss();">
+               <ion-label>
+                  <div>Show Other Amt.</div>
+               </ion-label>
+               <ion-checkbox [(ngModel)]="objectService.showOtherAmt"></ion-checkbox>
+            </ion-item>
+            <ion-item button="false" (click)="popover.dismiss()" *ngIf="objectService.salesActivatePromotionEngine && (objectService.objectHeader.businessModelType === 'T' || objectService.objectHeader.businessModelType === 'B')">
+               <ion-label>
+                  <div class="ion-text-wrap">Auto Promotion</div>
+               </ion-label>
+               <ion-checkbox [(ngModel)]="objectService.objectHeader.isAutoPromotion"></ion-checkbox>
+            </ion-item>
+            <ion-item button="false" (click)="popover.dismiss()" *ngIf="objectService.configSalesTransactionShowHistory">
+               <ion-label>
+                  <div>Latest Price</div>
+               </ion-label>
+               <ion-checkbox [(ngModel)]="objectService.showLatestPrice"></ion-checkbox>
+            </ion-item>
+            <ion-item (click)="popover.dismiss(); sendForDebug()">
+               <ion-icon slot="end" name="push-outline" color="danger"></ion-icon>
+               <ion-label>
+                  <div>Debug</div>
+               </ion-label>
+            </ion-item>
+         </ion-list>
+      </ion-content>
+   </ng-template>
+</ion-popover>
+
+<ion-content fullscreen>
+   <div class="p-2">
+      <app-sales-cart [isSalesOrder]="true" [objectHeader]="objectService.objectHeader" [objectDetail]="objectService.objectDetail" [objectOtherAmount]="objectService.objectOtherAmt" [showLatestPrice]="objectService.showLatestPrice" [showOtherAmount]="objectService.showOtherAmt"
+
+      [discountGroupMasterList]="objectService.discountGroupMasterList" [itemVariationXMasterList]="objectService.itemVariationXMasterList" [itemVariationYMasterList]="objectService.itemVariationYMasterList" [uomMasterList]="objectService.uomMasterList" [otherAmtMasterList]="objectService.otherAmtMasterList"
+      
+      [precisionSales]="objectService.precisionSales" [precisionSalesUnitPrice]="objectService.precisionSalesUnitPrice" 
+      
+      [isAutoPromotion]="objectService.objectHeader.isAutoPromotion" [promotionMaster]="objectService.promotionMaster" 
+      
+      [restrictTrxFields]="restrictTrxFields" [objectHistory]="objectService.objectSalesHistory"
+      
+      (onLineEditComplete)="onLineEditComplete($event)" (onTrxOtherAmountEditComplete)="onTrxOtherAmountEditComplete($event)"></app-sales-cart>
+      <ng-container *ngIf="objectService.objectDetail === null || objectService.objectDetail.length === 0">
+         <ion-list-header class="ion-list-header ion-flex ion-text-center">
+            <ion-label>Your cart is empty</ion-label>
+         </ion-list-header>
+      </ng-container>
+   </div>
+</ion-content>
+
+<ion-footer class="ion-padding-bottom-large animate__animated animate__fadeInUp p-0" style="background-color:white;">
+   <ion-grid class="ion-no-padding">
+      <ion-row class="pt-2 pl-3 pr-3">
+         <ion-col class="ion-flex ion-margin-auto">
+            <div style="color:black;">Total Qty:</div>
+         </ion-col>
+         <ion-col class="ion-flex ion-margin-auto">
+            <div style="color:black;">{{objectService.objectDetail|sum:'qtyRequest'|number:'1.0'}}</div>
+         </ion-col>
+         <ion-col class="ion-flex ion-margin-auto">
+            <div style="color:black;">Net Total:</div>
+         </ion-col>
+         <ion-col class="ion-flex ion-margin-auto justify-content-end">
+            <div style="color:black;" *ngIf="objectService.objectHeader.isDisplayTaxInclusive">
+               {{objectService.objectDetail|sum:"subTotal"|number:(objectService.objectHeader?.isHomeCurrency?objectService.precisionSales.localFormat:objectService.precisionSales.foreignFormat)}}
+            </div>
+            <div style="color:black;" *ngIf="!objectService.objectHeader.isDisplayTaxInclusive">
+               {{objectService.objectDetail|sum:"subTotalExTax"|number:(objectService.objectHeader?.isHomeCurrency?objectService.precisionSales.localFormat:objectService.precisionSales.foreignFormat)}}
+            </div>
+         </ion-col>
+      </ion-row>
+      <ion-row class="pt-2 pl-3 pr-3" *ngIf="objectService.systemWideActivateTaxControl">
+         <ion-col class="ion-flex ion-margin-auto">
+            <div style="color:black;"></div>
+         </ion-col>
+         <ion-col class="ion-flex ion-margin-auto">
+            <div style="color:black;"></div>
+         </ion-col>
+         <ion-col class="ion-flex ion-margin-auto">
+            <div style="color:black;">Tax Amt.:</div>
+         </ion-col>
+         <ion-col class="ion-flex ion-margin-auto justify-content-end">
+            <div style="color:black;">
+               {{objectService.objectDetail|sum:"taxAmt"|number:(objectService.objectHeader?.isHomeCurrency?objectService.precisionSales.localFormat:objectService.precisionSales.foreignFormat)}}
+            </div>
+         </ion-col>
+      </ion-row>
+      <ion-row class="pt-2 pl-3 pr-3" *ngIf="objectService.objectOtherAmt && objectService.objectOtherAmt.length > 0">
+         <ion-col class="ion-flex ion-margin-auto">
+            <div style="color:black;">Total Oth. Amt.:</div>
+         </ion-col>
+         <ion-col class="ion-flex ion-margin-auto">
+            <span [ngClass]="{'color-danger': (objectService.objectOtherAmt| sum: 'totalAmount') < 0 }">
+                <span *ngIf="(objectService.objectOtherAmt | sum: 'totalAmount') < 0">{{'('}}</span>
+                {{Math.abs((objectService.objectOtherAmt | sum: 'totalAmount')) | number: (objectService.objectHeader?.isHomeCurrency?objectService.precisionSales.localFormat:objectService.precisionSales.foreignFormat)}}
+                <span *ngIf="(objectService.objectOtherAmt | sum: 'totalAmount') < 0">{{')'}}</span>
+            </span>
+         </ion-col>
+         <ion-col class="ion-flex ion-margin-auto">
+            <div style="color:black;">Grand Total:</div>
+         </ion-col>
+         <ion-col class="ion-flex ion-margin-auto justify-content-end">
+            <div style="color:black;">{{ objectService.objectOtherAmt[objectService.objectOtherAmt.length-1]?.cumulativeAmount | number: (objectService.objectHeader?.isHomeCurrency?objectService.precisionSales.localFormat:objectService.precisionSales.foreignFormat) }}</div>
+         </ion-col>
+      </ion-row>
+      <ion-row>
+         <ion-col>
+            <ion-grid class="ion-no-padding">
+               <ion-row>
+                  <ion-col *ngIf="objectService.objectHeader && objectService.objectHeader.salesOrderId === 0">
+                     <ion-button class="ion-margin" expand="block" size="default" color="warning" (click)="submit_attempt = true; nextStepDraft()" [disabled]="submit_attempt">
+                        Save as Draft
+                     </ion-button>
+                  </ion-col>
+                  <ion-col>
+                     <ion-button class="ion-margin" expand="block" size="default" color="success" (click)="submit_attempt = true; nextStep()" [disabled]="submit_attempt">
+                        Confirm
+                     </ion-button>
+                  </ion-col>
+               </ion-row>
+            </ion-grid>
+         </ion-col>
+      </ion-row>
+   </ion-grid>
+</ion-footer>
+
+<!-- extra info e.g. remark, addr -->
+<ion-modal [isOpen]="isExtraInfoModal" (didDismiss)="isExtraInfoModal = false">
+   <ng-template>
+      <ion-header>
+         <ion-toolbar>
+            <ion-title>Add. Info</ion-title>
+            <ion-buttons slot="start">
+               <ion-button (click)="hideExtraInfo()">Done</ion-button>
+            </ion-buttons>
+         </ion-toolbar>
+      </ion-header>
+      <ion-content>
+         <div class="p-2">
+            <ion-list class="list-custom animate__animated animate__fadeIn" lines="full">
+               <ion-item>
+                  <ion-toggle slot="end" [(ngModel)]="objectService.objectHeader.isPriority" (ionChange)="updateIsPriorityDate()" labelPlacement="start"></ion-toggle>
+                  <ion-label>
+                     <div class="ion-text-small">Set Priority?</div>
+                  </ion-label>
+               </ion-item>
+               <ion-item>
+                  <ion-grid class="ion-no-padding">
+                     <ion-row>
+                        <ion-col class="ion-flex ion-margin-auto">
+                           <ion-label>Remark</ion-label>
+                        </ion-col>
+                     </ion-row>
+                     <ion-row>
+                        <ion-col class="ion-flex ion-margin-auto">
+                           <ion-textarea [(ngModel)]="objectService.objectHeader.remark" placeholder="Enter Remark" [autoGrow]="true"></ion-textarea>
+                        </ion-col>
+                        <ion-col size="1" class="ion-flex ion-margin-auto justify-content-end">
+                           <ion-button fill="clear" (click)="showRemarkModal()">
+                              <i slot="icon-only" class="fas fa-filter"></i>
+                           </ion-button>
+                        </ion-col>
+                     </ion-row>
+                  </ion-grid>
+               </ion-item>
+               <ion-item>
+                  <ion-label position="stacked">Ship Method</ion-label>
+                  <ion-select interface="action-sheet" [(ngModel)]="objectService.objectHeader.shipMethodId" placeholder="Select Ship Method">
+                     <ion-select-option *ngFor="let s of objectService.shipMethodMasterList" [value]="s.id">{{s.description}}</ion-select-option>
+                  </ion-select>
+               </ion-item>
+
+               <ion-item id="open-calendar-modal">
+                  <!-- <ion-icon icon="calendar-outline" slot="start" color="primary"></ion-icon> -->
+                  <ion-label position="stacked">Delivery Date</ion-label>
+                  <ion-text class="ion-no-padding-end pb-3" *ngIf="objectService.objectHeader.deliveryDate">{{formattedDateString}}</ion-text>
+               </ion-item>
+               <ion-modal class="ion-modal-calendar" trigger="open-calendar-modal">
+                  <ng-template>
+                     <ion-content>
+                        <ion-datetime #datetime [value]="dateValue" size="cover" (ionChange)="onTrxDateSelected(datetime.value)" [ngModel]="dateValue" [preferWheel]="true" showDefaultTitle="true" presentation="date">
+                           <ion-buttons slot="buttons">
+                              <ion-button (click)="dateDismiss()" color="danger">Clear</ion-button>
+                              <ion-button (click)="dateSelect()" color="primary">Select</ion-button>
+                           </ion-buttons>
+                        </ion-datetime>
+                     </ion-content>
+                  </ng-template>
+               </ion-modal>
+
+               <ion-item>
+                  <ion-label position="stacked">Customer PO</ion-label>
+                  <ion-input [(ngModel)]="objectService.objectHeader.customerPo" placeholder="Enter Customer PO"></ion-input>
+               </ion-item>
+
+            </ion-list>
+            <ion-list-header class="ion-list-header-small ion-flex ion-text-center">
+               <ion-label>Delivery Address</ion-label>
+            </ion-list-header>
+            <ion-list class="list-custom animate__animated animate__fadeIn" lines="full">
+               <ion-item>
+                  <ion-label position="stacked">Name</ion-label>
+                  <ion-input [(ngModel)]="objectService.objectHeader.shipName" placeholder="Enter Ship Name"></ion-input>
+               </ion-item>
+               <ion-item>
+                  <ion-label position="stacked">Address List</ion-label>
+                  <ion-select interface="action-sheet" placeholder="Select Address" [(ngModel)]="selectedAddress" (ionChange)="onAddressSelected()">
+                     <ion-select-option *ngFor="let a of availableAddress" [value]="a">{{a.description}}</ion-select-option>
+                  </ion-select>
+               </ion-item>
+               <ion-item>
+                  <ion-label position="stacked">Address</ion-label>
+                  <ion-textarea [(ngModel)]="objectService.objectHeader.shipAddress" [autoGrow]="true" placeholder="Enter Address"></ion-textarea>
+               </ion-item>
+               <ion-item>
+                  <ion-label position="stacked">Postcode</ion-label>
+                  <ion-input [(ngModel)]="objectService.objectHeader.shipPostCode" placeholder="Enter Postcode"></ion-input>
+               </ion-item>
+               <ion-item>
+                  <ion-label position="stacked">Phone</ion-label>
+                  <ion-input [(ngModel)]="objectService.objectHeader.shipPhone" inputmode="numeric" placeholder="Enter Phone"></ion-input>
+               </ion-item>
+               <ion-item>
+                  <ion-label position="stacked">Email</ion-label>
+                  <ion-input [(ngModel)]="objectService.objectHeader.shipEmail" inputmode="email" placeholder="Enter Email"></ion-input>
+               </ion-item>
+               <ion-item>
+                  <ion-label position="stacked">Fax</ion-label>
+                  <ion-input [(ngModel)]="objectService.objectHeader.shipFax" inputmode="numeric" placeholder="Enter Fax"></ion-input>
+               </ion-item>
+               <ion-item>
+                  <ion-label position="stacked">Area</ion-label>
+                  <ion-select interface="action-sheet" [(ngModel)]="objectService.objectHeader.shipAreaId" placeholder="Select Area">
+                     <ion-select-option *ngFor="let a of objectService.areaMasterList" [value]="a.id">{{a.description}}</ion-select-option>
+                  </ion-select>
+               </ion-item>
+               <ion-item>
+                  <ion-label position="stacked">State</ion-label>
+                  <ion-select interface="action-sheet" [(ngModel)]="objectService.objectHeader.shipStateId" placeholder="Select State">
+                     <ion-select-option *ngFor="let a of objectService.stateMasterList" [value]="a.id">{{a.description}}</ion-select-option>
+                  </ion-select>
+               </ion-item>
+               <ion-item>
+                  <ion-label position="stacked">Attention</ion-label>
+                  <ion-input [(ngModel)]="objectService.objectHeader.attention" placeholder="Enter Attention"></ion-input>
+               </ion-item>
+            </ion-list>
+         </div>
+      </ion-content>
+   </ng-template>
+</ion-modal>
+
+<ion-modal [isOpen]="trxAttrModal" (didDismiss)="trxAttrModal = false">
+   <ng-template>
+      <ion-header>
+         <ion-toolbar>
+            <ion-title>Trx. Attr.</ion-title>
+            <ion-buttons slot="start">
+               <ion-button (click)="hideTrxAttr()">Done</ion-button>
+            </ion-buttons>
+         </ion-toolbar>
+      </ion-header>
+      <ion-content>
+         <div class="p-2">
+            <ion-list class="list-custom animate__animated animate__fadeIn" lines="full">
+               <app-search-dropdown #udoption1 title="{{'salesOrderUDOption1' | userDefinedCaption:objectService.userDefinedList}}" optionLabel="description" [selectedId]="objectService.objectHeader.salesOrderUDOption1" [searchDropdownList]="objectService.udOption1List" (onActionComplete)="onUdOption1Changed($event)"></app-search-dropdown>
+               <app-search-dropdown #udoption2 title="{{'salesOrderUDOption2' | userDefinedCaption:objectService.userDefinedList}}" optionLabel="description" [selectedId]="objectService.objectHeader.salesOrderUDOption2" [searchDropdownList]="objectService.udOption2List" (onActionComplete)="onUdOption2Changed($event)"></app-search-dropdown>
+               <app-search-dropdown #udoption3 title="{{'salesOrderUDOption3' | userDefinedCaption:objectService.userDefinedList}}" optionLabel="description" [selectedId]="objectService.objectHeader.salesOrderUDOption3" [searchDropdownList]="objectService.udOption3List" (onActionComplete)="onUdOption3Changed($event)"></app-search-dropdown>
+            </ion-list>
+         </div>
+      </ion-content>
+   </ng-template>
+</ion-modal>
+
+<ion-modal [isOpen]="remarkModal" (didDismiss)="remarkModal = false" (ionModalDidPresent)="setFocus()">
+   <ng-template>
+      <ion-header>
+         <ion-toolbar>
+            <ion-title>
+               <div class="ion-text-wrap">Remark</div>
+            </ion-title>
+            <ion-buttons slot="start">
+               <ion-button (click)="applyRemark()">Done</ion-button>
+            </ion-buttons>
+            <ion-buttons slot="primary">
+               <ion-button (click)="clearRemark()">Clear</ion-button>
+            </ion-buttons>
+         </ion-toolbar>
+         <ion-toolbar>
+            <ion-searchbar #remarkSearchBar class="p-0" enterkeyhint="search" [(ngModel)]="remarkSearchText" showCancelButton="never" showClearButton="focus" animated="true" [placeholder]="'Search Remark'" (keydown)="onRemarkKeyDown($event)" (ionClear)="resetRemarkFilter();"></ion-searchbar>
+         </ion-toolbar>
+      </ion-header>
+      <ion-content>
+         <div class="p-2">
+            <ion-list class="list-custom animate__animated animate__fadeIn" lines="none" *ngIf="remarkTempDropdownList.length > 0">
+               <ion-item button detail="false" *ngFor="let rowData of remarkTempDropdownList" (click)="remarkChooseThis(rowData)">
+                  <div slot="start">
+                     <ion-grid class="ion-no-padding">
+                        <ion-row>
+                           <ion-col class="ion-margin-auto">
+                              <ion-badge style="display:inline-flex" *ngIf="rowData && rowData?.code">
+                                 <div>{{rowData?.code}}</div>
+                              </ion-badge>
+                           </ion-col>
+                        </ion-row>
+                        <ion-row *ngIf="rowData && rowData?.oldCode">
+                           <ion-col class="ion-margin-auto">
+                              <ion-badge style="display:inline-flex" color="tertiary" *ngIf="rowData && rowData?.oldCode">
+                                 <div>{{rowData?.oldCode}}</div>
+                              </ion-badge>
+                           </ion-col>
+                        </ion-row>
+                     </ion-grid>
+                  </div>
+                  <div class="ion-text-wrap">{{rowData?.description}}</div>
+               </ion-item>
+
+            </ion-list>
+            <div class="ion-flex justify-content-center" *ngIf="remarkTempDropdownList.length === 0">
+               No results found
+            </div>
+         </div>
+      </ion-content>
+   </ng-template>
+</ion-modal>

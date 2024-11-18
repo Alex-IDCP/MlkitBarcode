@@ -1,0 +1,320 @@
+<ion-header>
+   <ion-toolbar>
+      <ion-title>
+         <div class="ion-text-wrap">
+            {{objectService.object?.header?.multiInboundNum}}
+         </div>
+      </ion-title>
+      <ion-buttons slot="start">
+         <ion-back-button text="" defaultHref="/transactions/inbound-scan" (click)="previousStep()"></ion-back-button>
+      </ion-buttons>
+      <ion-buttons slot="end">
+         <ion-button (click)="showPopover($event)"><ion-icon name="menu-outline" slot="icon-only"></ion-icon></ion-button>
+      </ion-buttons>
+   </ion-toolbar>
+</ion-header>
+
+<ion-popover #popover [isOpen]="isPopoverOpen" (didDismiss)="isPopoverOpen = false">
+   <ng-template>
+      <ion-content class="p-2">
+         <ion-list class="list-custom animate__animated animate__fadeIn" lines="full">
+            <ion-item (click)="popover.dismiss(); editObject()">
+               <ion-icon name="create-outline" slot="end"></ion-icon>
+               <ion-label>
+                  <div>Edit</div>
+               </ion-label>
+            </ion-item>
+            <ion-item (click)="showOutstanding = !showOutstanding; popover.dismiss()">
+               <ion-icon name="{{showOutstanding?'eye-off-outline':'eye-outline'}}" slot="end"></ion-icon>
+               <ion-label>
+                  <div>{{showOutstanding?"Hide Outstanding":"Show Outstanding"}}</div>
+               </ion-label>
+            </ion-item>
+         </ion-list>
+      </ion-content>
+   </ng-template>
+</ion-popover>
+
+<ion-content [fullscreen]="true">
+   <div class="p-2" *ngIf="objectService.object">
+      <ion-list class="list-custom animate__animated animate__fadeIn" lines="full">
+         <ion-item button detail="false" class="ion-no-padding no-ripple">
+            <ion-grid class="ion-no-padding py-2 pl-2">
+               <ion-row>
+                  <ion-col class="ion-flex ion-margin-auto">
+                     <div class="font-bold">Doc. Num.</div>
+                  </ion-col>
+                  <ion-col class="ion-flex ion-margin-auto justify-content-end">
+                     <div>{{objectService.object.header.multiInboundNum}}</div>
+                  </ion-col>
+               </ion-row>
+               <ion-row>
+                  <ion-col class="ion-flex ion-margin-auto">
+                     <div class="font-bold">For Goods Return?</div>
+                  </ion-col>
+                  <ion-col class="ion-flex ion-margin-auto justify-content-end">
+                     <ion-icon [class]="(objectService.object.header.isGoodsReturn??false)?'color-success':'color-danger'" [name]="(objectService.object.header.isGoodsReturn??false)?'checkmark-circle-outline':'close-circle-outline'"></ion-icon>
+                  </ion-col>
+               </ion-row>
+               <ion-row>
+                  <ion-col class="ion-flex ion-margin-auto">
+                     <div class="font-bold">Doc. Date</div>
+                  </ion-col>
+                  <ion-col class="ion-flex ion-margin-auto justify-content-end">
+                     <div>{{objectService.object.header.trxDate|date:'dd/MM/yyyy'}}</div>
+                  </ion-col>
+               </ion-row>
+               <ion-row *ngIf="objectService.object.header.returnDate">
+                  <ion-col class="ion-flex ion-margin-auto">
+                     <div class="font-bold">Actual Return Date</div>
+                  </ion-col>
+                  <ion-col class="ion-flex ion-margin-auto justify-content-end">
+                     <div>{{objectService.object.header.returnDate|date:"dd/MM/yyyy"}}</div>
+                  </ion-col>
+               </ion-row>
+               <ion-row>
+                  <ion-col class="ion-flex ion-margin-auto">
+                     <div class="font-bold">Type</div>
+                  </ion-col>
+                  <ion-col class="ion-flex ion-margin-auto justify-content-end">
+                     <div>{{objectService.object.header.typeCode|codeMapping:objectService.salesTypeMasterList}}</div>
+                  </ion-col>
+               </ion-row>
+               <ion-row>
+                  <ion-col class="ion-flex ion-margin-auto">
+                     <div class="font-bold">Destination Location</div>
+                  </ion-col>
+                  <ion-col class="ion-flex ion-margin-auto justify-content-end">
+                     <div>{{objectService.object.header.locationId|idMapping:objectService.locationMasterList}}</div>
+                  </ion-col>
+               </ion-row>
+               <ion-row>
+                  <ion-col class="ion-flex ion-margin-auto">
+                     <div class="font-bold">Customer</div>
+                  </ion-col>
+                  <ion-col class="ion-flex ion-margin-auto justify-content-end">
+                     <div>{{objectService.object.header.customerId|idMapping:objectService.customerMasterList}}</div>
+                  </ion-col>
+               </ion-row>
+               <ion-row>
+                  <ion-col class="ion-flex ion-margin-auto">
+                     <div class="font-bold">Origin Location</div>
+                  </ion-col>
+                  <ion-col class="ion-flex ion-margin-auto justify-content-end">
+                     <div>{{objectService.object.header.toLocationId|idMapping:objectService.locationMasterList}}</div>
+                  </ion-col>
+               </ion-row>
+               <ion-row>
+                  <ion-col class="ion-flex ion-margin-auto">
+                     <div class="font-bold">Agent</div>
+                  </ion-col>
+                  <ion-col class="ion-flex ion-margin-auto justify-content-end">
+                     <div>{{objectService.object.header.warehouseAgentId|idMapping:objectService.warehouseAgentMasterList}}</div>
+                  </ion-col>
+               </ion-row>
+               <!-- <ion-row>
+                  <ion-col class="ion-flex ion-margin-auto">
+                     <div class="font-bold">Agent 02</div>
+                  </ion-col>
+                  <ion-col class="ion-flex ion-margin-auto justify-content-end">
+                     <div>{{objectService.object.header.warehouseAgent02Id|idMapping:objectService.warehouseAgentMasterList}}</div>
+                  </ion-col>
+               </ion-row> -->
+               <ion-row>
+                  <ion-col class="ion-flex ion-margin-auto">
+                     <div class="font-bold">Reference Num.</div>
+                  </ion-col>
+                  <ion-col class="ion-flex ion-margin-auto justify-content-end">
+                     <div>{{objectService.object.header.referenceNum}}</div>
+                  </ion-col>
+               </ion-row>
+               <ion-row>
+                  <ion-col class="ion-flex ion-margin-auto">
+                     <div class="font-bold">Remark</div>
+                  </ion-col>
+                  <ion-col class="ion-flex ion-margin-auto justify-content-end">
+                     <div>{{objectService.object.header.remark}}</div>
+                  </ion-col>
+               </ion-row>
+               <ion-row>
+                  <ion-col class="ion-flex ion-margin-auto">
+                     <div class="font-bold">Reason</div>
+                  </ion-col>
+                  <ion-col class="ion-flex ion-margin-auto justify-content-end">
+                     <div>{{objectService.object.header.reasonId|idMapping:objectService.reasonMasterList}}</div>
+                  </ion-col>
+               </ion-row>
+               <ion-row>
+                  <ion-col class="ion-flex ion-margin-auto">
+                     <div class="font-bold">Total Scanned</div>
+                  </ion-col>
+                  <ion-col class="ion-flex ion-margin-auto justify-content-end">
+                     <div>{{getAllInboundList()|sum:"qtyScanned"}}</div>
+                  </ion-col>
+               </ion-row>
+               <ion-row>
+                  <ion-col class="ion-flex ion-margin-auto">
+                     <div class="font-bold">Created By</div>
+                  </ion-col>
+                  <ion-col class="ion-flex ion-margin-auto justify-content-end">
+                     <div>{{objectService.object.header.createdBy}} {{objectService.object.header.createdAt|date:"dd/MM/yy hh:mm a"}}</div>
+                  </ion-col>
+               </ion-row>
+            </ion-grid>
+         </ion-item>
+      </ion-list>
+
+      <div *ngIf="objectService.object.header.isWithDoc">
+         <ng-container *ngIf="showOutstanding">
+            <ion-list-header class="ion-list-header-small ion-flex ion-text-center">
+               <ion-label>Outstanding Scanned List</ion-label>
+            </ion-list-header>
+            <ion-list class="list-custom animate__animated animate__fadeIn" lines="full">
+               <ion-item button detail="false" class="ion-no-padding no-ripple" *ngFor="let rowData of uniqueOutstandingDocNum">
+                  <ion-grid class="ion-no-padding py-2 pl-2">
+                     <ion-row>
+                        <ion-col class="ion-flex ion-margin-auto justify-content-center">
+                           <div class="font-bold color-blue" *ngIf="objectService.object.header.groupType === 'D'">{{rowData}}</div>
+                           <div class="font-bold color-blue" *ngIf="objectService.object.header.groupType === 'I'">{{rowData|offlineItemIdMapping:_configService.item_Masters}}</div>
+                        </ion-col>
+                     </ion-row>
+                     <ion-row *ngIf="objectService.object.header.groupType === 'I'">
+                        <ion-col class="ion-flex ion-margin-auto justify-content-center">                        
+                           <div>For: {{getInboundDocNum(rowData)}}</div>
+                        </ion-col>
+                     </ion-row>
+                     <ng-container *ngIf="objectService.object.header.groupType === 'D'">
+                        <ion-row *ngFor="let rowData2 of getDocRowData(rowData, 'D'); let rowIndex = index">
+                           <ion-grid class="ion-no-padding">
+                              <ion-row *ngIf="rowIndex === 0">
+                                 <ion-col size="1" class="ion-flex ion-margin-auto">
+                                    <div class="font-bold">#</div>
+                                 </ion-col>
+                                 <ion-col size="5" class="ion-flex ion-margin-auto">
+                                    <div class="font-bold">Item</div>
+                                 </ion-col>
+                                 <ion-col class="ion-flex ion-margin-auto justify-content-end">
+                                    <div class="font-bold">Doc. Qty.</div>
+                                 </ion-col>
+                                 <ion-col class="ion-flex ion-margin-auto justify-content-end">
+                                    <div class="font-bold">Scan'd Qty.</div>
+                                 </ion-col>
+                              </ion-row>
+                              <ion-row class="mt-1">
+                                 <ion-col size="1" class="ion-flex ion-margin-auto">
+                                    <div>{{rowIndex+1}}</div>
+                                 </ion-col>
+                                 <ion-col size="5" class="ion-flex ion-margin-auto">
+                                    <ion-icon name="ellipse" [class]="rowData2.qtyRequest === (rowData2.qtyScanned+(rowData2.qtyCurrent??0))?'color-success':'color-danger'"></ion-icon>
+                                    <div>{{rowData2.itemCode}}</div>
+                                    <span class="badge-green px-1 mx-1 ion-text-wrap ion-flex my-auto" *ngIf="rowData2.itemVariationXDescription">
+                                       {{rowData2.itemVariationXDescription}}</span>
+                                    <span class="badge-purple px-1 ion-text-wrap ion-flex my-auto" *ngIf="rowData2.itemVariationYDescription">
+                                       {{rowData2.itemVariationYDescription}}</span>
+                                 </ion-col>
+                                 <ion-col class="ion-flex ion-margin-auto justify-content-end">
+                                    <div>{{rowData2.qtyRequest}}</div>
+                                 </ion-col>
+                                 <ion-col class="ion-flex ion-margin-auto justify-content-end">
+                                    <div>{{(rowData2.qtyScanned+(rowData2.qtyCurrent??0))}}</div>
+                                 </ion-col>
+                              </ion-row>
+                           </ion-grid>
+                        </ion-row>
+                     </ng-container>
+                     <ng-container *ngIf="objectService.object.header.groupType === 'I'">
+                        <ion-row *ngFor="let rowData2 of getDocRowData(rowData, 'I'); let rowIndex = index">
+                           <ion-grid class="ion-no-padding">
+                              <ion-row *ngIf="rowIndex === 0">
+                                 <ion-col size="1" class="ion-flex ion-margin-auto">
+                                    <div class="font-bold">#</div>
+                                 </ion-col>
+                                 <ion-col size="5" class="ion-flex ion-margin-auto">
+                                    <div class="font-bold">Item</div>
+                                 </ion-col>
+                                 <ion-col class="ion-flex ion-margin-auto justify-content-end">
+                                    <div class="font-bold">Doc. Qty.</div>
+                                 </ion-col>
+                                 <ion-col class="ion-flex ion-margin-auto justify-content-end">
+                                    <div class="font-bold">Scan'd Qty.</div>
+                                 </ion-col>
+                              </ion-row>
+                              <ion-row class="mt-1">
+                                 <ion-col size="1" class="ion-flex ion-margin-auto">
+                                    <div>{{rowIndex+1}}</div>
+                                 </ion-col>
+                                 <ion-col size="5" class="ion-flex ion-margin-auto">
+                                    <ion-icon name="ellipse" [class]="rowData2.qtyRequest === (rowData2.qtyScanned+(rowData2.qtyCurrent??0))?'color-success':'color-danger'"></ion-icon>
+                                    <div *ngIf="rowData2.variationTypeCode === '0'">{{rowData2.itemCode}}</div>
+                                    <span class="badge-green px-1 mx-1 ion-text-wrap ion-flex my-auto" *ngIf="rowData2.itemVariationXDescription">
+                                       {{rowData2.itemVariationXDescription}}</span>
+                                    <span class="badge-purple px-1 ion-text-wrap ion-flex my-auto" *ngIf="rowData2.itemVariationYDescription">
+                                       {{rowData2.itemVariationYDescription}}</span>
+                                 </ion-col>
+                                 <ion-col class="ion-flex ion-margin-auto justify-content-end">
+                                    <div>{{rowData2.qtyRequest}}</div>
+                                 </ion-col>
+                                 <ion-col class="ion-flex ion-margin-auto justify-content-end">
+                                    <div>{{(rowData2.qtyScanned+(rowData2.qtyCurrent??0))}}</div>
+                                 </ion-col>
+                              </ion-row>
+                           </ion-grid>
+                        </ion-row>
+                     </ng-container>
+                  </ion-grid>
+               </ion-item>
+            </ion-list>
+         </ng-container>
+      </div>
+
+      <ion-list-header class="ion-list-header-small ion-flex ion-text-center">
+         <ion-label>Current Scanned List</ion-label>
+      </ion-list-header>
+      <ion-list class="list-custom animate__animated animate__fadeIn" lines="full">
+         <ion-item button detail="false" class="ion-no-padding no-ripple" *ngFor="let rowData of objectService.object.details">
+            <ion-grid class="ion-no-padding py-2 pl-2">
+               <ion-row>
+                  <ion-col class="ion-flex ion-margin-auto justify-content-center">
+                     <div class="font-bold">Carton {{rowData.cartonNum}}</div>
+                  </ion-col>
+               </ion-row>
+               <ion-row class="mt-2">
+                  <ion-grid class="ion-no-padding">
+                     <ion-row>
+                        <ion-col size="1" class="ion-flex ion-margin-auto">
+                           <div class="font-bold">#</div>
+                        </ion-col>
+                        <ion-col size="4" class="ion-flex ion-margin-auto">
+                           <div class="font-bold">Barcode</div>
+                        </ion-col>
+                        <ion-col size="5" class="ion-flex ion-margin-auto">
+                           <div class="font-bold">Item</div>
+                        </ion-col>
+                        <ion-col class="ion-flex ion-margin-auto justify-content-end">
+                           <div class="font-bold">Qty.</div>
+                        </ion-col>
+                     </ion-row>
+                     <ion-row *ngFor="let rowData2 of rowData.inboundList; let rowIndex2 = index">
+                        <ion-col size="1" class="ion-flex ion-margin-auto">
+                           <div>{{rowIndex2+1}}</div>
+                        </ion-col>
+                        <ion-col size="4" class="ion-flex ion-margin-auto">
+                           <div>{{rowData2.itemBarcode}}</div>
+                        </ion-col>
+                        <ion-col size="5" class="ion-flex ion-margin-auto">
+                           <div>{{rowData2.itemCode}}</div>
+                           <span class="badge-green px-1 mx-1 ion-text-wrap ion-flex my-auto" *ngIf="rowData2.itemVariationXDescription"> {{rowData2.itemVariationXDescription}}</span>
+                           <span class="badge-purple px-1 ion-text-wrap ion-flex my-auto" *ngIf="rowData2.itemVariationYDescription"> {{rowData2.itemVariationYDescription}}</span>
+                        </ion-col>
+                        <ion-col class="ion-flex ion-margin-auto justify-content-end">
+                           <div class="ion-flex">{{rowData2.qtyScanned}}</div>
+                        </ion-col>
+                     </ion-row>
+                  </ion-grid>
+               </ion-row>
+            </ion-grid>
+         </ion-item>
+      </ion-list>
+      
+   </div>
+</ion-content>

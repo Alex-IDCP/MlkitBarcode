@@ -1,0 +1,121 @@
+<ion-header>
+   <ion-toolbar>
+      <ion-title>Edit</ion-title>
+      <ion-buttons slot="start">
+         <ion-button (click)="cancelEdit()"><ion-icon slot="start" name="chevron-back-outline"></ion-icon></ion-button>
+      </ion-buttons>
+      <ion-buttons slot="primary">
+         <ion-button (click)="showPopover($event)"><ion-icon slot="icon-only" name="menu-outline"></ion-icon></ion-button>
+      </ion-buttons>
+   </ion-toolbar>
+</ion-header>
+
+<ion-popover #popover [isOpen]="isPopoverOpen" (didDismiss)="isPopoverOpen = false">
+   <ng-template>
+      <ion-content class="p-2">
+         <ion-list class="list-custom animate__animated animate__fadeIn" lines="full">
+            <ion-item (click)="popover.dismiss(); sendForDebug()">
+               <ion-icon slot="end" name="push-outline" color="danger"></ion-icon>
+               <ion-label>
+                  <div>Debug</div>
+               </ion-label>
+            </ion-item>
+         </ion-list>
+      </ion-content>
+   </ng-template>
+</ion-popover>
+
+<ion-content>
+   <div class="p-2">
+      <form [formGroup]="objectForm">
+         <ion-list class="list-custom animate__animated animate__fadeIn" lines="full">
+            <!-- <ion-item>
+               <ion-label position="stacked">Bank in Number</ion-label>
+               <ion-input formControlName="posCashDepositNum" placeholder="Leave blank for auto assign"></ion-input>
+            </ion-item> -->
+            <ion-item>
+               <ion-label position="stacked">Sales Date</ion-label>
+               <ion-input readonly type="text" (click)="toggleSalesDate()" [value]="salesDate"></ion-input>
+            </ion-item>
+            <ion-datetime #sDate class="animate__animated animate__fadeIn" *ngIf="sales_date_active" color="primary" locale="en-EN" size="cover" showDefaultButtons="false" presentation="date" (ionChange)="onSalesDateSelect($event)" [value]="sales_date_value.toISOString()" [preferWheel]="true">
+               <ion-buttons slot="buttons">
+                  <ion-button color="danger" (click)="sDate.cancel(); sales_date_active=false">Cancel</ion-button>
+                  <ion-button color="primary" (click)="sDate.confirm()">Done</ion-button>
+               </ion-buttons>
+            </ion-datetime>
+            <ion-item>
+               <ion-label position="stacked">Bank in Date</ion-label>
+               <ion-input readonly type="text" (click)="toggleDate()" [value]="date"></ion-input>
+            </ion-item>
+            <ion-datetime #date class="animate__animated animate__fadeIn" *ngIf="date_active" color="primary"locale="en-EN" size="cover" showDefaultButtons="false" presentation="date" (ionChange)="onDateSelect($event)" [value]="date_value.toISOString()" [preferWheel]="true">
+               <ion-buttons slot="buttons">
+                  <ion-button color="danger" (click)="date.cancel(); date_active=false">Cancel</ion-button>
+                  <ion-button color="primary" (click)="date.confirm()">Done</ion-button>
+               </ion-buttons>
+            </ion-datetime>
+            <ion-item>
+               <ion-label position="stacked">Bank in Time</ion-label>
+               <ion-input readonly type="text" (click)="toggleTime()" [value]="time"></ion-input>
+            </ion-item>
+            <ion-datetime #time class="animate__animated animate__fadeIn" *ngIf="time_active" color="primary" locale="en-EN" size="cover" showDefaultButtons="true" presentation="time" (ionChange)="onTimeSelect($event)" [value]="time_value.toISOString()" [preferWheel]="true">
+               <ion-buttons slot="buttons">
+                  <ion-button color="danger" (click)="time.cancel(); time_active=false">Cancel</ion-button>
+                  <ion-button color="primary" (click)="time.confirm()">Done</ion-button>
+               </ion-buttons>
+            </ion-datetime>
+            <ion-item>
+               <ion-label position="stacked">Bank in Amount</ion-label>
+               <ion-input #amtInput formControlName="depositAmount" inputmode="decimal" type="number" enterkeyhint="next" placeholder="Enter Amount"></ion-input>
+            </ion-item>
+            <app-search-dropdown title="Bank Name" [masterDropdownList]="objectService.paymentMethodMasterList" [selectedId]="objectForm.controls.paymentMethodId.value" (onActionComplete)="onPaymentMethodSelected($event)"></app-search-dropdown>
+            <app-search-dropdown title="Location" [masterDropdownList]="objectService.locationMasterList" [selectedId]="objectForm?.controls?.locationId?.value" (onActionComplete)="onLocationSelected($event)"></app-search-dropdown>
+            <app-search-dropdown title="Customer" [masterDropdownList]="objectService.customerMasterList" [selectedId]="objectForm?.controls?.customerId?.value" (onActionComplete)="onCustomerSelected($event)"></app-search-dropdown>
+            <ion-item>
+               <ion-label position="stacked">Bank in Slip Number</ion-label>
+               <ion-input formControlName="depositSlipNum" inputmode="text" type="text" enterkeyhint="next" placeholder="Enter Num"></ion-input>
+            </ion-item>
+         </ion-list>
+      </form>
+      <div *ngIf="onlineFiles && onlineFiles.length > 0">
+         <ion-list-header class="ion-list-header-small ion-flex ion-text-center">
+            <ion-label>Attachments</ion-label>
+         </ion-list-header>
+         <ion-item *ngFor="let file of onlineFiles">
+            <ion-thumbnail slot="start">
+               <img [src]="file.imageUrl">
+            </ion-thumbnail>
+            <ion-label class="ion-text-wrap"> {{ file.filesName }} </ion-label>
+            <ion-button slot="end" fill="clear" (click)="presentDeleteOnlineImageAlert(file)">
+               <ion-icon slot="icon-only" name="trash"></ion-icon>
+            </ion-button>
+         </ion-item>
+      </div>
+
+      <div class="mt-2">
+         <ion-button fill="clear" expand="full" color="dark" (click)="presentAlert()">
+            <ion-icon slot="start" name="camera"></ion-icon>
+            Select Image
+         </ion-button>
+         <ion-item *ngFor="let file of images; let i = index">
+            <ion-thumbnail slot="start">
+               <ion-img [src]="file.data"></ion-img>
+            </ion-thumbnail>
+            <ion-label class="ion-text-wrap"> {{ file.name }} </ion-label>
+            <ion-button slot="end" fill="clear" (click)="deleteImage(file)">
+               <ion-icon slot="icon-only" name="trash"></ion-icon>
+            </ion-button>
+         </ion-item>
+      </div>
+   </div>
+</ion-content>
+<ion-footer class="ion-padding-bottom-large animate__animated animate__fadeInUp p-0" style="background-color: white;">
+   <ion-grid class="ion-no-padding">
+      <ion-row>
+         <ion-col>
+            <ion-button class="ion-margin" expand="block" size="default" (click)="nextStep()" [disabled]="!objectForm.valid">
+               Save
+            </ion-button>
+         </ion-col>
+      </ion-row>
+   </ion-grid>
+</ion-footer>

@@ -1,0 +1,145 @@
+<ion-header [hidden]="scanActive">
+   <ion-toolbar>
+      <ion-title>Stock Reorder Line</ion-title>
+      <ion-buttons slot="start">
+         <ion-button (click)="previousStep()"><ion-icon slot="start" name="chevron-back-outline"></ion-icon></ion-button>
+      </ion-buttons>
+      <ion-buttons slot="primary">
+         <ion-button (click)="showPopover($event)"><ion-icon slot="icon-only" name="menu-outline"></ion-icon></ion-button>
+      </ion-buttons>
+   </ion-toolbar>
+</ion-header>
+
+<ion-popover #popover [isOpen]="isPopoverOpen" (didDismiss)="isPopoverOpen = false">
+   <ng-template>
+      <ion-content class="p-2">
+         <ion-list class="list-custom animate__animated animate__fadeIn" lines="full">
+            <ion-item (click)="popover.dismiss(); viewBalance()" *ngIf="objectService.configStockReorderBlockCheckBalance">
+               <ion-icon slot="end" name="hand-left-outline"></ion-icon>
+               <ion-label>
+                  <div>View Balance</div>
+               </ion-label>
+            </ion-item>
+            <ion-item (click)="popover.dismiss(); sendForDebug()">
+               <ion-icon slot="end" name="push-outline" color="danger"></ion-icon>
+               <ion-label>
+                  <div>Debug</div>
+               </ion-label>
+            </ion-item>
+         </ion-list>
+      </ion-content>
+   </ng-template>
+</ion-popover>
+
+<ion-content [fullscreen]="true" [hidden]="scanActive">
+   <div class="p-2">
+
+      <app-barcode-scan-input #barcodescaninput (onItemAdd)="onItemAdd($event)" (onCameraStatusChanged)="onCameraStatusChanged($event)" (onDoneScanning)="onDoneScanning($event)" [itemVariationXMasterList]="objectService.itemVariationXMasterList" [itemVariationYMasterList]="objectService.itemVariationYMasterList"></app-barcode-scan-input>
+
+      <ion-list class="list-custom animate__animated animate__fadeIn mt-2" lines="full">
+         <ion-item-sliding #slidingItem *ngFor="let rowData of objectService.object?.line let rowIndex = index">
+            <ion-item button detail="false" class="ion-no-padding no-ripple" (click)="qtyInput.setFocus()">
+               <ion-grid class="ion-no-padding py-2 pl-2">
+                  <ion-row>
+                     <ion-col size="9">
+                        <ion-grid class="ion-no-padding">
+                           <ion-row>
+                              <ion-col class="ion-flex ion-margin-auto">
+                                 <div class="font-bold">{{rowData.itemCode}}</div>
+                                 <div class="ion-flex">
+                                    <span class="badge-green ion-text-wrap ion-flex my-auto px-1 mx-1" *ngIf="rowData.xDesc">{{rowData.xDesc}}</span>
+                                    <span class="badge-purple ion-text-wrap ion-flex my-auto px-1" *ngIf="rowData.yDesc">{{rowData.yDesc}}</span>
+                                 </div>
+                              </ion-col>
+                           </ion-row>
+                           <ion-row>
+                              <ion-col class="ion-flex ion-margin-auto">
+                                 <div class="ion-text-wrap">{{rowData.itemDesc}}</div>
+                              </ion-col>
+                           </ion-row>
+                           <ion-row>
+                              <ion-col class="ion-flex ion-margin-auto">
+                                 <div class="ion-text-wrap">{{rowData.barcode}}</div>
+                              </ion-col>
+                           </ion-row>
+                        </ion-grid>
+                     </ion-col>
+                     <ion-col size="3" class="ion-flex ion-margin-auto justify-content-center">
+                        <ion-input #qtyInput class="ion-text-center" type="number" [min]="0" [(ngModel)]="rowData.lineQty" placeholder="0"></ion-input>
+                     </ion-col>
+                  </ion-row>
+               </ion-grid>
+            </ion-item>
+            <ion-item-options>
+               <ion-item-option color="danger" (click)="slidingItem.close(); deleteLine(rowIndex, rowData);">
+                  <ion-icon slot="top" name="trash-outline"></ion-icon>Delete
+               </ion-item-option>
+            </ion-item-options>
+         </ion-item-sliding>
+      </ion-list>
+   </div>
+</ion-content>
+
+<ion-footer class="ion-padding-bottom-large animate__animated animate__fadeInUp p-0" style="background-color: white;" [hidden]="scanActive || authService.hideFooter">
+   <ion-button class="ion-margin" expand="block" size="default" (click)="nextStep()">
+      Next
+   </ion-button>
+</ion-footer>
+
+<ion-row class="scanner-buttons" [hidden]="!scanActive">
+   <ion-col class="ion-no-padding">
+      <ion-button expand="full" (click)="stopScanner()">Stop</ion-button>
+   </ion-col>
+</ion-row>
+<div class="scan-box" [hidden]="!scanActive"></div>
+
+<ion-modal [isOpen]="balanceModal" (didDismiss)="balanceModal = false">
+   <ng-template>
+      <ion-header>
+         <ion-toolbar>
+            <ion-title>Detail</ion-title>
+            <ion-buttons slot="start">
+               <ion-button (click)="hideBalanceModal()">Done</ion-button>
+            </ion-buttons>
+         </ion-toolbar>
+      </ion-header>
+      <ion-content *ngIf="objectService.object.line">
+         <div class="p-2">
+
+            <ion-list class="list-custom animate__animated animate__fadeIn" lines="full">
+               <ion-item>
+                  <ion-grid class="ion-no-padding py-2 pl-2">
+                     <ion-row>
+                        <ion-col class="ion-flex ion-margin-auto">
+                           <div class="font-bold">Item Code</div>
+                        </ion-col>
+                        <ion-col class="ion-margin-auto justify-content-end">
+                           <div>Line Qty.</div>
+                        </ion-col>
+                        <ion-col class="ion-margin-auto justify-content-end">
+                           <div>Balance Qty.</div>
+                        </ion-col>
+                     </ion-row>
+                  </ion-grid>
+               </ion-item>
+               <ion-item *ngFor="let rowData of objectService.object.line">
+                  <ion-grid class="ion-no-padding py-2 pl-2">
+                     <ion-row>
+                        <ion-col class="ion-flex ion-margin-auto">
+                           <div class="font-bold">{{rowData.itemCode}}</div>
+                        </ion-col>
+                        <ion-col class="ion-margin-auto justify-content-end">
+                           <div [ngStyle]="{'color': (rowData.lineQty > rowData.balanceQty ? 'red' : '')}">{{rowData.lineQty|number:"1.0"}}</div>
+                        </ion-col>
+                        <ion-col class="ion-margin-auto justify-content-end">
+                           <div>{{rowData.balanceQty|number:"1.0"}}</div>
+                        </ion-col>
+                     </ion-row>
+                  </ion-grid>
+
+               </ion-item>
+            </ion-list>
+         </div>
+      </ion-content>
+   </ng-template>
+</ion-modal>

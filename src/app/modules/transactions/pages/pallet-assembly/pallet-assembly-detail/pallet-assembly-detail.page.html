@@ -1,0 +1,177 @@
+<ion-header>
+  <ion-toolbar>
+    <ion-title>
+      <div class="ion-text-wrap">
+        {{objectService.objectHeader?.palletAssemblyNum}}
+      </div>
+    </ion-title>
+    <ion-buttons slot="start">
+      <ion-button (click)="previousStep()"><ion-icon slot="start" name="chevron-back-outline"></ion-icon></ion-button>
+    </ion-buttons>
+    <ion-buttons slot="primary">
+      <ion-button (click)="showPopover($event)">
+        <ion-icon slot="icon-only" name="menu-outline"></ion-icon>
+      </ion-button>
+    </ion-buttons>
+  </ion-toolbar>
+</ion-header>
+<ion-popover #popover [isOpen]="isPopoverOpen" (didDismiss)="isPopoverOpen = false">
+  <ng-template>
+    <ion-content class="p-2">
+      <ion-list class="list-custom animate__animated animate__fadeIn" lines="full">
+        <ion-item (click)="popover.dismiss(); edit()">
+          <ion-icon name="create-outline" slot="end"></ion-icon>
+          <ion-label>
+            <div>Edit</div>
+          </ion-label>
+        </ion-item>
+      </ion-list>
+    </ion-content>
+  </ng-template>
+</ion-popover>
+
+<ion-content [fullscreen]="true">
+  <div class="p-2" *ngIf="objectService.objectHeader">
+    <ion-list class="list-custom animate__animated animate__fadeIn" lines="full">
+      <ion-item button detail="false" class="ion-no-padding no-ripple">
+        <ion-grid class="ion-no-padding py-2 pl-2">
+          <ion-row>
+            <ion-col class="ion-flex ion-margin-auto justify-content-between">
+              <div class="font-bold">Doc. Num.</div>
+              <div>{{objectService.objectHeader.palletAssemblyNum}}</div>
+            </ion-col>
+          </ion-row>
+          <ion-row>
+            <ion-col class="ion-flex ion-margin-auto justify-content-between">
+              <div class="font-bold">Doc. Date</div>
+              <div>{{objectService.objectHeader.trxDate|date:"dd/MM/yyyy"}}</div>
+            </ion-col>
+          </ion-row>
+          <ion-row>
+            <ion-col class="ion-flex ion-margin-auto justify-content-between">
+              <div class="font-bold">Location</div>
+              <div>{{objectService.objectHeader.locationId|idMapping:objectService.locationMasterList}}</div>
+            </ion-col>
+          </ion-row>
+          <ion-row>
+            <ion-col class="ion-flex ion-margin-auto justify-content-between">
+              <div class="font-bold">Total Pallet</div>
+              <div>{{objectService.objectHeader.totalPallet}}</div>
+            </ion-col>
+          </ion-row>
+          <ion-row>
+            <ion-col class="ion-flex ion-margin-auto justify-content-between">
+              <div class="font-bold">Created By</div>
+              <div>{{objectService.objectHeader.createdBy}} {{objectService.objectHeader.createdAt|date:"dd/MM/yy hh:mm a"}}</div>
+            </ion-col>
+          </ion-row>
+        </ion-grid>
+      </ion-item>
+    </ion-list>
+    <ion-list-header class="ion-list-header-small ion-flex ion-text-center">
+      <ion-label>Line</ion-label>
+    </ion-list-header>
+    <ion-segment class="mt-2" [scrollable]="true" [(ngModel)]="selectedPalletNum" *ngIf="objectService.objectDetail && objectService.objectDetail.length > 0" (ionChange)="onPalletNumChanged($event)">
+      <ion-segment-button *ngFor="let pallet of objectService.objectDetail" [value]="pallet.palletNum">
+        <ion-label>Pallet {{pallet.palletNum}}</ion-label>
+      </ion-segment-button>
+    </ion-segment>
+    <ion-list class="list-custom animate__animated animate__fadeIn" lines="full" *ngIf="palletToShow">
+      <ion-item button detail="false" class="ion-no-padding no-ripple">
+        <ion-grid class="ion-no-padding py-2 pl-2">
+          <ion-row>
+            <ion-col class="ion-flex ion-margin-auto justify-content-between">
+              <div class="font-bold">Pallet Num.</div>
+              <div>{{palletToShow.palletNum}}</div>
+            </ion-col>
+          </ion-row>
+          <ion-row>
+            <ion-col class="ion-flex ion-margin-auto justify-content-between">
+              <div class="font-bold">Location Bin</div>
+              <div>{{palletToShow.palletCode}}</div>
+            </ion-col>
+          </ion-row>
+          <ion-row>
+            <ion-col class="ion-flex ion-margin-auto justify-content-between">
+              <div class="font-bold">Description</div>
+              <div>{{palletToShow.description}}</div>
+            </ion-col>
+          </ion-row>
+          <ion-row>
+            <ion-col class="ion-flex ion-margin-auto justify-content-between">
+              <div class="font-bold">Reference</div>
+              <div>{{palletToShow.referenceNum}}</div>
+            </ion-col>
+          </ion-row>
+          <ion-row>
+            <ion-col class="ion-flex ion-margin-auto justify-content-between">
+               <div class="font-bold">Dimension</div>
+               <div>
+                  <ion-grid class="ion-no-padding">
+                     <ion-row>
+                        <ion-col class="ion-flex my-auto justify-content-between">
+                           <div class="font-bold my-auto">H</div>
+                           <div class="mx-2">{{palletToShow.palletHeight}}</div>
+                        </ion-col>
+                        <ion-col class="ion-flex my-auto justify-content-between">
+                           <div class="font-bold my-auto">W</div>
+                           <div class="mx-2">{{palletToShow.palletWidth}}</div>
+                        </ion-col>
+                        <ion-col class="ion-flex my-auto justify-content-between">
+                           <div class="font-bold my-auto">L</div>
+                           <div class="mx-2">{{palletToShow.palletLength}}</div>
+                        </ion-col>
+                     </ion-row>
+                  </ion-grid>
+               </div>
+            </ion-col>
+          </ion-row>
+          <ion-row>
+            <ion-col class="ion-flex ion-margin-auto justify-content-between">
+               <div class="font-bold">Weight</div>
+               <div>{{palletToShow.palletWeight}}</div>
+            </ion-col>
+          </ion-row>
+          <ion-row class="mt-2">
+            <ion-col size="1" class="ion-flex my-auto">
+              <div class="font-bold">#</div>
+            </ion-col>
+            <ion-col class="ion-flex my-auto">
+              <div class="font-bold">Item Info</div>
+            </ion-col>
+            <ion-col size="2" class="ion-flex my-auto justify-content-end">
+              <div class="font-bold">Qty</div>
+            </ion-col>
+          </ion-row>
+          <ion-row *ngFor="let item of palletToShow.palletItemList; let rowIndex = index">
+            <ion-col size="1" class="ion-flex my-auto">
+              <div>{{rowIndex+1}}</div>
+            </ion-col>
+            <ion-col>
+              <ion-grid class="ion-no-padding">
+                <ion-row>
+                  <ion-col class="ion-flex my-auto">
+                    <div>{{item.itemBarcode}}</div>
+                  </ion-col>
+                </ion-row>
+                <ion-row>
+                  <ion-col class="ion-flex my-auto">
+                    <div>{{item.itemCode}}</div>
+                  </ion-col>
+                </ion-row>
+                <ion-row>
+                  <ion-col class="ion-flex my-auto">
+                    <div>{{item.description}}</div>
+                  </ion-col>
+                </ion-row>
+              </ion-grid> 
+            </ion-col>
+            <ion-col size="2" class="ion-flex my-auto justify-content-end">
+              <div>{{item.qtyRequest|number:"1.0"}}</div>
+            </ion-col>
+          </ion-row>
+        </ion-grid>
+      </ion-item>
+    </ion-list>
+  </div>
+</ion-content>

@@ -1,0 +1,273 @@
+<ion-header [translucent]="true">
+	<ion-toolbar>
+		<ion-title>
+			<div class="ion-text-wrap">
+				{{object?.header?.posBillNum}}
+			</div>
+		</ion-title>
+		<ion-buttons slot="start">
+			<ion-back-button text=""></ion-back-button>
+		</ion-buttons>
+		<!-- <ion-buttons slot="end">
+			<ion-button (click)="showPopover($event)"><ion-icon name="menu-outline" slot="icon-only"></ion-icon></ion-button>
+		</ion-buttons> -->
+	</ion-toolbar>
+</ion-header>
+<!-- <ion-popover #popover [isOpen]="isPopoverOpen" (didDismiss)="isPopoverOpen = false">
+	<ng-template>
+		<ion-content class="p-2">
+			<ion-list class="list-custom animate__animated animate__fadeIn" lines="full">
+				<ion-item (click)="popover.dismiss(); presentAlertViewPdf()">
+					<ion-icon name="download-outline" slot="end"></ion-icon>
+					<ion-label>
+						<div>Download PDF</div>
+					</ion-label>
+				</ion-item>
+				<ion-item *ngIf="processType && selectedSegment === 'pending'"
+					(click)="popover.dismiss(); presentConfirmAlert('CONFIRM')">
+					<ion-icon name="checkmark-outline" slot="end"></ion-icon>
+					<ion-label>
+						<div>Confirm</div>
+					</ion-label>
+				</ion-item>
+				<ion-item *ngIf="processType && selectedSegment === 'pending'"
+					(click)="popover.dismiss(); presentConfirmAlert('REJECT')">
+					<ion-icon name="close-outline" slot="end"></ion-icon>
+					<ion-label>
+						<div>Reject</div>
+					</ion-label>
+				</ion-item>
+			</ion-list>
+		</ion-content>
+	</ng-template>
+</ion-popover> -->
+
+<ion-content [fullscreen]="true">
+	<div class="p-2">
+		<ion-list class="list-custom animate__animated animate__fadeIn" lines="full">
+			<ion-item button detail="false" class="ion-no-padding no-ripple">
+				<ion-grid class="ion-no-padding py-2 pl-2">
+					<ion-row>
+						<ion-col class="ion-flex ion-margin-auto">
+							<div class="font-bold">Doc. Num.</div>
+						</ion-col>
+						<ion-col class="ion-margin-auto justify-content-end">
+							<div>{{object?.header?.posBillNum}}</div>
+						</ion-col>
+					</ion-row>
+					<ion-row>
+						<ion-col class="ion-flex ion-margin-auto">
+							<div class="font-bold">Doc. Date</div>
+						</ion-col>
+						<ion-col class="ion-margin-auto justify-content-end">
+							<div>{{object?.header?.trxDate|date:"dd/MM/yyyy"}}</div>
+						</ion-col>
+					</ion-row>
+					<ion-row>
+						<ion-col class="ion-flex ion-margin-auto">
+							<div class="font-bold">Doc. Time</div>
+						</ion-col>
+						<ion-col class="ion-margin-auto justify-content-end">
+							<div>{{object?.header?.trxDateTime|date:"hh:mm:ss"}}</div>
+						</ion-col>
+					</ion-row>
+					<ion-row>
+						<ion-col class="ion-flex ion-margin-auto">
+							<div class="font-bold">Location</div>
+						</ion-col>
+						<ion-col class="ion-flex ion-margin-auto justify-content-end">
+							<div>{{object?.header?.locationId|idMapping:locationMasterList}}</div>
+						</ion-col>
+					</ion-row>
+					<ion-row>
+						<ion-col class="ion-flex ion-margin-auto">
+							<div class="font-bold">Station Num.</div>
+						</ion-col>
+						<ion-col class="ion-margin-auto justify-content-end">
+							<div>{{object?.header?.stationNum}}</div>
+						</ion-col>
+					</ion-row>
+					<ion-row>
+						<ion-col class="ion-flex ion-margin-auto">
+							<div class="font-bold">Promoter</div>
+						</ion-col>
+						<ion-col class="ion-margin-auto justify-content-end">
+							<div>{{object?.header?.promoterName}}</div>
+						</ion-col>
+					</ion-row>
+					<ion-row>
+						<ion-col class="ion-flex ion-margin-auto">
+							<div class="font-bold">Total Amt.</div>
+						</ion-col>
+						<ion-col class="ion-flex ion-margin-auto justify-content-end">
+							<div>{{object?.header?.totalAmt|number:"1.2"}}</div>
+						</ion-col>
+					</ion-row>
+               <ion-row>
+                  <ion-col class="ion-flex ion-margin-auto">
+                     <div class="font-bold">Created By</div>
+                  </ion-col>
+                  <ion-col class="ion-flex ion-margin-auto justify-content-end">
+                     <div>{{object?.header?.createdBy}} {{object?.header?.createdAt|date:"dd/MM/yy hh:mm a"}}</div>
+                  </ion-col>
+               </ion-row>
+					<!-- <ion-row>
+            <ion-col class="ion-flex ion-margin-auto">
+              <div class="font-bold">Grand Total</div>
+            </ion-col>
+            <ion-col class="ion-flex ion-margin-auto justify-content-end">
+              <div>{{flattenPurchaseOrder.details|sum:'subTotal'|number:'1.2-2'}}</div>
+            </ion-col>
+          </ion-row> -->
+				</ion-grid>
+			</ion-item>
+		</ion-list>
+		<ion-list-header class="ion-list-header-small ion-flex ion-text-center">
+			<ion-label>Line</ion-label>
+		</ion-list-header>
+		<ion-list class="list-custom animate__animated animate__fadeIn" lines="full">
+			<ion-item button detail="false" class="ion-no-padding no-ripple">
+				<ion-grid class="ion-no-padding py-2 pl-2">
+					<ion-row>
+						<ion-col size="1" class="ion-flex ion-margin-auto">
+							<div class="font-bold">#</div>
+						</ion-col>
+						<ion-col class="ion-flex ion-margin-auto">
+							<div class="font-bold">Item Info</div>
+						</ion-col>						
+						<ion-col size="1" class="ion-flex ion-margin-auto">
+							<div class="font-bold">Qty.</div>
+						</ion-col>
+					</ion-row>
+				</ion-grid>
+			</ion-item>
+			<ion-item button detail="false" class="ion-no-padding no-ripple" *ngFor="let rowData of object?.details; let rowIndex = index">
+				<ion-grid class="ion-no-padding py-2 pl-2">
+					<ion-row *ngIf="rowData.promotionDesc">
+						<ion-col class="ion-margin-auto">
+							<ion-badge color="success">{{rowData.promotionDesc}}</ion-badge>
+						</ion-col>
+					</ion-row>
+					<ion-row>
+						<ion-col size="1" class="ion-flex ion-margin-auto">
+							<div>{{rowIndex+1}}</div>
+						</ion-col>
+						<ion-col>
+							<ion-grid class="ion-no-padding py-2 pl-2">
+								<ion-row>
+									<ion-col class="ion-flex ion-margin-auto">
+										<div class="font-bold">{{rowData.itemBarcode}}</div>
+									</ion-col>
+								</ion-row>
+								<ion-row>
+									<ion-col class="ion-flex ion-margin-auto">
+										<div>{{rowData.itemCode}}</div>
+										<span class="badge-green ion-text-wrap ion-flex my-auto px-1 mx-1" *ngIf="rowData.itemVariationXDesc"> {{rowData.itemVariationXDesc}}</span>
+										<span class="badge-purple ion-text-wrap ion-flex my-auto px-1" *ngIf="rowData.itemVariationYDesc"> {{rowData.itemVariationYDesc}}</span>
+									</ion-col>
+								</ion-row>
+								<ion-row>
+									<ion-col class="ion-flex ion-margin-auto">
+										<div>{{rowData.description}}</div>
+									</ion-col>
+								</ion-row>
+							</ion-grid>
+						</ion-col>
+						<ion-col size="1" class="ion-flex ion-margin-auto">
+							<ion-badge>{{rowData.qtyRequest}}</ion-badge>
+						</ion-col>
+					</ion-row>
+					<ion-row>
+					  <ion-col>
+						 <div class="font-bold">
+							Unit Price
+						 </div>
+					  </ion-col>
+					  <ion-col>
+						 <div class="font-bold">
+							Disc. Code
+						 </div>
+					  </ion-col>
+					  <ion-col>
+						 <div class="font-bold justify-content-end">
+							Disc. Amt
+						 </div>
+					  </ion-col>
+					  <ion-col>
+						 <div class="font-bold justify-content-end">
+							SubTotal
+						 </div>
+					  </ion-col>
+					</ion-row>
+					<ion-row>
+					  <ion-col>
+						 <div>{{rowData.unitPrice|number:"1.0-2"}}</div>
+					  </ion-col>
+					  <ion-col>
+						 <div class="ion-flex">
+							<div>{{rowData.discountGroupCode1}}</div>
+							<div *ngIf="rowData.discountExpression"> [{{rowData.discountExpression}}]</div>
+						 </div>
+					  </ion-col>
+					  <ion-col class="justify-content-end">
+						 <div >{{(rowData.discountAmt??0)|number:"1.2"}}</div>
+					  </ion-col>
+					  <ion-col class="justify-content-end">
+						 <div >{{(rowData.totalAmt??0)|number:"1.2"}}</div>
+					  </ion-col>
+					</ion-row>
+				</ion-grid>
+			</ion-item>
+		</ion-list>
+		<ion-list-header class="ion-list-header-small ion-flex ion-text-center">
+			<ion-label>Payment</ion-label>
+		</ion-list-header>
+		<ion-list class="list-custom animate__animated animate__fadeIn" lines="full">
+			<ion-item button detail="false" class="ion-no-padding no-ripple">
+				<ion-grid class="ion-no-padding py-2 pl-2">
+					<ion-row>
+						<ion-col size="1" class="ion-flex ion-margin-auto">
+							<div class="font-bold">#</div>
+						</ion-col>
+						<ion-col class="ion-flex ion-margin-auto">
+							<div class="font-bold">Payment Type</div>
+						</ion-col>
+						<ion-col class="ion-flex ion-margin-auto">
+							<div class="font-bold">Merchant Type</div>
+						</ion-col>
+						<ion-col class="font-bold ion-margin-auto justify-content-end">
+							<div class="font-bold">Total Payment</div>
+						</ion-col>
+						<ion-col class="font-bold ion-margin-auto justify-content-end">
+							<div class="font-bold">Offset Amount</div>
+						</ion-col>
+					</ion-row>
+				</ion-grid>
+			</ion-item>
+			<ion-item button detail="false" class="ion-no-padding no-ripple" *ngFor="let rowData of object?.payment; let rowIndex = index">
+				<ion-grid class="ion-no-padding py-2 pl-2">
+					<ion-row>
+						<ion-col size="1" class="ion-flex ion-margin-auto">
+							<div>{{rowIndex+1}}</div>
+						</ion-col>
+						<ion-col class="ion-flex ion-margin-auto">
+							{{rowData.paymentTypeId|idMapping:paymentTypeMasterList}}
+							<ng-container *ngIf="rowData.refNo01 && rowData.paymentTypeCategory !== '5'">
+								{{' [Ref: '+ rowData.refNo01 +']'}}
+							</ng-container>
+						</ion-col>
+						<ion-col class="ion-flex ion-margin-auto">
+							{{rowData.cardMerchantId|idMapping:merchantMasterList}}
+						</ion-col>
+						<ion-col class="ion-margin-auto justify-content-end">
+							<div>{{rowData.totalAmt|number:"1.2"}}</div>
+						</ion-col>
+						<ion-col class="ion-margin-auto justify-content-end">
+							<div>{{rowData.offsetAmt|number:"1.2"}}</div>
+						</ion-col>
+					</ion-row>
+				</ion-grid>
+			</ion-item>
+		</ion-list>
+	</div>
+</ion-content>

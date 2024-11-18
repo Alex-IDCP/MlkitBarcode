@@ -1,0 +1,183 @@
+<ion-header [hidden]="scanActive">
+   <ion-toolbar>
+      <ion-title>Multi Inbound</ion-title>
+      <ion-buttons slot="start">
+         <ion-button (click)="cancelInsert()">
+            <ion-icon slot="start" name="chevron-back-outline"></ion-icon>
+         </ion-button>
+      </ion-buttons>
+      <ion-buttons slot="primary" (click)="swapCustomerLocation()" *ngIf="!(isWithDoc === 'true')">
+         <ion-icon slot="icon-only" name="sync-outline"></ion-icon>
+      </ion-buttons>
+      <ion-buttons slot="primary" *ngIf="isWithDoc === 'true'">
+         <app-camera-scan-input #cameraScanInput *ngIf="isButtonVisible && objectForm.controls.warehouseAgentId?.value" [scanActive]="scanActive" (onCameraStatusChanged)="onCameraStatusChanged($event)" (onDoneScanning)="onDoneScanning($event)"></app-camera-scan-input>
+      </ion-buttons>
+   </ion-toolbar>
+</ion-header>
+
+<ion-content fullscreen [hidden]="scanActive">
+   <div class="p-2">
+      <ng-container *ngIf="!(objectService.object && objectService.object.header && objectService.object.header && objectService.object.header.multiInboundId > 0)">
+         <ion-segment [(ngModel)]="isWithDoc" (ionChange)="isWithDocChanged($event)">
+            <ion-segment-button value="true">
+               <ion-label>With Doc</ion-label>
+            </ion-segment-button>
+            <ion-segment-button value="false">
+               <ion-label>Without Doc</ion-label>
+            </ion-segment-button>
+         </ion-segment>
+      </ng-container>
+      <div class="mt-2" *ngIf="isWithDoc === 'false'" [formGroup]="objectForm">
+         <ion-list class="list-custom animate__animated animate__fadeIn" lines="full">
+            <app-search-dropdown title="Destination Location" optionLabel="description" [searchDropdownList]="objectService.fLocationMasterList" [selectedId]="objectForm.controls.locationId.value" (onActionComplete)="onDestinationLocationSelected($event)"></app-search-dropdown>
+            <ng-container *ngIf="!isByLocation">
+               <app-search-dropdown title="Customer" optionLabel="description" [searchDropdownList]="objectService.customerMasterList" [selectedId]="objectForm.controls.customerId.value" (onActionComplete)="onCustomerSelected($event, false)" [disabled]="customerDisabled"></app-search-dropdown>
+               <ng-container *ngIf="objectForm.controls.businessModelType.value !== 'T' && objectForm.controls.businessModelType.value !== null">
+                  <app-search-dropdown title="Origin Location" optionLabel="description" [searchDropdownList]="objectService.customerLocationMasterList" [selectedId]="objectForm.controls.toLocationId.value" (onActionComplete)="onCustomerLocationSelected($event)"></app-search-dropdown>
+               </ng-container>            
+            </ng-container>
+            <ng-container *ngIf="isByLocation">
+               <app-search-dropdown title="Origin Location" optionLabel="description" [searchDropdownList]="objectService.locationMasterList" [selectedId]="objectForm.controls.toLocationId.value" (onActionComplete)="onFullToLocationSelected($event)"></app-search-dropdown>
+               <ng-container *ngIf="objectForm.controls.toLocationId.value">
+                  <app-search-dropdown title="Customer" optionLabel="description" [searchDropdownList]="objectService.customerMasterList" [selectedId]="objectForm.controls.customerId.value" (onActionComplete)="onCustomerSelected($event, true)" [disabled]="customerDisabled"></app-search-dropdown>               
+               </ng-container>
+            </ng-container>
+         </ion-list>
+      </div>
+      <ng-container [formGroup]="objectForm">
+         <ion-list class="list-custom animate__animated animate__fadeIn ion-no-padding" lines="none">
+            <ion-item button detail="false" class="no-ripple">
+               <ion-label class="font-bold" position="stacked">Remark</ion-label>
+               <ion-textarea formControlName="remark" placeholder="Enter Remark" [autoGrow]="true"></ion-textarea>
+            </ion-item>
+         </ion-list>
+         <ion-list class="list-custom animate__animated animate__fadeIn ion-no-padding" lines="none">
+            <app-search-dropdown title="Agent" optionLabel="description" [searchDropdownList]="objectService.warehouseAgentMasterList" [selectedId]="objectForm.controls.warehouseAgentId.value" (onActionComplete)="onWarehouseAgentSelected($event)" [showCamera]="true" [inputReadOnly]="false" [clearSearchValue]="true" (onScanCompleted)="onWAScanCompleted($event)" (onCameraStatusChanged)="onCameraStatusChanged($event)" (onDoneScanning)="onWADoneScanning($event)"></app-search-dropdown>
+            <ng-container *ngIf="objectService.multiInboundActivateHeaderReason">
+               <app-search-dropdown title="Reason" optionLabel="description" [searchDropdownList]="objectService.reasonMasterList" [selectedId]="objectForm.controls.reasonId.value" (onActionComplete)="onWarehouseAgentSelected($event)" [clearSearchValue]="true"></app-search-dropdown>
+            </ng-container>
+         </ion-list>
+      </ng-container>
+      <div *ngIf="isWithDoc === 'true'">
+         <ion-grid class="ion-no-padding">
+            <ion-row>
+               <ion-col class="ion-flex ion-margin-auto" size="10">
+                  <input #barcodeInput hideKeyboard class="p-2 ion-flex ion-text-center" type="text" enterkeyhint="enter" [(ngModel)]="docSearchValue" [ngModelOptions]="{standalone:true}" placeholder="Enter or Scan Doc" (keydown)="handleDocSearchKeyDown($event)">
+               </ion-col>
+               <ion-col class="ion-flex ion-margin-auto justify-content-end">
+                  <ion-button size="small" fill="clear" (click)="showKeyboard($event)">
+                     <i slot="icon-only" class="fas fa-keyboard"></i>
+                  </ion-button>
+               </ion-col>
+            </ion-row>
+         </ion-grid>
+         <div *ngIf="selectedDocs && selectedDocs.length > 0">
+            <ion-list class="list-custom animate__animated animate__fadeIn" lines="full">
+               <ion-item button detail="false" class="ion-no-padding no-ripple">
+                  <ion-grid class="ion-no-padding py-2 pl-2">
+                     <ion-row>
+                        <ion-col class="ion-flex ion-margin-auto">
+                           <div class="font-bold">Destination Location</div>
+                        </ion-col>
+                        <ion-col class="ion-flex ion-margin-auto justify-content-end">
+                           <div>{{objectForm.controls.locationId.value|idMapping:objectService.locationMasterList}}</div>
+                        </ion-col>
+                     </ion-row>
+                     <ion-row>
+                        <ion-col class="ion-flex ion-margin-auto">
+                           <div class="font-bold">Customer</div>
+                        </ion-col>
+                        <ion-col class="ion-flex ion-margin-auto justify-content-end">
+                           <div>{{objectForm.controls.customerId.value|idMapping:objectService.customerMasterList}}</div>
+                        </ion-col>
+                     </ion-row>
+                     <ion-row>
+                        <ion-col class="ion-flex ion-margin-auto">
+                           <div class="font-bold">Origin Location</div>
+                        </ion-col>
+                        <ion-col class="ion-flex ion-margin-auto justify-content-end">
+                           <div>{{objectForm.controls.toLocationId.value|idMapping:objectService.locationMasterList}}</div>
+                        </ion-col>
+                     </ion-row>
+                     <ion-row>
+                        <ion-col class="ion-flex ion-margin-auto">
+                           <div class="font-bold">Type</div>
+                        </ion-col>
+                        <ion-col class="ion-flex ion-margin-auto justify-content-end">
+                           <div>{{objectForm.controls.typeCode.value|codeMapping:objectService.salesTypeMasterList}}</div>
+                        </ion-col>
+                     </ion-row>
+                  </ion-grid>
+               </ion-item>
+            </ion-list>
+         </div>
+         <ng-container *ngIf="selectedDocs && selectedDocs.length > 0">
+            <ion-list-header class="ion-list-header-small ion-flex ion-text-center">
+               <ion-label>Outstanding Scanned List</ion-label>
+            </ion-list-header>
+            <ion-list class="list-custom animate__animated animate__fadeIn" lines="full">
+               <ion-item button detail="false" class="ion-no-padding no-ripple" *ngFor="let rowData of uniqueOutstandingDocNum" (click)="showDetail()">
+                  <ion-grid class="ion-no-padding py-2 pl-2">
+                     <ion-row>
+                        <ion-col class="ion-flex ion-margin-auto justify-content-center">
+                           <div>{{rowData}}</div>
+                        </ion-col>
+                     </ion-row>
+                     <ng-container>
+                        <ion-row *ngFor="let rowData2 of getDocRowData(rowData, 'D'); let rowIndex = index">
+                           <ion-grid class="ion-no-padding">
+                              <ion-row *ngIf="rowIndex === 0">
+                                 <ion-col size="1" class="ion-flex ion-margin-auto">
+                                    <div class="font-bold">#</div>
+                                 </ion-col>
+                                 <ion-col size="5" class="ion-flex ion-margin-auto">
+                                    <div class="font-bold">Item</div>
+                                 </ion-col>
+                                 <ion-col class="ion-flex ion-margin-auto justify-content-end">
+                                    <div class="font-bold">Doc. Qty.</div>
+                                 </ion-col>
+                                 <ion-col class="ion-flex ion-margin-auto justify-content-end">
+                                    <div class="font-bold">Scan'd Qty.</div>
+                                 </ion-col>
+                              </ion-row>
+                              <ion-row class="mt-1">
+                                 <ion-col size="1" class="ion-flex ion-margin-auto">
+                                    <div>{{rowIndex+1}}</div>
+                                 </ion-col>
+                                 <ion-col size="5" class="ion-flex ion-margin-auto">
+                                    <ion-icon name="ellipse" [class]="rowData2.qtyRequest === (rowData2.qtyScanned+(rowData2.qtyCurrent??0))?'color-success':'color-danger'"></ion-icon>
+                                    <div>{{rowData2.itemCode}}</div>
+                                    <span class="badge-green px-1 mx-1 ion-text-wrap ion-flex my-auto" *ngIf="rowData2.itemVariationXDescription">
+                                       {{rowData2.itemVariationXDescription}}</span>
+                                    <span class="badge-purple px-1 ion-text-wrap ion-flex my-auto" *ngIf="rowData2.itemVariationYDescription">
+                                       {{rowData2.itemVariationYDescription}}</span>
+                                 </ion-col>
+                                 <ion-col class="ion-flex ion-margin-auto justify-content-end">
+                                    <div>{{rowData2.qtyRequest}}</div>
+                                 </ion-col>
+                                 <ion-col class="ion-flex ion-margin-auto justify-content-end">
+                                    <div>{{(rowData2.qtyScanned+(rowData2.qtyCurrent??0))}}</div>
+                                 </ion-col>
+                              </ion-row>
+                           </ion-grid>
+                        </ion-row>
+                     </ng-container>
+                  </ion-grid>
+               </ion-item>
+            </ion-list>
+         </ng-container>
+      </div>
+   </div>
+   <div *ngIf="isWithDoc === 'false'">
+      <ion-button class="ion-margin" expand="block" size="default" (click)="nextStep()">
+         Next
+      </ion-button>
+   </div>
+</ion-content>
+
+<ion-row class="scanner-buttons" [hidden]="!scanActive">
+   <ion-col class="ion-no-padding">
+      <ion-button expand="full" (click)="stopScanner()">Stop</ion-button>
+   </ion-col>
+</ion-row>
+<div class="scan-box" [hidden]="!scanActive"></div>

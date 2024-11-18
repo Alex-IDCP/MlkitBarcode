@@ -1,0 +1,98 @@
+<div class="p-2">
+   <ion-segment value="pending" [(ngModel)]="selectedSegment">
+      <ion-segment-button value="pending">
+         <ion-label>Pending</ion-label>
+      </ion-segment-button>
+      <ion-segment-button value="completed">
+         <ion-label>Completed</ion-label>
+      </ion-segment-button>
+   </ion-segment>
+   <hr class="hr-small">
+   <ion-list class="list-custom animate__animated animate__fadeIn" lines="full" *ngIf="selectedSegment === 'pending'">
+      <ion-item-sliding *ngFor="let object of pendingObjects">
+         <ion-item button detail="false" class="ion-no-padding no-ripple" (click)="openDetail(object.docId)">
+            <ion-grid class="ion-no-padding py-2 pl-2">
+               <ion-row>
+                  <ion-col class="ion-flex ion-margin-auto">
+                     <div class="font-bold">{{object.docNum}}</div>
+                  </ion-col>
+               </ion-row>
+               <ion-row *ngIf="showAmount && (object.amount !== null || object.amount !== undefined)">
+                  <ion-col class="ion-flex ion-margin-auto">
+                     <div class="font-bold">Amount</div>
+                  </ion-col>
+                  <ion-col class="ion-flex ion-margin-auto justify-content-end">
+                     <div>{{object.amount|number:'1.2'}}</div>
+                  </ion-col>
+               </ion-row>
+               <ion-row *ngIf="object.trxDate || object.counterPart">
+                  <ion-col class="ion-flex ion-margin-auto">
+                     <span class="ion-text-wrap badge-other px-1" *ngIf="object.trxDate"><ion-icon name="calendar-number-outline"></ion-icon> {{object.trxDate|date:'dd/MM/yyyy'}}</span>
+                     <span class="ion-text-wrap badge-green px-1" *ngIf="object.counterPart"><ion-icon name="person-outline"></ion-icon> {{object.counterPart}}</span>
+                  </ion-col>
+               </ion-row>
+               <ion-row *ngIf="object.country || object.currency">
+                  <ion-col class="ion-flex ion-margin-auto">
+                     <span class="ion-text-wrap badge-purple px-1" *ngIf="object.country"><ion-icon name="globe-outline"></ion-icon> {{object.country}}</span>
+                     <span class="ion-text-wrap badge-purple px-1" *ngIf="object.currency"><ion-icon name="logo-usd"></ion-icon> {{object.currency}}</span>
+                  </ion-col>
+               </ion-row>
+               <ion-row *ngIf="object.typeDetail">
+                  <ion-col class="ion-flex ion-margin-auto">
+                     <span class="ion-text-wrap badge-warning px-1" *ngIf="object.typeDetail"><ion-icon name="alert-circle-outline"></ion-icon> {{object.typeDetail}}</span>
+                  </ion-col>
+               </ion-row>
+            </ion-grid>
+         </ion-item>
+         <ion-item-options side="start" *ngIf="transactionProcessingCount.isAllowApprove">
+            <ion-item-option color="danger" (click)="presentConfirmAlert('REJECT', object.docId, object.docNum)"><ion-icon name="close-outline" slot="bottom"></ion-icon>Reject</ion-item-option>
+         </ion-item-options>
+         <ion-item-options side="end" *ngIf="transactionProcessingCount.isAllowApprove">
+            <ion-item-option color="success" (click)="presentConfirmAlert('CONFIRM', object.docId, object.docNum)"><ion-icon name="checkmark-outline" slot="bottom"></ion-icon>Approve</ion-item-option>
+         </ion-item-options>
+      </ion-item-sliding>
+   </ion-list>
+   <ion-list class="list-custom animate__animated animate__fadeIn" [lines]="completedObjects?.length > 0 ? 'full' : 'none'" *ngIf="selectedSegment === 'completed'">
+      <ion-item-sliding *ngFor="let object of completedObjects">
+         <ion-item button detail="false" class="ion-no-padding no-ripple" (click)="openDetail(object.docId)">
+            <ion-grid class="ion-no-padding py-2 pl-2">
+               <ion-row>
+                  <ion-col class="ion-flex ion-margin-auto">
+                     <div class="font-bold">{{object.docNum}}</div>
+                  </ion-col>
+               </ion-row>
+               <ion-row *ngIf="showAmount && (object.amount !== null || object.amount !== undefined)">
+                  <ion-col class="ion-flex ion-margin-auto">
+                     <div class="font-bold">Amount</div>
+                  </ion-col>
+                  <ion-col class="ion-flex ion-margin-auto justify-content-end">
+                     <div>{{object.amount|number:'1.2'}}</div>
+                  </ion-col>
+               </ion-row>
+               <ion-row *ngIf="object.trxDate || object.counterPart">
+                  <ion-col class="ion-flex ion-margin-auto">
+                     <span class="ion-text-wrap badge-other px-1" *ngIf="object.trxDate"><ion-icon name="calendar-number-outline"></ion-icon> {{object.trxDate|date:'dd/MM/yyyy'}}</span>
+                     <span class="ion-text-wrap badge-green px-1" *ngIf="object.counterPart"><ion-icon name="person-outline"></ion-icon> {{object.counterPart}}</span>
+                     <span class="ion-text-wrap badge-green px-1" *ngIf="object.locationDesc && showOriginLocation"><ion-icon name="business-outline"></ion-icon> {{object.locationDesc}}</span>
+                  </ion-col>
+               </ion-row>
+               <ion-row *ngIf="object.country || object.currency">
+                  <ion-col class="ion-flex ion-margin-auto">
+                     <span class="ion-text-wrap badge-purple px-1" *ngIf="object.country"><ion-icon name="globe-outline"></ion-icon> {{object.country}}</span>
+                     <span class="ion-text-wrap badge-purple px-1" *ngIf="object.currency"><ion-icon name="logo-usd"></ion-icon> {{object.currency}}</span>
+                     <span class="ion-text-wrap badge-purple px-1" *ngIf="object.createdBy"><ion-icon name="person-outline"></ion-icon> {{object.createdAt|date:'dd/MM/yyyy'}}</span>
+                  </ion-col>
+               </ion-row>
+               <ion-row *ngIf="object.typeDetail">
+                  <ion-col class="ion-flex ion-margin-auto">
+                     <span class="ion-text-wrap badge-warning px-1" *ngIf="object.typeDetail"><ion-icon name="alert-circle-outline"></ion-icon> {{object.typeDetail}}</span>
+                  </ion-col>
+               </ion-row>
+            </ion-grid>
+         </ion-item>
+         <ion-item-options side="end" *ngIf="transactionProcessingCount.isAllowApprove">
+            <ion-item-option color="danger" (click)="presentConfirmAlert('REVERSE', object.docId, object.docNum)"><ion-icon name="arrow-undo-outline" slot="bottom"></ion-icon>Reverse</ion-item-option>
+         </ion-item-options>
+      </ion-item-sliding>
+   </ion-list>
+</div>

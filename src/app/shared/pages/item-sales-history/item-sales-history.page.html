@@ -1,0 +1,40 @@
+<ion-header>
+   <ion-toolbar>
+      <ion-title><div class="ion-text-wrap">Sales History</div></ion-title>
+      <ion-buttons slot="start">
+         <ion-button (click)="hidePriceHistoryModal()">Ok</ion-button>
+      </ion-buttons>
+   </ion-toolbar>
+</ion-header>
+<ion-content>
+   <div class="p-2">
+      <ng-container *ngIf="selectedHistory && selectedHistory.length > 0">
+         <ion-list class="list-custom animate__animated animate__fadeIn" lines="full">
+            <ion-item button detail="false" class="p-0">
+               <ion-grid class="ion-no-padding">
+                  <ion-row>
+                     <ion-col size="3" class="ion-flex ion-margin-auto"><div class="font-bold">Date</div></ion-col>
+                     <ion-col size="2" class="ion-flex ion-margin-auto justify-content-end"><div class="font-bold">Qty.</div></ion-col>
+                     <ion-col size="2" class="ion-flex ion-margin-auto justify-content-end"><div class="font-bold">U/P.</div></ion-col>
+                     <ion-col class="ion-flex ion-margin-auto justify-content-end"><div class="font-bold">Disc.</div></ion-col>
+                  </ion-row>
+                  <ion-row *ngFor="let rowData of selectedHistory">
+                     <ion-col size="3" class="ion-flex ion-margin-auto">{{rowData.documentDate|date:"dd/MM/yyyy"}}</ion-col>
+                     <ion-col size="2" class="ion-flex ion-margin-auto justify-content-end">{{rowData.quantity|number:"1.0"}}</ion-col>
+                     <ion-col size="2" class="ion-flex ion-margin-auto justify-content-end">{{rowData.unitPrice|number:"1.2"}}</ion-col>
+                     <ion-col class="ion-flex ion-margin-auto justify-content-end">
+                        <div *ngIf="!rowData.discountExpression">{{rowData.discountGroupCode}}</div>
+                        <div *ngIf="rowData.discountExpression">{{rowData.discountGroupCode}} [{{rowData.discountExpression}}]</div>
+                     </ion-col>
+                  </ion-row>
+               </ion-grid>
+            </ion-item>
+         </ion-list>
+      </ng-container>
+   </div>
+</ion-content>
+<ion-footer class="ion-padding-bottom-large animate__animated animate__fadeInUp p-0" style="background-color:white;">
+   <ion-button class="ion-margin" expand="block" (click)="hidePriceHistoryModal()">
+      Ok
+   </ion-button>
+</ion-footer>

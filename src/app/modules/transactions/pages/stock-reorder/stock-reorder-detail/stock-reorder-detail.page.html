@@ -1,0 +1,162 @@
+<ion-header>
+   <ion-toolbar>
+      <ion-title><div class="ion-text-wrap">{{objectService.object?.stockReorderNum}}</div></ion-title>
+      <ion-buttons slot="start">
+         <ion-back-button text="" defaultHref="/transactions/stock-reorder"></ion-back-button>
+      </ion-buttons>
+      <ion-buttons slot="end">
+         <ion-button (click)="showPopover($event)"><ion-icon name="menu-outline" slot="icon-only"></ion-icon></ion-button>
+      </ion-buttons>
+   </ion-toolbar>
+</ion-header>
+<ion-popover #popover [isOpen]="isPopoverOpen" (didDismiss)="isPopoverOpen = false">
+   <ng-template>
+      <ion-content class="p-2">
+         <ion-list class="list-custom animate__animated animate__fadeIn" lines="full">
+            <ion-item (click)="popover.dismiss(); editObject()" *ngIf="!objectService.object?.isCompleted">
+              <ion-icon name="create-outline" slot="end"></ion-icon>
+              <ion-label>
+                <div>Edit</div>
+              </ion-label>
+            </ion-item>
+            <ion-item (click)="popover.dismiss(); completeObjectAlert()" *ngIf="!objectService.object?.isCompleted">
+               <ion-icon name="checkmark-outline" slot="end"></ion-icon>
+               <ion-label>
+                  <div>Complete</div>
+               </ion-label>
+            </ion-item>
+            <ion-item (click)="popover.dismiss(); presentAlertViewPdf()" *ngIf="objectService.object?.isCompleted && objectService.object?.salesOrderId">
+               <ion-icon name="download-outline" slot="end"></ion-icon>
+               <ion-label>
+                  <div>Download PDF</div>
+               </ion-label>
+            </ion-item>
+         </ion-list>
+      </ion-content>
+   </ng-template>
+</ion-popover>
+<ion-content fullscreen>
+   <div class="p-2" *ngIf="objectService.object">
+      <ion-list class="list-custom animate__animated animate__fadeIn" lines="full">
+         <ion-item class="ion-no-padding no-ripple">
+            <ion-grid class="ion-no-padding py-2 pl-2">
+               <ion-row>
+                  <ion-col class="ion-flex ion-margin-auto">
+                     <div class="font-bold">SO. Num.</div>
+                  </ion-col>
+                  <ion-col class="ion-flex ion-margin-auto justify-content-end">
+                     <div class="ion-flex">
+                        {{objectService.object?.salesOrderNum}}
+                     </div>
+                  </ion-col>
+               </ion-row>
+               <ion-row>
+                  <ion-col class="ion-flex ion-margin-auto">
+                     <div class="font-bold">Doc. Num.</div>
+                  </ion-col>
+                  <ion-col class="ion-flex ion-margin-auto justify-content-end">
+                     <div class="ion-flex">
+                        <ion-icon class="ion-flex mr-2" name="ellipse" [class]="objectService.object?.isCompleted?'color-success':'color-danger'"></ion-icon>
+                        {{objectService.object?.stockReorderNum}}
+                     </div>
+                  </ion-col>
+               </ion-row>
+               <ion-row>
+                  <ion-col class="ion-flex ion-margin-auto">
+                     <div class="font-bold">Doc. Date</div>
+                  </ion-col>
+                  <ion-col class="ion-flex ion-margin-auto justify-content-end">
+                     <div>{{objectService.object?.trxDate|date:'dd/MM/yyyy'}}</div>
+                  </ion-col>
+               </ion-row>
+               <ion-row>
+                  <ion-col class="ion-flex ion-margin-auto">
+                     <div class="font-bold">Type</div>
+                  </ion-col>
+                  <ion-col class="ion-flex ion-margin-auto justify-content-end">
+                     <div>{{objectService.object.typeCode|codeMapping:objectService.salesTypeMasterList}}</div>
+                  </ion-col>
+               </ion-row>
+               <ion-row>
+                  <ion-col class="ion-flex ion-margin-auto">
+                     <div class="font-bold">From Location</div>
+                  </ion-col>
+                  <ion-col class="ion-flex ion-margin-auto justify-content-end">
+                     <div>{{objectService.object?.locationId|idMapping:objectService.fullLocationMasterList}}</div>
+                  </ion-col>
+               </ion-row>
+               <ion-row>
+                  <ion-col class="ion-flex ion-margin-auto">
+                     <div class="font-bold">Total Qty</div>
+                  </ion-col>
+                  <ion-col class="ion-flex ion-margin-auto justify-content-end">
+                     <div class="font-bold">{{objectService.object?.line|sum:"lineQty"|number:"1.0-0"}}</div>
+                  </ion-col>
+               </ion-row>
+               <ion-row>
+                  <ion-col class="ion-flex ion-margin-auto">
+                     <div class="font-bold">Created By</div>
+                  </ion-col>
+                  <ion-col class="ion-flex ion-margin-auto justify-content-end">
+                     <div>{{objectService.object?.createdBy}} {{objectService.object?.createdAt|date:"dd/MM/yy hh:mm a"}}</div>
+                  </ion-col>
+               </ion-row>
+            </ion-grid>
+         </ion-item>
+      </ion-list>
+      <div *ngIf="objectService.object && objectService.object?.remark && objectService.object?.remark.length > 0">
+         <ion-list-header class="ion-list-header-small ion-flex ion-text-center">
+            <ion-label>Remark</ion-label>
+         </ion-list-header><ion-list class="list-custom animate__animated animate__fadeIn" lines="full">
+            <ion-item class="ion-no-padding no-ripple">
+               <ion-grid class="ion-no-padding py-2 pl-2">
+                  <ion-row>
+                     <ion-col class="ion-flex ion-margin-auto">
+                        <div>{{objectService.object?.remark}}</div>
+                     </ion-col>
+                  </ion-row>
+               </ion-grid>
+            </ion-item>
+         </ion-list>
+      </div>
+      <ion-list-header class="ion-list-header-small ion-flex ion-text-center">
+         <ion-label>Details</ion-label>
+      </ion-list-header>
+      <ion-list class="list-custom animate__animated animate__fadeIn" lines="full">
+         <ion-item class="ion-no-padding no-ripple" *ngFor="let l of objectService.object?.line">
+            <ion-grid class="ion-no-padding py-2 pl-2">
+               <ion-row>
+                  <ion-col size="10">
+                     <ion-grid class="ion-no-padding">
+                        <ion-row>
+                           <ion-col class="ion-flex ion-margin-auto">
+                              <div class="font-bold">{{l.itemCode}}</div>
+                              <div class="ion-flex">
+                                 <span class="badge-green ion-text-wrap ion-flex my-auto px-1 mx-1" *ngIf="l.xDesc">{{l.xDesc}}</span>
+                                 <span class="badge-purple ion-text-wrap ion-flex my-auto px-1" *ngIf="l.yDesc">{{l.yDesc}}</span>
+                              </div>
+                           </ion-col>
+                        </ion-row>
+                        <ion-row>
+                           <ion-col class="ion-flex ion-margin-auto">
+                              <div class="ion-text-wrap">{{l.itemDesc}}</div>
+                           </ion-col>
+                        </ion-row>
+                        <ion-row>
+                           <ion-col class="ion-flex ion-margin-auto">
+                              <div class="ion-text-wrap">{{l.barcode}}</div>
+                           </ion-col>
+                        </ion-row>
+                     </ion-grid>
+                  </ion-col>
+                  <ion-col size="2" class="ion-flex ion-margin-auto justify-content-center">
+                     <div class="ion-flex my-auto">
+                        <ion-badge mode="ios" class="justify-content-center">{{l.lineQty|number:"1.0"}}</ion-badge>
+                     </div>
+                  </ion-col>
+               </ion-row>
+            </ion-grid>
+         </ion-item>
+      </ion-list>
+   </div>
+</ion-content>

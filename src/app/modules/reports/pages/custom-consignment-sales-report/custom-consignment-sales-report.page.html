@@ -1,0 +1,130 @@
+<ion-header>
+   <ion-toolbar>
+     <ion-title>Sales Analysis</ion-title>
+     <ion-buttons slot="start">
+       <ion-back-button text="" defaultHref="/reports"></ion-back-button>
+     </ion-buttons>
+   </ion-toolbar>
+ </ion-header>
+ 
+ <ion-content>
+   <div class="p-2">
+    <ion-list class="list-custom animate__animated animate__fadeIn" lines="none">
+       
+       <ion-item button detail="false" class="no-ripple ion-no-padding">
+          <ion-grid class="ion-no-padding">
+             <ion-row>
+                <ion-col class="ion-margin-auto">
+                   <ion-item id="open-start-calendar-modal">
+                      <!-- <ion-icon icon="calendar-outline" slot="start" color="primary"></ion-icon> -->
+                  <ion-label position="stacked" class="font-bold">Start Date</ion-label>
+                  <ion-text class="ion-no-padding-end pb-3">{{formattedStartDateString}}</ion-text>
+                </ion-item>
+                <ion-modal class="ion-modal-calendar" trigger="open-start-calendar-modal" [keepContentsMounted]="true">
+                  <ng-template>
+                    <ion-content>
+                      <ion-datetime #startdatetime [value]="startDateValue" size="cover" (ionChange)="onStartDateSelected(startdatetime.value)" [preferWheel]="true" showDefaultTitle="true" presentation="date" [max]="maxDate">
+                        <ion-buttons slot="buttons">
+                          <ion-button (click)="startDateDismiss()" color="danger">Dismiss</ion-button>
+                          <ion-button (click)="startDateSelect()" color="primary">Select</ion-button>
+                        </ion-buttons>
+                      </ion-datetime>
+                     </ion-content>
+                  </ng-template>
+               </ion-modal>
+            </ion-col>
+              <ion-col class="ion-margin-auto">
+                <ion-item id="open-end-calendar-modal">
+                   <!-- <ion-icon icon="calendar-outline" slot="start" color="primary"></ion-icon> -->
+                  <ion-label position="stacked" class="font-bold">End Date</ion-label>
+                  <ion-text class="ion-no-padding-end pb-3">{{formattedEndDateString}}</ion-text>
+               </ion-item>
+               <ion-modal class="ion-modal-calendar" trigger="open-end-calendar-modal" [keepContentsMounted]="true">
+                  <ng-template>
+                     <ion-content>
+                        <ion-datetime #enddatetime [value]="endDateValue" size="cover" (ionChange)="onEndDateSelected(enddatetime.value)" [preferWheel]="true" showDefaultTitle="true" presentation="date" [max]="maxDate">
+                           <ion-buttons slot="buttons">
+                          <ion-button (click)="endDateDismiss()" color="danger">Dismiss</ion-button>
+                          <ion-button (click)="endDateSelect()" color="primary">Select</ion-button>
+                        </ion-buttons>
+                     </ion-datetime>
+                  </ion-content>
+               </ng-template>
+                </ion-modal>
+               </ion-col>
+            </ion-row>
+         </ion-grid>
+      </ion-item>
+      <app-search-multi-dropdown #searchLocation title="Location" optionLabel="description" [searchDropdownList]="locationSearchDropDown" [selectedIds]="selectedLocation" (onActionComplete)="onLocationChanged($event)"></app-search-multi-dropdown>
+      <app-search-multi-dropdown #searchItem title="Item" optionLabel="description" [searchDropdownList]="itemSearchDropDown" [selectedIds]="selectedItem" (onActionComplete)="onItemSelected($event)" ></app-search-multi-dropdown>
+      <app-search-multi-dropdown #searchItem title="Item Brand" optionLabel="description" [masterDropdownList]="itemBrandMasterList" [selectedIds]="selectedItemBrand" (onActionComplete)="onItemBrandSelected($event)" ></app-search-multi-dropdown>
+      <app-search-multi-dropdown #searchItem title="Item Category" optionLabel="description" [searchDropdownList]="itemCategoryMasterList" [selectedIds]="selectedItemCategory" (onActionComplete)="onItemCategorySelected($event)" ></app-search-multi-dropdown>
+      <app-search-multi-dropdown #searchItem title="Item Group" optionLabel="description" [searchDropdownList]="itemGroupMasterList" [selectedIds]="selectedItemGroup" (onActionComplete)="onItemGroupSelected($event)" ></app-search-multi-dropdown>
+     </ion-list>
+     <ion-button class="pt-2" expand="block" size="default" (click)="loadReport()" [disabled]="startDateValue === null || endDateValue === null || selectedLocation === null">Search</ion-button>
+     <ion-list-header class="ion-list-header ion-flex ion-text-center" *ngIf="!object || object?.length === 0">
+       <ion-label>Nothing found!</ion-label>
+     </ion-list-header>
+     <ngx-datatable *ngIf="object && object.length > 0"
+       class="fullscreen material mt-2"
+       [rows]="object" 
+       [rowHeight]="'auto'" 
+       [columnMode]="'force'"
+      [scrollbarH]="true"
+      [summaryPosition]="'bottom'"
+      [summaryRow]="true"
+      [summaryHeight]="50"
+      [sortType]="sortType">
+      
+       <ngx-datatable-column prop="locationCode" name="Location">
+         <ng-template let-row="row" ngx-datatable-cell-template>
+           <div class="flex ion-text-wrap font-half-size">{{row.locationCode}} - {{row.locationDesc}}</div>
+         </ng-template>
+       </ngx-datatable-column>
+ 
+       <ngx-datatable-column prop="itemBrandCode" name="Brand">
+         <ng-template let-row="row" ngx-datatable-cell-template>
+           <div class="flex ion-text-wrap font-half-size">{{row.itemBrandCode}} - {{row.itemBrandDesc}}</div>
+         </ng-template>
+       </ngx-datatable-column>
+ 
+       <ngx-datatable-column prop="itemCategoryCode" name="Category">
+         <ng-template let-row="row" ngx-datatable-cell-template>
+           <div class="flex ion-text-wrap font-half-size">{{row.itemCategoryCode}} - {{row.itemCategoryDesc}}</div>
+         </ng-template>
+       </ngx-datatable-column>
+ 
+       <ngx-datatable-column prop="itemGroupCode" name="Group">
+         <ng-template let-row="row" ngx-datatable-cell-template>
+           <div class="flex ion-text-wrap font-half-size">{{row.itemGroupCode}} - {{row.itemGroupDesc}}</div>
+         </ng-template>
+       </ngx-datatable-column>
+ 
+       <ngx-datatable-column prop="itemCode" name="Item">
+         <ng-template let-row="row" ngx-datatable-cell-template>
+           <div class="flex ion-text-wrap font-half-size">{{row.itemCode}} - {{row.itemDesc}}</div>
+         </ng-template>
+       </ngx-datatable-column>
+
+       <ngx-datatable-column prop="qtyRequest" name="Qty." [flexGrow]="1" [summaryTemplate]="qtyRequestSum">
+         <ng-template let-row="row" ngx-datatable-cell-template>
+           <div class="flex ion-text-wrap font-half-size justify-content-end">{{row.qtyRequest|number:'1.0'}}</div>
+         </ng-template>
+       </ngx-datatable-column>
+ 
+       <ngx-datatable-column prop="subTotal" name="Total" [flexGrow]="1" [summaryTemplate]="subTotalSum">
+         <ng-template let-row="row" ngx-datatable-cell-template>
+           <div class="flex ion-text-wrap font-half-size justify-content-end">{{row.subTotal|number:'1.2-2'}}</div>
+         </ng-template>
+       </ngx-datatable-column>
+ 
+     </ngx-datatable>
+     <ng-template #qtyRequestSum let-value="value">
+       <div class="flex ion-text-wrap ion-text-right">{{countSum("qtyRequest")}}</div>
+     </ng-template>
+     <ng-template #subTotalSum let-value="value">
+       <div class="flex ion-text-wrap ion-text-right">{{countSum("subTotal")}}</div>
+     </ng-template>
+   </div>
+ </ion-content>
+ 

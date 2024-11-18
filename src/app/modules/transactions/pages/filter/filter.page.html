@@ -1,0 +1,112 @@
+<ion-header>
+   <ion-toolbar>
+      <ion-buttons slot="start">
+         <ion-button (click)="cancel()">
+            Cancel
+         </ion-button>
+      </ion-buttons>
+      <ion-title>
+         Filter
+      </ion-title>
+      <ion-buttons slot="end">
+         <ion-button (click)="apply()">
+            Apply
+         </ion-button>
+      </ion-buttons>
+   </ion-toolbar>
+</ion-header>
+<ion-content>
+   <div class="p-2">
+      <ion-list-header class="ion-list-header-small ion-flex ion-text-center">
+         <ion-label class="pl-2">Transaction Date</ion-label>
+      </ion-list-header>
+      <ion-list class="list-custom animate__animated animate__fadeIn" lines="full">
+         <ion-item (click)="toggleDateFrom()">
+            <ion-label>
+               <p>From</p>
+            </ion-label>
+            <ion-text slot="end" class="ion-no-padding-end">{{date_from}}</ion-text>
+            <!-- <ion-input readonly slot="end" type="text" placeholder="Start Date" class="ion-text-right ion-no-padding-end" (click)="toggleDateFrom()" [(ngModel)]="date_from"></ion-input> -->
+         </ion-item>
+         <ion-datetime #ionDateFrom class="animate__animated animate__fadeIn" *ngIf="date_from_active" color="primary" locale="en-EN" size="cover" showDefaultButtons="false" presentation="date" (ionChange)="onDateFromSelect($event)" [value]="startDate.toISOString()" [preferWheel]="true">
+            <!-- <ion-buttons slot="buttons">
+          <ion-button color="danger" (click)="ionDateFrom.cancel(); date_from_active=false">Cancel</ion-button>
+          <ion-button color="primary" (click)="ionDateFrom.confirm()">Done</ion-button>
+        </ion-buttons> -->
+         </ion-datetime>
+         <ion-item (click)="toggleDateTo()">
+            <ion-label>
+               <p>To</p>
+            </ion-label>
+            <ion-text slot="end" class="ion-no-padding-end">{{date_to}}</ion-text>
+            <!-- <ion-input readonly slot="end" type="text" placeholder="Date to" class="ion-text-right ion-no-padding-end" (click)="toggleDateTo()" [(ngModel)]="date_to"></ion-input> -->
+         </ion-item>
+         <ion-datetime #ionDateTo class="animate__animated animate__fadeIn" *ngIf="date_to_active" color="primary" locale="en-EN" size="cover" showDefaultButtons="false" presentation="date" (ionChange)="onDateToSelect($event)" [value]="endDate.toISOString()" [preferWheel]="true">
+            <!-- <ion-buttons slot="buttons">
+          <ion-button color="danger" (click)="ionDateTo.cancel(); date_to_active=false">Cancel</ion-button>
+          <ion-button color="primary" (click)="ionDateTo.confirm()">Done</ion-button>
+        </ion-buttons> -->
+         </ion-datetime>
+      </ion-list>
+
+      <div *ngIf="customerFilter">
+         <ion-list-header class="ion-list-header-small ion-flex ion-text-center">
+            <ion-label class="pl-2">Customer</ion-label>
+         </ion-list-header>
+         <ion-list class="list-custom animate__animated animate__fadeIn" lines="full">
+            <app-search-multi-dropdown #appsMultiDropdown title="Customer" [showHeaderLabel]="false" [showBoldHeader]="false" [showCode]="true" optionLabel="description" [searchDropdownList]="customerList" (onActionComplete)="onCustomerSelected($event)" [selectedIds]="selectedCustomerId"></app-search-multi-dropdown>
+         </ion-list>
+      </div>
+
+      <div *ngIf="locationFilter">
+         <ion-list-header class="ion-list-header-small ion-flex ion-text-center">
+            <ion-label class="pl-2">Location</ion-label>
+         </ion-list-header>
+         <ion-list class="list-custom animate__animated animate__fadeIn" lines="full">
+            <app-search-multi-dropdown #appsMultiDropdown title="Location" [showHeaderLabel]="false" [showBoldHeader]="false" [showCode]="true" optionLabel="description" [searchDropdownList]="locationList" (onActionComplete)="onLocationSelected($event)" [selectedIds]="selectedLocationId"></app-search-multi-dropdown>
+         </ion-list>
+      </div>
+
+      <div *ngIf="salesAgentFilter">
+         <ion-list-header class="ion-list-header-small ion-flex ion-text-center">
+            <ion-label class="pl-2">Sales Agent</ion-label>
+         </ion-list-header>
+         <ion-list class="list-custom animate__animated animate__fadeIn" lines="full">
+            <app-search-multi-dropdown title="Sales Agent" [showHeaderLabel]="false" [showBoldHeader]="false" [showCode]="true" optionLabel="description" [searchDropdownList]="salesAgentList" (onActionComplete)="onSalesAgentSelected($event)" [selectedIds]="selectedSalesAgentId"></app-search-multi-dropdown>
+         </ion-list>
+      </div>
+
+      <div *ngIf="typeCodeFilter">
+         <ion-list-header class="ion-list-header-small ion-flex ion-text-center">
+            <ion-label class="pl-2">Type</ion-label>
+         </ion-list-header>
+         <ion-list class="list-custom animate__animated animate__fadeIn" lines="full">
+            <app-search-dropdown title="Type" optionValue="code" [masterDropdownList]="typeCodeList" [selectedCode]="selectedTypeCode" (onActionComplete)="onTypeCodeSelected($event)"></app-search-dropdown>
+         </ion-list>
+      </div>
+
+      <ng-container *ngIf="useDraft || useShowClosed">
+         <ion-list-header class="ion-list-header-small ion-flex ion-text-center">
+            <ion-label class="pl-2">Other</ion-label>
+         </ion-list-header>
+         <ion-list class="list-custom animate__animated animate__fadeIn" lines="full">
+            <ng-container *ngIf="useDraft">
+               <ion-item>
+                  <ion-label>
+                     <div>Show Draft Only</div>
+                  </ion-label>
+                  <ion-checkbox [(ngModel)]="showDraftOnly"></ion-checkbox>
+               </ion-item>
+            </ng-container>
+            <ng-container *ngIf="useShowClosed">
+               <ion-item>
+                  <ion-label>
+                     <div>Show Closed?</div>
+                  </ion-label>
+                  <ion-checkbox [(ngModel)]="showClosed"></ion-checkbox>
+               </ion-item>
+            </ng-container>
+         </ion-list>
+      </ng-container>
+   </div>
+</ion-content>

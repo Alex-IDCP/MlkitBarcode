@@ -1,0 +1,160 @@
+<ion-header>
+   <ion-toolbar>
+      <ion-title>Insert</ion-title>
+      <ion-buttons slot="start">
+         <ion-button (click)="cancelInsert()"><ion-icon slot="start" name="chevron-back-outline"></ion-icon></ion-button>
+      </ion-buttons>
+      <ion-buttons slot="primary">
+         <ion-button (click)="showPopover($event)"><ion-icon slot="icon-only" name="menu-outline"></ion-icon></ion-button>
+         <!-- <ion-button (click)="showExtraInfo()"><ion-icon slot="start" name="menu-outline"></ion-icon></ion-button> -->
+      </ion-buttons>
+   </ion-toolbar>
+</ion-header>
+
+<ion-popover #popover [isOpen]="isPopoverOpen" (didDismiss)="isPopoverOpen = false">
+   <ng-template>
+      <ion-content class="p-2">
+         <ion-list class="list-custom animate__animated animate__fadeIn" lines="full">
+            <ion-item (click)="popover.dismiss(); sendForDebug()">
+               <ion-icon slot="end" name="push-outline" color="danger"></ion-icon>
+               <ion-label>
+                  <div>Debug</div>
+               </ion-label>
+            </ion-item>
+         </ion-list>
+      </ion-content>
+   </ng-template>
+</ion-popover>
+
+<ion-content>
+   <div class="p-2">
+      <form [formGroup]="objectForm">
+         <ion-list class="list-custom animate__animated animate__fadeIn" lines="full">
+            <ion-item>
+               <ion-label position="stacked">Doc Num</ion-label>
+               <ion-input formControlName="truckLoadingNum" placeholder="Leave blank for auto assign"></ion-input>
+            </ion-item>
+            <ion-item>
+               <ion-label position="stacked">Trx Date</ion-label>
+               <ion-input readonly type="text" (click)="toggleDate()" [value]="date"></ion-input>
+            </ion-item>
+            <ion-datetime #ionDate class="animate__animated animate__fadeIn" *ngIf="date_active" color="primary" locale="en-EN" size="cover" showDefaultButtons="false" presentation="date" (ionChange)="onDateSelect($event)" [value]="date_value.toISOString()" [preferWheel]="true">
+               <ion-buttons slot="buttons">
+                  <ion-button color="danger" (click)="ionDate.cancel(); date_active=false">Cancel</ion-button>
+                  <ion-button color="primary" (click)="ionDate.confirm()">Done</ion-button>
+               </ion-buttons>
+            </ion-datetime>
+            <ion-item>
+               <ion-label position="stacked">Type</ion-label>
+               <ion-select interface="action-sheet" formControlName="typeCode">
+                  <ion-select-option *ngFor="let opt of objectService.truckLoadingType" [value]="opt.code">{{opt.description}}</ion-select-option>
+               </ion-select>
+            </ion-item>
+            <ion-item>
+               <ion-label position="stacked">Logistic Vendor</ion-label>
+               <ion-select interface="action-sheet" formControlName="vendorId">
+                  <ion-select-option *ngFor="let opt of objectService.vendorMasterList" [value]="opt.id">{{opt.description}}</ion-select-option>
+               </ion-select>
+            </ion-item>
+            <ion-item>
+               <ion-label position="stacked">Plate Number</ion-label>
+               <ion-input formControlName="plateNumber" placeholder="Plate Num"></ion-input>
+            </ion-item>
+            <ion-item>
+               <ion-label position="stacked">Ship Method</ion-label>
+               <ion-select interface="action-sheet" formControlName="shipMethodId">
+                  <ion-select-option *ngFor="let opt of objectService.shipMethodMasterList" [value]="opt.id">{{opt.description}}</ion-select-option>
+               </ion-select>
+            </ion-item>
+            <ion-item>
+               <ion-label position="stacked">Remark</ion-label>
+               <ion-textarea formControlName="remark" [autoGrow]="true" placeholder="Remark"></ion-textarea>
+            </ion-item>
+         </ion-list>
+      </form>
+
+      <input #barcodeInput class="p-2 mt-2 ion-flex ion-text-center" type="text" enterkeyhint="enter" [(ngModel)]="docNumInput" placeholder="Scan or Input Doc Num" (keydown)="handleKeyDown($event, docNumInput)">
+      <!-- DO2305010 -->
+      <ion-list-header class="ion-list-header-small ion-flex ion-text-center">
+         <ion-label>Detail Line</ion-label>
+      </ion-list-header>
+      <ion-list class="list-custom animate__animated animate__fadeIn" lines="full">
+         <ion-item-sliding *ngFor="let line of lineObjects; let i = index">
+            <ion-item button detail="false" class="ion-no-padding">
+               <ion-grid class="ion-no-padding py-2 pl-2">
+                  <ion-row>
+                     <ion-col class="ion-flex ion-margin-auto">
+                        <div class="font-bold">Document Num</div>
+                     </ion-col>
+                     <ion-col class="ion-flex ion-margin-auto justify-content-end">
+                        <div>{{line.trxNum}}</div>
+                     </ion-col>
+                  </ion-row>
+                  <ion-row>
+                     <ion-col class="ion-flex ion-margin-auto">
+                        <div class="font-bold">Document Type</div>
+                     </ion-col>
+                     <ion-col class="ion-flex ion-margin-auto justify-content-end">
+                        <div>{{line.trxType}}</div>
+                     </ion-col>
+                  </ion-row>
+                  <ion-row>
+                     <ion-col class="ion-flex ion-margin-auto">
+                        <div class="font-bold">From Location</div>
+                     </ion-col>
+                     <ion-col>
+                        <div class="ion-flex ion-margin-auto justify-content-end">{{line.fromLocation}}</div>
+                     </ion-col>
+                  </ion-row>
+                  <ion-row *ngIf="line.toLocation">
+                     <ion-col class="ion-flex ion-margin-auto">
+                        <div class="font-bold">Customer/To Location</div>
+                     </ion-col>
+                     <ion-col>
+                        <div class="ion-flex ion-margin-auto justify-content-end">{{line.toLocation}}</div>
+                     </ion-col>
+                  </ion-row>
+                  <ion-row *ngIf="line.totalCarton">
+                     <ion-col class="ion-flex ion-margin-auto">
+                        <div class="font-bold">Total Carton</div>
+                     </ion-col>
+                     <ion-col>
+                        <div class="ion-flex ion-margin-auto justify-content-end">{{line.totalCarton}}</div>
+                     </ion-col>
+                  </ion-row>
+                  <ion-row>
+                     <ion-col class="ion-flex ion-margin-auto">
+                        <div class="font-bold">Total Quantity</div>
+                     </ion-col>
+                     <ion-col>
+                        <div class="ion-flex ion-margin-auto justify-content-end">{{line.qty|number:'1.0'}}</div>
+                     </ion-col>
+                  </ion-row>
+                  <ion-row>
+                     <ion-col class="ion-flex ion-margin-auto">
+                        <div class="font-bold">Remark</div>
+                     </ion-col>
+                     <ion-col>
+                        <div class="ion-flex ion-margin-auto justify-content-end">
+                           <ion-textarea class="custom-textarea" [autoGrow]="true" [(ngModel)]="line.remark" placeholder="Enter Remark"></ion-textarea>
+                        </div>
+                     </ion-col>
+                  </ion-row>
+               </ion-grid>
+            </ion-item>
+            <ion-item-options side="end">
+               <ion-item-option color="danger" (click)="presentDeleteAlert(i)">
+                  <ion-icon slot="top" name="arrow-undo-outline"></ion-icon>Reverse
+               </ion-item-option>
+            </ion-item-options>
+         </ion-item-sliding>
+      </ion-list>
+
+   </div>
+</ion-content>
+
+<ion-footer class="ion-padding-bottom-large animate__animated animate__fadeInUp p-0" style="background-color: white;">
+   <ion-button class="ion-margin" expand="block" size="default" (click)="nextStep()" [disabled]="!objectForm.valid">
+      Save
+   </ion-button>
+</ion-footer>

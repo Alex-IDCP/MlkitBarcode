@@ -1,0 +1,96 @@
+<ion-header collapse="fade" [translucent]="true">
+   <ion-toolbar></ion-toolbar>
+</ion-header>
+<ion-content [fullscreen]="true">
+   <div class="mt-5 ion-flex ion-margin-auto justify-content-end">
+      <ion-button (click)="showPopover($event)" fill="clear"><ion-icon name="menu-outline" slot="icon-only"></ion-icon></ion-button>
+   </div>
+   <div class="p-2 ion-flex ion-flex-center">
+      <div class="logo-container">
+         <ion-img src="../../../../assets/idcp/logo-idcp.svg" style="width: 50%" class="animate__animated animate__fadeInDown ion-flex ion-margin-auto" alt="iDCP Logo"></ion-img>
+         <p *ngIf="configService.selected_sys_param">{{configService.selected_sys_param.companyName}}</p>
+         <p class="mt-2 font-size-small">Login to your account</p>
+      </div>
+      <ion-list class="item-card-list" lines="none">
+         <form class="form-default" [formGroup]="signin_form">
+            <ion-item *ngIf="configService.sys_parameter && configService.sys_parameter.length > 1">
+               <ion-label color="tertiary" position="stacked">Company</ion-label>
+               <ion-select interface="action-sheet" placeholder="Company" formControlName="apiUrl" (ionChange)="setSelectedParam()">
+                  <ion-select-option *ngFor="let s of configService.sys_parameter" [value]="s.apiUrl">{{s.companyName}}</ion-select-option>
+               </ion-select>
+            </ion-item>
+            <ion-item>
+               <ion-label color="tertiary" position="stacked">Email</ion-label>
+               <ion-input formControlName="userEmail" type="email" autocomplete="off" placeholder="Your email address"></ion-input>
+            </ion-item>
+            <ion-item>
+               <ion-label color="tertiary" position="stacked">Password</ion-label>
+               <ion-input formControlName="password" type="password" placeholder="Your password"></ion-input>
+            </ion-item>
+         </form>
+         <ion-item class="ion-flex ion-flex-center">
+            <ion-checkbox slot="start" [(ngModel)]="rememberMe"></ion-checkbox>
+            <ion-label>
+               <div class="ion-text-small">Remember Me!</div>
+            </ion-label>
+         </ion-item>
+         <ion-button class="ion-margin-top px-3" type="submit" expand="block" color="primary" [disabled]="submit_attempt || !signin_form.valid" (click)="signIn()">
+            LOGIN
+         </ion-button>
+      </ion-list>
+      <div class="ion-text-center ion-margin-top">
+         <ion-text color="medium" (click)="forgetPassword($event)">
+            <small>forget password?</small>
+         </ion-text>
+      </div>
+      <div class="ion-text-center ion-margin-top">
+         <ion-text color="medium">
+            <small>&copy; {{current_year}} iDCP Systems Sdn Bhd v{{currentVersion}}</small>
+         </ion-text>
+      </div>
+   </div>
+</ion-content><ion-popover #popover [isOpen]="isPopoverOpen" (didDismiss)="isPopoverOpen = false">
+   <ng-template>
+      <ion-content class="p-2">
+         <ion-list class="list-custom animate__animated animate__fadeIn" lines="full">
+            <ion-item button detail="false" (click)="popover.dismiss(); addNewActivation();">
+               <ion-icon name="add-circle-outline" slot="end"></ion-icon>
+               <ion-label>
+                  <div>Activate Company</div>
+               </ion-label>
+            </ion-item>
+            <ion-item *ngIf="configService.sys_parameter.length > 1" button detail="false" (click)="popover.dismiss(); deleteAlert();">
+               <ion-icon slot="end" name="trash-outline"></ion-icon>Delete
+            </ion-item>
+         </ion-list>
+      </ion-content>
+   </ng-template>
+</ion-popover>
+<ion-modal id="userReloginModal2FA" [isOpen]="show2FaDialog" (didDismiss)="on2FaDialogHide()" backdropDismiss="false" showBackdrop="true">
+   <ng-template>
+      <ion-header>
+         <ion-toolbar>
+            <ion-title>2FA Required</ion-title>
+         </ion-toolbar>
+      </ion-header>
+      <ion-content [fullscreen]="true">
+         <div *ngIf="isDisplayQrImage()">
+            <div class="my-2">
+               <div class="ion-text-center col-12">
+                  Please download Microsoft/Google Authenticator, scan the QR Code (Or input manual code) to register for 2FA:
+               </div>
+            </div>
+            <div class="ion-text-center">
+               <img [src]="get2FAQrImage()"/>
+            </div>
+            <div class="ion-text-center mb-3" *ngIf="get2FAManualKey()">{{ get2FAManualKey() }}<i class="ml-2 pi pi-copy cursor-pointer" pTooltip="Copy to clipboard" (click)="copyToClipboard(get2FAManualKey())"></i></div>
+         </div>
+         <div class="my-2">
+            <div class="ion-text-center col-12">
+               <span class="badge-purple font-bold px-2 py-1">Please Input OTP From Authenticator</span>
+            </div>
+         </div>
+         <code-input #codeInput2Fa [isCodeHidden]="false" [initialFocusField]="0" [codeLength]="6" (codeCompleted)="onCodeCompleted($event)"></code-input>
+      </ion-content>
+   </ng-template>
+</ion-modal>

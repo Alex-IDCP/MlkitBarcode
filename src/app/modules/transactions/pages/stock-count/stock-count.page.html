@@ -1,0 +1,74 @@
+<ion-header>
+  <ion-toolbar>
+    <ion-title>Stock Count</ion-title>
+    <ion-buttons slot="start">
+      <ion-back-button text="" defaultHref="/transactions"></ion-back-button>
+    </ion-buttons>
+    <ion-buttons slot="primary">
+      <ion-button (click)="filter()">
+        <ion-icon slot="icon-only" name="filter"></ion-icon>
+      </ion-button>
+    </ion-buttons>
+  </ion-toolbar>
+</ion-header>
+<ion-content fullscreen>
+  <div class="px-2 pb-2">
+    <ion-searchbar #searchbar class="p-0" showCancelButton="never" showClearButton="focus" animated="true" placeholder="Search" enterkeyhint="search" (ionFocus)="highlight(searchbar)" (keydown)="onKeyDown($event, searchbar.value)" (ionClear)="resetFilteredObj()"></ion-searchbar>
+    <ion-list-header class="ion-list-header ion-flex ion-text-center" *ngIf="objects && objects.length === 0">
+      <ion-label>Nothing found!</ion-label>
+    </ion-list-header>
+    <ng-container *ngIf="objects.length > 0">
+      <!-- <div *ngFor="let m of uniqueGrouping"> -->
+        <!-- <ion-list-header class="ion-list-header-small ion-flex ion-text-center">
+          <ion-label>{{m|date:'dd MMM yyyy'}}</ion-label>
+        </ion-list-header> -->
+        <pagination-controls class="ion-flex justify-content-center pagination-top" (pageChange)="currentPage=$event" previousLabel="" nextLabel="" [autoHide]="true" [directionLinks]="true" [maxSize]="5"></pagination-controls>
+        <ion-list class="list-custom animate__animated animate__fadeIn" lines="full">
+          <ion-item button detail="false" class="ion-no-padding" *ngFor="let object of filteredObj|paginate:{itemsPerPage:itemsPerPage,currentPage:currentPage}" (click)="goToDetail(object.inventoryCountId, object.isTrxLocal, object.guid)">
+            <ion-grid class="ion-no-padding py-2 pl-2">
+              <ion-row>
+                <ion-col class="ion-flex ion-margin-auto justify-content-between">
+                  <ng-container *ngIf="object.isTrxLocal">
+                    <div class="ion-flex">
+                      <ion-icon class="ion-flex mr-2 my-auto" name="ellipse"
+                        [class]="object.isTrxLocal&&object.inventoryCountId===0?'color-danger':'color-warning'"></ion-icon>
+                      <div class="font-bold">DATA-{{object.lastUpdated|date:"yyMMddhhmmss"}}</div>
+                      <span class="badge-green ion-text-wrap ion-flex px-1 mx-1 my-auto"> LOCAL</span>
+                    </div>
+                    <div>{{object.trxDate|date:"dd/MM/yyyy"}}</div>
+                  </ng-container>
+                  <ng-container *ngIf="!object.isTrxLocal">
+                    <div class="font-bold">{{object.inventoryCountNum}}</div>
+                    <div>{{object.trxDate|date:"dd/MM/yyyy"}}</div>
+                  </ng-container>
+                </ion-col>
+              </ion-row>
+              <ion-row>
+                <ion-col class="ion-flex ion-margin-auto justify-content-between" *ngIf="object.isTrxLocal && object.inventoryCountId > 0">
+                  <div class="font-bold">{{object.inventoryCountNum}}</div>
+                </ion-col>
+              </ion-row>
+              <ion-row>
+                <ion-col class="ion-flex ion-margin-auto">{{object.description}}</ion-col>
+                <ion-col class="ion-flex ion-margin-auto justify-content-end">{{object.locationCode}}</ion-col>
+              </ion-row>
+              <!-- <ion-row *ngIf="objectService.configHeaderShowBinDesc">
+                <ion-col class="ion-flex ion-margin-auto" *ngIf="object.binDesc">{{object.binDesc}}</ion-col>
+              </ion-row> -->
+              <ion-row>
+                <ion-col class="ion-flex ion-margin-auto" *ngIf="object.zoneCode">{{object.zoneCode}} - {{object.zoneDescription}}</ion-col>
+                <ion-col class="ion-flex ion-margin-auto justify-content-end" *ngIf="object.rackCode">{{object.rackCode}} - {{object.rackDescription}}</ion-col>
+              </ion-row>
+            </ion-grid>
+          </ion-item>
+        </ion-list>
+      <!-- </div> -->
+        <pagination-controls class="ion-flex justify-content-center pagination-top" (pageChange)="currentPage=$event" previousLabel="" nextLabel="" [autoHide]="true" [directionLinks]="true" [maxSize]="5"></pagination-controls>
+      </ng-container>
+  </div>
+  <ion-fab class="ion-fab-custom" vertical="bottom" horizontal="center" slot="fixed" (click)="selectAction()">
+    <ion-fab-button>
+      <ion-icon name="add"></ion-icon>
+    </ion-fab-button>
+  </ion-fab>
+</ion-content>

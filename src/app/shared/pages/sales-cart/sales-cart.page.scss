@@ -1,0 +1,15 @@
+.matrixtable {
+   border-collapse: unset;
+
+   th {
+      border: 0.1rem solid;
+
+      &.custom-header {
+         background: #8ecafc;
+      }
+   }
+
+   td {
+      border: 0.1rem solid;
+   }
+}

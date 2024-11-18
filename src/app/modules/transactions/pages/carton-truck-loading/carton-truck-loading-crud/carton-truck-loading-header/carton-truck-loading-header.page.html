@@ -1,0 +1,406 @@
+<ion-header [hidden]="scanActive">
+   <ion-toolbar>
+      <ion-title>
+         <div class="ion-text-wrap">
+            Carton Truck Loading
+         </div>
+      </ion-title>
+      <ion-buttons slot="start">
+         <ion-button (click)="cancelInsert()"><ion-icon slot="start" name="chevron-back-outline"></ion-icon></ion-button>
+      </ion-buttons>
+      <ion-buttons slot="primary" *ngIf="objectForm.controls.truckArrangementId?.value">
+         <ion-button (click)="refreshTruckArrangment()"><ion-icon slot="start" name="refresh-outline"></ion-icon></ion-button>
+      </ion-buttons>
+   </ion-toolbar>
+</ion-header>
+<ion-content [fullscreen]="true" [hidden]="scanActive">
+   <div class="p-2">      
+      <form class="form-default" [formGroup]="objectForm">
+         <ng-container *ngIf="objectForm.controls.cartonTruckLoadingId.value === 0">
+            <ion-list class="list-custom" lines="none">
+              <app-search-dropdown #tasdd title="Truck Arrangement" [searchDropdownList]="pendingListSearch" [selectedId]="objectForm.controls.truckArrangementId?.value" (onActionComplete)="onTruckArrangmentSelected($event)" [showCamera]="true" [inputReadOnly]="false" [clearSearchValue]="true" (onScanCompleted)="onTAScanCompleted($event)" (onCameraStatusChanged)="onCameraStatusChanged($event)" (onDoneScanning)="onTADoneScanning($event)"></app-search-dropdown>
+            </ion-list>
+         </ng-container>
+         <ng-container *ngIf="objectForm.controls.truckArrangementId?.value">
+            <ion-list-header class="ion-list-header-small ion-flex ion-text-center">
+              <ion-label>Info</ion-label>
+            </ion-list-header>
+            <ion-list class="list-custom animate__animated animate__fadeIn" lines="full">
+               <ion-item class="ion-no-padding no-ripple">
+                  <ion-grid class="ion-no-padding py-2 pl-2">
+                     <ng-container *ngIf="objectService.objectHeader?.cartonTruckLoadingId">
+                        <ion-row>
+                           <ion-col class="ion-flex ion-margin-auto">
+                              <div class="font-bold">Doc Num.</div>
+                           </ion-col>
+                           <ion-col class="ion-flex ion-margin-auto justify-content-end">
+                              <div>{{objectService.objectHeader.cartonTruckLoadingNum}}</div>
+                           </ion-col>
+                        </ion-row>
+                        <ion-row>
+                           <ion-col class="ion-flex ion-margin-auto">
+                              <div class="font-bold">Doc Date.</div>
+                           </ion-col>
+                           <ion-col class="ion-flex ion-margin-auto justify-content-end">
+                              <div>{{objectService.objectHeader.trxDate|date:"dd/MM/yyyy"}}</div>
+                           </ion-col>
+                        </ion-row>
+                        <ion-row>
+                           <ion-col class="ion-flex ion-margin-auto">
+                              <div class="font-bold">Truck Arrangement Num.</div>
+                           </ion-col>
+                           <ion-col class="ion-flex ion-margin-auto justify-content-end">
+                              <div>{{objectService.objectHeader.truckArrangementNum}}</div>
+                           </ion-col>
+                        </ion-row>
+                     </ng-container>
+                     <ion-row *ngIf="objectForm.controls.vehicleId.value">
+                        <ion-col class="ion-flex ion-margin-auto">
+                           <div class="font-bold">Vehicle</div>
+                        </ion-col>
+                        <ion-col class="ion-flex ion-margin-auto justify-content-end">
+                           <div>{{objectForm.controls.vehicleId.value|idMapping:objectService.vehicleMasterList}}</div>
+                        </ion-col>
+                     </ion-row>
+                     <ion-row *ngIf="objectForm.controls.driverId.value">
+                        <ion-col class="ion-flex ion-margin-auto">
+                           <div class="font-bold">Driver</div>
+                        </ion-col>
+                        <ion-col class="ion-flex ion-margin-auto justify-content-end">
+                           <div>{{objectForm.controls.driverId.value|idMapping:objectService.transportAgentMasterList}}</div>
+                        </ion-col>
+                     </ion-row>
+                     <ion-row *ngIf="objectForm.controls.driverId.value">
+                        <ion-col class="ion-flex ion-margin-auto">
+                           <div class="font-bold">Transport Agent 1</div>
+                        </ion-col>
+                        <ion-col class="ion-flex ion-margin-auto justify-content-end">
+                           <div>{{objectForm.controls.transportAgentId1.value|idMapping:objectService.transportAgentMasterList}}</div>
+                        </ion-col>
+                     </ion-row>
+                     <ion-row *ngIf="objectForm.controls.driverId.value">
+                        <ion-col class="ion-flex ion-margin-auto">
+                           <div class="font-bold">Transport Agent 2</div>
+                        </ion-col>
+                        <ion-col class="ion-flex ion-margin-auto justify-content-end">
+                           <div>{{objectForm.controls.transportAgentId2.value|idMapping:objectService.transportAgentMasterList}}</div>
+                        </ion-col>
+                     </ion-row>
+                  </ion-grid>
+               </ion-item>
+            </ion-list>
+            <ion-list-header class="ion-list-header-small ion-flex ion-text-center">
+              <ion-label>Detail</ion-label>
+            </ion-list-header>
+            <app-general-scan-input #generalscan placeholder="Carton Barcode" [clearSearchValue]="true" (onScanCompleted)="onScanCompleted($event)" (onCameraStatusChanged)="onCameraStatusChanged($event)" (onDoneScanning)="onDoneScanning($event)"></app-general-scan-input>
+            <ion-list class="list-custom animate__animated animate__fadeIn" lines="full">
+               <ion-item-sliding #sliding *ngFor="let rowData of objectService.objectDetail; let rowIndex = index">
+                  <ion-item class="ion-no-padding no-ripple">
+                     <ion-grid class="ion-no-padding py-2 pl-2">
+                        <ion-row *ngIf="rowData.typeCode">
+                           <ion-col class="ion-flex ion-margin-auto">
+                              <div class="font-bold">Arrangement Type</div>
+                           </ion-col>
+                           <ion-col class="ion-flex ion-margin-auto justify-content-end">
+                              <div>{{rowData.typeCode|codeMapping:objectService.truckArrangementType}}</div>
+                           </ion-col>
+                        </ion-row>
+                        <ion-row *ngIf="rowData.trxNum">
+                           <ion-col class="ion-flex ion-margin-auto">
+                              <div class="font-bold">Doc. Num.</div>
+                           </ion-col>
+                           <ion-col class="ion-flex ion-margin-auto justify-content-end">
+                              <ion-icon class="ion-flex mr-2 my-auto" name="ellipse" [class]="validateCTL(rowData)?'color-success':'color-danger'"></ion-icon>
+                              <div>{{rowData.trxNum}}</div>
+                           </ion-col>
+                        </ion-row>
+                        <ion-row *ngIf="rowData.trxType">
+                           <ion-col class="ion-flex ion-margin-auto">
+                              <div class="font-bold">Doc. Type</div>
+                           </ion-col>
+                           <ion-col class="ion-flex ion-margin-auto justify-content-end">
+                              <div>{{rowData.trxType}}</div>
+                           </ion-col>
+                        </ion-row>
+                        <ion-row *ngIf="rowData.customerName">
+                           <ion-col class="ion-flex ion-margin-auto">
+                              <div class="font-bold">Customer/To Location</div>
+                           </ion-col>
+                           <ion-col class="ion-flex ion-margin-auto justify-content-end">
+                              <div>{{rowData.customerName}}</div>
+                           </ion-col>
+                        </ion-row>
+                        <ion-row *ngIf="rowData.totalCarton">
+                           <ion-col class="ion-flex ion-margin-auto">
+                              <div class="font-bold">Total Carton</div>
+                           </ion-col>
+                           <ion-col class="ion-flex ion-margin-auto justify-content-end">
+                              <div>{{rowData.totalCarton}}</div>
+                           </ion-col>
+                        </ion-row>
+                        <ion-row *ngIf="rowData.qty">
+                           <ion-col class="ion-flex ion-margin-auto">
+                              <div class="font-bold">Qty.</div>
+                           </ion-col>
+                           <ion-col class="ion-flex ion-margin-auto justify-content-end">
+                              <div>{{rowData.qty}}</div>
+                           </ion-col>
+                        </ion-row>
+                        <ion-row *ngIf="rowData.remark">
+                           <ion-col class="ion-flex ion-margin-auto">
+                              <div class="font-bold">Remark</div>
+                           </ion-col>
+                           <ion-col class="ion-flex ion-margin-auto justify-content-end">
+                              <div>{{rowData.remark}}</div>
+                           </ion-col>
+                        </ion-row>
+                        <ion-row *ngIf="rowData.transportId">
+                           <ion-col class="ion-flex ion-margin-auto">
+                              <div class="font-bold">Transport</div>
+                           </ion-col>
+                           <ion-col class="ion-flex ion-margin-auto justify-content-end">
+                              <div>{{rowData.transportId|idMapping:objectService.transportMasterList}}</div>
+                           </ion-col>
+                        </ion-row>
+                        <ion-row *ngIf="rowData.cartonInfo && rowData.cartonInfo.length > 0">
+                           <ion-col class="ion-flex ion-margin-auto">
+                              <div class="font-bold">Carton Info</div>
+                           </ion-col>
+                           <ion-col class="ion-flex ion-margin-auto justify-content-end">
+                              <div class="mb-1 mt-1" *ngFor="let rowData2 of transformCartonInfo(rowData.cartonInfo)">
+                                 <span class="badge-other font-bold px-1 py-1 mr-1">
+                                    <span class="mr-1">{{rowData2.qty}}</span>{{rowData2.packagingCode}}
+                                 </span>
+                              </div>
+                           </ion-col>
+                        </ion-row>
+                        <ion-row *ngIf="rowData.cartonBarcode && rowData.cartonBarcode?.length > 0">
+                           <ion-col class="ion-flex ion-margin-auto">
+                              <ion-grid class="ion-no-padding">
+                                 <ion-row>
+                                    <ion-col size="2" class="ion-flex ion-margin-auto">
+                                       <div class="font-bold">#</div>
+                                    </ion-col>
+                                    <ion-col class="ion-flex ion-margin-auto justify-content-end">
+                                       <div class="font-bold">Carton Barcode</div>
+                                    </ion-col>
+                                 </ion-row>
+                                 <ion-row *ngFor="let rowData2 of rowData.cartonBarcode; let rowIndex2 = index">
+                                    <ion-col size="2" class="ion-flex ion-margin-auto">
+                                       <div>{{rowIndex2+1}}</div>
+                                    </ion-col>
+                                    <ion-col class="ion-flex ion-margin-auto justify-content-end">
+                                       <div>{{rowData2}}</div>
+                                    </ion-col>
+                                 </ion-row>
+                              </ion-grid>
+                           </ion-col>
+                        </ion-row>
+                     </ion-grid>
+                  </ion-item>
+                  <ion-item-options>
+                     <ion-item-option color="primary" (click)="sliding.close(); editLine(rowData, rowIndex)">
+                        <ion-icon slot="top" name="pencil-outline"></ion-icon>Edit
+                     </ion-item-option>
+                     <ion-item-option color="danger" (click)="sliding.close(); deleteLine(rowData, rowIndex)">
+                        <ion-icon slot="top" name="trash-outline"></ion-icon>Delete
+                     </ion-item-option>
+                  </ion-item-options>
+               </ion-item-sliding>
+            </ion-list>
+         </ng-container>
+      </form>
+   </div>
+</ion-content>
+
+<ion-modal [isOpen]="editModal" (didDismiss)="editModal = false" (ionModalDidDismiss)="onEdiModalHide()">
+   <ng-template>
+      <ion-header>
+         <ion-toolbar>
+            <ion-title>{{selectedLine?.trxNum}}</ion-title>
+            <ion-buttons slot="start">
+               <ion-button (click)="cancelEdit()">Cancel</ion-button>
+            </ion-buttons>
+         </ion-toolbar>
+      </ion-header>
+      <ion-content *ngIf="selectedLine">
+         <div class="px-2">
+            <ion-list-header class="ion-list-header-small ion-flex ion-text-center">
+              <ion-label>Doc.</ion-label>
+            </ion-list-header>
+            <ion-list class="list-custom animate__animated animate__fadeIn" lines="full">
+               <ion-item class="ion-no-padding no-ripple">
+                  <ion-grid class="ion-no-padding py-2 pl-2">
+                     <ion-row *ngIf="selectedLine.typeCode">
+                        <ion-col class="ion-flex ion-margin-auto">
+                           <div class="font-bold">Arrangement Type</div>
+                        </ion-col>
+                        <ion-col class="ion-flex ion-margin-auto justify-content-end">
+                           <div>{{selectedLine.typeCode|codeMapping:objectService.truckArrangementType}}</div>
+                        </ion-col>
+                     </ion-row>
+                     <ion-row *ngIf="selectedLine.trxNum">
+                        <ion-col class="ion-flex ion-margin-auto">
+                           <div class="font-bold">Doc. Num.</div>
+                        </ion-col>
+                        <ion-col class="ion-flex ion-margin-auto justify-content-end">
+                           <div>{{selectedLine.trxNum}}</div>
+                        </ion-col>
+                     </ion-row>
+                     <ion-row *ngIf="selectedLine.trxType">
+                        <ion-col class="ion-flex ion-margin-auto">
+                           <div class="font-bold">Doc. Type</div>
+                        </ion-col>
+                        <ion-col class="ion-flex ion-margin-auto justify-content-end">
+                           <div>{{selectedLine.trxType}}</div>
+                        </ion-col>
+                     </ion-row>
+                     <ion-row *ngIf="selectedLine.customerName">
+                        <ion-col class="ion-flex ion-margin-auto">
+                           <div class="font-bold">Customer/To Location</div>
+                        </ion-col>
+                        <ion-col class="ion-flex ion-margin-auto justify-content-end">
+                           <div>{{selectedLine.customerName}}</div>
+                        </ion-col>
+                     </ion-row>
+                     <ion-row *ngIf="selectedLine.totalCarton">
+                        <ion-col class="ion-flex ion-margin-auto">
+                           <div class="font-bold">Total Carton</div>
+                        </ion-col>
+                        <ion-col class="ion-flex ion-margin-auto justify-content-end">
+                           <div>{{selectedLine.totalCarton}}</div>
+                        </ion-col>
+                     </ion-row>
+                     <ion-row *ngIf="selectedLine.qty">
+                        <ion-col class="ion-flex ion-margin-auto">
+                           <div class="font-bold">Qty.</div>
+                        </ion-col>
+                        <ion-col class="ion-flex ion-margin-auto justify-content-end">
+                           <div>{{selectedLine.qty}}</div>
+                        </ion-col>
+                     </ion-row>
+                     <ion-row *ngIf="selectedLine.remark">
+                        <ion-col class="ion-flex ion-margin-auto">
+                           <div class="font-bold">Remark</div>
+                        </ion-col>
+                        <ion-col class="ion-flex ion-margin-auto justify-content-end">
+                           <div>{{selectedLine.remark}}</div>
+                        </ion-col>
+                     </ion-row>
+                     <ion-row *ngIf="selectedLine.transportId">
+                        <ion-col class="ion-flex ion-margin-auto">
+                           <div class="font-bold">Transport</div>
+                        </ion-col>
+                        <ion-col class="ion-flex ion-margin-auto justify-content-end">
+                           <div>{{selectedLine.transportId|idMapping:objectService.transportMasterList}}</div>
+                        </ion-col>
+                     </ion-row>
+                     <ion-row *ngIf="selectedLine.cartonInfo && selectedLine.cartonInfo.length > 0">
+                        <ion-col class="ion-flex ion-margin-auto">
+                           <div class="font-bold">Carton Info</div>
+                        </ion-col>
+                        <ion-col class="ion-flex ion-margin-auto justify-content-end">
+                           <div class="mb-1 mt-1" *ngFor="let rowData2 of transformCartonInfo(selectedLine.cartonInfo)">
+                              <span class="badge-other font-bold px-1 py-1 mr-1">
+                                 <span class="mr-1">{{rowData2.qty}}</span>{{rowData2.packagingCode}}
+                              </span>
+                           </div>
+                        </ion-col>
+                     </ion-row>
+                     <!-- <ion-row *ngIf="selectedLine.cartonBarcode && selectedLine.cartonBarcode?.length > 0">
+                        <ion-col class="ion-flex ion-margin-auto">
+                           <ion-grid class="ion-no-padding">
+                              <ion-row>
+                                 <ion-col size="2" class="ion-flex ion-margin-auto">
+                                    <div class="font-bold">#</div>
+                                 </ion-col>
+                                 <ion-col class="ion-flex ion-margin-auto justify-content-end">
+                                    <div class="font-bold">Carton Barcode</div>
+                                 </ion-col>
+                              </ion-row>
+                              <ion-row *ngFor="let rowData2 of selectedLine.cartonBarcode; let rowIndex2 = index">
+                                 <ion-col size="2" class="ion-flex ion-margin-auto">
+                                    <div>{{rowIndex2+1}}</div>
+                                 </ion-col>
+                                 <ion-col class="ion-flex ion-margin-auto justify-content-end">
+                                    <div>{{rowData2}}</div>
+                                 </ion-col>
+                              </ion-row>
+                           </ion-grid>
+                        </ion-col>
+                     </ion-row> -->
+                  </ion-grid>
+               </ion-item>
+            </ion-list>
+            <ion-list-header class="ion-list-header-small ion-flex ion-text-center">
+              <ion-label>Line</ion-label>
+            </ion-list-header>
+            <ion-list class="list-custom animate__animated animate__fadeIn" lines="full">
+               <ion-item class="ion-no-padding no-ripple">
+                  <ion-grid class="ion-no-padding py-2 pl-2">
+                     <ion-row>
+                        <ion-col size="2" class="ion-flex ion-margin-auto">
+                           <div class="font-bold">#</div>
+                        </ion-col>
+                        <ion-col class="ion-flex ion-margin-auto justify-content-end">
+                           <div class="font-bold">Carton Barcode</div>
+                        </ion-col>
+                     </ion-row>
+                  </ion-grid>
+               </ion-item>
+            </ion-list>
+            <ion-list class="list-custom animate__animated animate__fadeIn" lines="full">
+               <ion-item-sliding #sliding *ngFor="let rowData2 of selectedLine.cartonBarcode; let rowIndex2 = index">
+                  <ion-item class="ion-no-padding no-ripple">
+                     <ion-grid class="ion-no-padding py-2 pl-2">
+                        <ion-row>
+                           <ion-col size="2" class="ion-flex ion-margin-auto">
+                              <div>{{rowIndex2+1}}</div>
+                           </ion-col>
+                           <ion-col class="ion-flex ion-margin-auto justify-content-end">
+                              <div>{{rowData2}}</div>
+                           </ion-col>
+                        </ion-row>
+                     </ion-grid>
+                  </ion-item>
+                  <ion-item-options>
+                     <ion-item-option color="danger" (click)="sliding.close(); deleteLineLine(rowData2, rowIndex2)">
+                        <ion-icon slot="top" name="trash-outline"></ion-icon>Delete
+                     </ion-item-option>
+                  </ion-item-options>
+               </ion-item-sliding>
+            </ion-list>
+         </div>
+      </ion-content>
+      <ion-footer class="ion-padding-bottom-large animate__animated animate__fadeInUp p-0" style="background-color:white;">
+         <ion-grid class="ion-no-padding">
+            <ion-row>
+               <ion-col>
+                  <ion-button class="ion-margin" expand="block" size="default" (click)="saveChanges()">
+                     Apply
+                  </ion-button>
+               </ion-col>
+            </ion-row>
+         </ion-grid>
+      </ion-footer>
+   </ng-template>
+</ion-modal>
+
+<ion-row class="scanner-buttons" [hidden]="!scanActive">
+   <ion-col class="ion-no-padding">
+      <ion-button expand="full" (click)="stopScanner()">Stop</ion-button>
+   </ion-col>
+</ion-row>
+<div class="scan-box" [hidden]="!scanActive"></div>
+
+<ion-footer class="ion-padding-bottom-large animate__animated animate__fadeInUp p-0" style="background-color:white;" [hidden]="scanActive">
+   <ion-grid class="ion-no-padding">
+      <ion-row>
+         <ion-col>
+            <ion-button class="ion-margin" expand="block" size="default" color="success" (click)="submit_attempt = true; nextStep()" [disabled]="submit_attempt">
+               Confirm
+            </ion-button>
+         </ion-col>
+      </ion-row>
+   </ion-grid>
+</ion-footer>

@@ -1,0 +1,416 @@
+<ion-header>
+   <ion-toolbar>
+      <ion-title>
+         <div class="ion-text-wrap">
+            {{objectService.objectHeader?.transferOutNum}}
+         </div>
+      </ion-title>
+      <ion-buttons slot="start">
+         <ion-back-button text="" defaultHref="/transactions/transfer-out"></ion-back-button>
+      </ion-buttons>
+      <ion-buttons slot="end">
+         <ion-button (click)="showPopover($event)"><ion-icon name="menu-outline" slot="icon-only"></ion-icon></ion-button>
+      </ion-buttons>
+   </ion-toolbar>
+</ion-header>
+<ion-popover #popover [isOpen]="isPopoverOpen" (didDismiss)="isPopoverOpen = false">
+   <ng-template>
+      <ion-content class="p-2">
+         <ion-list class="list-custom animate__animated animate__fadeIn" lines="full">
+            <ion-item (click)="popover.dismiss(); editObject()" *ngIf="!objectService.objectHeader?.isCompleted">
+               <ion-icon name="create-outline" slot="end"></ion-icon>
+               <ion-label>
+                  <div>Edit</div>
+               </ion-label>
+            </ion-item>
+            <ion-item (click)="popover.dismiss(); completeObjectAlert()" *ngIf="!objectService.objectHeader?.isCompleted">
+               <ion-icon name="checkmark-outline" slot="end"></ion-icon>
+               <ion-label>
+                  <div>Complete</div>
+               </ion-label>
+            </ion-item>
+            <ion-item (click)="popover.dismiss(); viewAttachment()">
+               <ion-icon slot="end" name="attach-outline"></ion-icon>
+               <ion-label>
+                  <div>Attachment</div>
+               </ion-label>
+            </ion-item>
+            <ion-item (click)="popover.dismiss(); showHistoryModal()">
+               <ion-icon name="time-outline" slot="end"></ion-icon>
+               <ion-label>
+                  <div>Approval History</div>
+               </ion-label>
+            </ion-item>
+            <ion-item *ngIf="processType && selectedSegment === 'pending'" (click)="popover.dismiss(); presentApprovalAlert('CONFIRM')">
+               <ion-icon name="checkmark-outline" slot="end"></ion-icon>
+               <ion-label>
+                  <div>Approve</div>
+               </ion-label>
+            </ion-item>
+            <ion-item *ngIf="processType && selectedSegment === 'pending'" (click)="popover.dismiss(); presentApprovalAlert('REJECT')">
+               <ion-icon name="close-outline" slot="end"></ion-icon>
+               <ion-label>
+                  <div>Reject</div>
+               </ion-label>
+            </ion-item>
+            <ion-item *ngIf="processType && selectedSegment === 'completed'" (click)="popover.dismiss(); presentApprovalAlert('REVERSE')">
+               <ion-icon name="arrow-undo-outline" slot="end"></ion-icon>
+               <ion-label>
+                  <div>Reverse</div>
+               </ion-label>
+            </ion-item>
+            <ion-item (click)="popover.dismiss(); presentAlertViewPdf()" *ngIf="objectService.objectHeader?.isCompleted && objectService.objectHeader?.interTransferId">
+               <ion-icon name="download-outline" slot="end"></ion-icon>
+               <ion-label>
+                  <div>Download PDF</div>
+               </ion-label>
+            </ion-item>
+         </ion-list>
+      </ion-content>
+   </ng-template>
+</ion-popover>
+<ion-content fullscreen>
+   <div class="p-2" *ngIf="objectService.objectHeader">
+      <div *ngIf="workFlowState && workFlowState.length > 0">
+         <ion-list-header class="ion-list-header-small ion-flex ion-text-center">
+            <ion-label>Workflow</ion-label>
+         </ion-list-header>
+         <ion-list class="list-custom animate__animated animate__fadeIn" lines="full">
+            <ion-item class="ion-no-padding no-ripple" *ngFor="let w of workFlowState; let i = index">
+               <ion-grid class="ion-no-padding py-2 pl-2">
+                  <ion-row>
+                     <ion-col class="ion-flex ion-margin-auto">
+                        <div class="font-bold">{{w.title}}</div>
+                     </ion-col>
+                  </ion-row>
+                  <ion-row *ngIf="w.trxBy">
+                     <ion-col class="ion-flex ion-margin-auto">
+                        {{w.trxBy}}
+                     </ion-col>
+                  </ion-row>
+                  <ion-row *ngIf="w.trxDate">
+                     <ion-col class="ion-flex ion-margin-auto">
+                        {{w.trxDate|date:'dd/MM/yyyy hh:mm a'}}
+                     </ion-col>
+                  </ion-row>
+                  <ion-row *ngIf="w.interval">
+                     <ion-col class="ion-flex ion-margin-auto">
+                        {{w.interval}}
+                     </ion-col>
+                  </ion-row>
+                  <ion-row *ngIf="w.trxNums && w.trxNums.length > 0">
+                     <ion-col class="ion-flex ion-margin-auto">
+                        <div *ngFor="let tn of w.trxNums">[{{tn}}]</div>
+                     </ion-col>
+                  </ion-row>
+               </ion-grid>
+               <ion-icon slot="end" name="ellipse" class="color-success" *ngIf="w.isCompleted"></ion-icon>
+               <ion-icon slot="end" name="ellipse" class="color-danger" *ngIf="!w.isCompleted"></ion-icon>
+            </ion-item>
+         </ion-list>
+      </div>
+      <ion-list-header class="ion-list-header-small ion-flex ion-text-center">
+         <ion-label>Document</ion-label>
+      </ion-list-header>
+      <ion-list class="list-custom animate__animated animate__fadeIn" lines="full">
+         <ion-item class="ion-no-padding no-ripple" (click)="showTotalByCarton = !showTotalByCarton">
+            <ion-grid class="ion-no-padding py-2 pl-2">
+               <ion-row>
+                  <ion-col class="ion-flex ion-margin-auto justify-content-between">
+                     <div class="font-bold">IT. Num.</div>
+                     <div>
+                        {{objectService.objectHeader.interTransferNum}}
+                     </div>
+                  </ion-col>
+               </ion-row>
+               <ion-row>
+                  <ion-col class="ion-flex ion-margin-auto justify-content-between">
+                     <div class="font-bold">Doc. Num.</div>
+                     <div class="ion-flex">
+                        <ion-icon class="ion-flex mr-2" name="ellipse" [class]="objectService.objectHeader.isCompleted?'color-success':'color-danger'"></ion-icon>
+                        {{objectService.objectHeader.transferOutNum}}
+                     </div>
+                  </ion-col>
+               </ion-row>
+               <ion-row *ngIf="objectService.objectHeader.trxDate">
+                  <ion-col class="ion-flex ion-margin-auto justify-content-between">
+                     <div class="font-bold">Doc. Date</div>
+                     <div>{{objectService.objectHeader.trxDate|date:'dd/MM/yyyy'}}</div>
+                  </ion-col>
+               </ion-row>
+               <ion-row *ngIf="objectService.objectHeader.typeCode">
+                  <ion-col class="ion-flex ion-margin-auto justify-content-between">
+                     <div class="font-bold">Type</div>
+                     <div>{{objectService.objectHeader.typeCode|codeMapping:objectService.interTransferTypeList}}</div>
+                  </ion-col>
+               </ion-row>
+               <ion-row *ngIf="objectService.objectHeader.locationId">
+                  <ion-col class="ion-flex ion-margin-auto justify-content-between">
+                     <div class="font-bold">From Location</div>
+                     <div>{{objectService.objectHeader.locationId|idMapping:objectService.fullLocationMasterList}}</div>
+                  </ion-col>
+               </ion-row>
+               <ion-row *ngIf="objectService.objectHeader.toLocationId">
+                  <ion-col class="ion-flex ion-margin-auto justify-content-between">
+                     <div class="font-bold">To Location</div>
+                     <div>{{objectService.objectHeader.toLocationId|idMapping:objectService.fullLocationMasterList}}
+                     </div>
+                  </ion-col>
+               </ion-row>
+               <ion-row *ngIf="objectService.objectHeader.totalCarton">
+                  <ion-col class="ion-flex ion-margin-auto justify-content-between">
+                     <div class="font-bold">Total Carton</div>
+                     <div>{{objectService.objectHeader.totalCarton|number:'1.0'}}</div>
+                  </ion-col>
+               </ion-row>
+               <ion-row *ngIf="objectService.objectHeader.handleBy">
+                  <ion-col class="ion-flex ion-margin-auto justify-content-between">
+                     <div class="font-bold">Handle By</div>
+                     <div>{{objectService.objectHeader.handleBy}}</div>
+                  </ion-col>
+               </ion-row>
+               <ion-row *ngIf="objectService.objectHeader.totalBag">
+                  <ion-col class="ion-flex ion-margin-auto justify-content-between">
+                     <div class="font-bold">Total Bag</div>
+                     <div>{{objectService.objectHeader.totalBag}}</div>
+                  </ion-col>
+               </ion-row>
+               <ion-row *ngIf="objectService.objectHeader.line">
+                  <ion-col class="ion-flex ion-margin-auto justify-content-between">
+                     <div class="ion-flex">
+                        <ion-icon style="position:relative; top:0.1rem" *ngIf="!showTotalByCarton" name="add-circle-outline"></ion-icon>
+                        <ion-icon style="position:relative; top:0.1rem" *ngIf="showTotalByCarton" name="remove-circle-outline"></ion-icon>
+                        <div class="font-bold">Total Quantity</div>
+                     </div>
+                     <div>{{objectService.objectHeader.line|sum:"lineQty"|number:"1.0"}}</div>
+                  </ion-col>
+               </ion-row>
+               <ng-container *ngIf="showTotalByCarton">
+                  <ion-row *ngFor="let rowData of getTotalByCarton()|keyvalue">
+                     <ion-col class="ion-flex ion-margin-auto">
+                        <div>[Ctr. {{rowData.key}}]</div>
+                     </ion-col>
+                     <ion-col class="ion-margin-auto justify-content-end">
+                        <div>{{rowData.value}}</div>
+                     </ion-col>
+                  </ion-row>
+               </ng-container>
+               <ion-row>
+                  <ion-col class="ion-flex ion-margin-auto justify-content-between">
+                     <div class="font-bold">Created By</div>
+                     <div>{{objectService.objectHeader.createdBy}} {{objectService.objectHeader.createdAt|date:"dd/MM/yy hh:mm a"}}</div>
+                  </ion-col>
+               </ion-row>
+            </ion-grid>
+         </ion-item>
+      </ion-list>
+      <div *ngIf="objectService.objectHeader && objectService.objectHeader.remark && objectService.objectHeader.remark.length > 0">
+         <ion-list-header class="ion-list-header-small ion-flex ion-text-center">
+            <ion-label>Remark</ion-label>
+         </ion-list-header>
+         <ion-list class="list-custom animate__animated animate__fadeIn" lines="full">
+            <ion-item class="ion-no-padding no-ripple">
+               <ion-grid class="ion-no-padding py-2 pl-2">
+                  <ion-row>
+                     <ion-col class="ion-flex ion-margin-auto">
+                        <div>{{objectService.objectHeader.remark}}</div>
+                     </ion-col>
+                  </ion-row>
+               </ion-grid>
+            </ion-item>
+         </ion-list>
+      </div>
+      <ion-list-header class="ion-list-header-small ion-flex ion-text-center">
+         <ion-label>Line</ion-label>
+      </ion-list-header>
+
+      <ion-list class="list-custom animate__animated animate__fadeIn" lines="full">
+
+         <ion-item button detail="false" class="ion-no-padding no-ripple">
+            <ion-grid class="ion-no-padding py-2 pl-2">
+               <ion-row>
+                  <ion-col size="1" class="ion-flex ion-margin-auto">
+                     <div class="ion-flex my-auto font-bold">#</div>
+                  </ion-col>
+                  <ion-col size="9" class="ion-flex ion-margin-auto">
+                     <div class="ion-flex my-auto font-bold">Item</div>
+                  </ion-col>
+                  <ion-col size="2" class="ion-flex ion-margin-auto justify-content-center">
+                     <div class="ion-flex my-auto font-bold">Qty</div>
+                  </ion-col>
+               </ion-row>
+            </ion-grid>
+         </ion-item>
+
+         <ion-item button detail="false" class="ion-no-padding no-ripple" *ngFor="let rowData of objectService.objectDetail; let rowIndex = index">
+            <ion-grid class="ion-no-padding py-2 pl-2">
+               <ion-row>
+                  <ion-col size="1" class="ion-flex ion-margin-auto">
+                     <div class="ion-text-right">{{rowIndex+1|number:'1.0'}}</div>
+                  </ion-col>
+                  <ion-col size="9">
+                     <ion-grid class="ion-no-padding">
+                        <ion-row>
+                           <ion-col class="ion-flex ion-margin-auto">
+                              <div class="font-bold">{{rowData.itemCode}}</div>
+                              <div class="ion-flex">
+                                 <span class="badge-green ion-text-wrap ion-flex my-auto px-1 mx-1" *ngIf="rowData.xDesc"> {{rowData.xDesc}}</span>
+                                 <span class="badge-purple ion-text-wrap ion-flex my-auto px-1" *ngIf="rowData.yDesc"> {{rowData.yDesc}}</span>
+                              </div>
+                           </ion-col>
+                           <ion-col class="ion-flex ion-margin-auto justify-content-end" *ngIf="rowData.containerNum">
+                              <div class="ion-text-wrap font-bold">Ctr. [{{rowData.containerNum}}]</div>
+                           </ion-col>
+                        </ion-row>
+                        <ion-row>
+                           <ion-col class="ion-flex ion-margin-auto">
+                              <div class="ion-text-wrap">{{rowData.itemDesc}}</div>
+                           </ion-col>
+                        </ion-row>
+                        <ion-row>
+                           <ion-col class="ion-flex ion-margin-auto">
+                              <div class="ion-text-wrap">{{rowData.barcode}}</div>
+                           </ion-col>
+                        </ion-row>
+                     </ion-grid>
+                  </ion-col>
+                  <ion-col size="2" class="ion-flex ion-margin-auto justify-content-center">
+                     <div class="ion-flex my-auto">
+                        <ion-badge>
+                           <div class="ion-text-right">{{rowData.lineQty|number:'1.0'}}</div>
+                        </ion-badge>
+                     </div>
+                  </ion-col>
+               </ion-row>
+               <ion-row>
+                  <ion-col>
+                     <div class="font-bold">
+                        Unit Price
+                     </div>
+                  </ion-col>
+                  <ion-col>
+                     <div class="font-bold">
+                        Disc. Code
+                     </div>
+                  </ion-col>
+                  <ion-col>
+                     <div class="font-bold justify-content-end">
+                        Disc. Amt
+                     </div>
+                  </ion-col>
+                  <ion-col>
+                     <div class="font-bold justify-content-end">
+                        SubTotal
+                     </div>
+                  </ion-col>
+               </ion-row>
+               <ion-row>
+                  <ion-col>
+                     <div>{{rowData.unitPrice|number:"1.0-2"}}</div>
+                  </ion-col>
+                  <ion-col>
+                     <div class="ion-flex">
+                        <div>{{rowData.discountGroupCode}}</div>
+                        <div *ngIf="rowData.discountExpression"> [{{rowData.discountExpression}}]</div>
+                     </div>
+                  </ion-col>
+                  <ion-col class="justify-content-end">
+                     <div>{{(rowData.discountAmt??0)|number:"1.0-2"}}</div>
+                  </ion-col>
+                  <ion-col class="justify-content-end">
+                     <div>{{(rowData.subTotal??0)|number:"1.0-2"}}</div>
+                  </ion-col>
+               </ion-row>
+            </ion-grid>
+         </ion-item>
+      </ion-list>
+   </div>
+</ion-content>
+
+<ion-modal [isOpen]="historyModal" (didDismiss)="historyModal = false">
+   <ng-template>
+      <ion-header>
+         <ion-toolbar>
+            <ion-title>History</ion-title>
+            <ion-buttons slot="start">
+               <ion-button (click)="hideHistoryModal()">Done</ion-button>
+            </ion-buttons>
+         </ion-toolbar>
+      </ion-header>
+      <ion-content>
+         <div class="p-2">
+            <ion-list-header class="ion-list-header-small ion-flex ion-text-center" *ngIf="approvalHistory && approvalHistory?.length === 0">
+               <ion-label>Approval History Not Available.</ion-label>
+            </ion-list-header>
+            <ion-list class="list-custom animate__animated animate__fadeIn" lines="full">
+               <ion-item class="ion-no-padding no-ripple" *ngFor="let h of approvalHistory">
+                  <ion-grid class="ion-no-padding py-2 pl-2">
+                     <ion-row>
+                        <ion-col class="ion-flex ion-margin-auto">
+                           <div class="font-bold">Date</div>
+                        </ion-col>
+                        <ion-col class="ion-flex ion-margin-auto justify-content-end">
+                           <div>{{h.createdAt|date:'dd/MM/yyyy hh:mm:ss a'}}</div>
+                        </ion-col>
+                     </ion-row>
+                     <ion-row>
+                        <ion-col class="ion-flex ion-margin-auto">
+                           <div class="font-bold">Action By</div>
+                        </ion-col>
+                        <ion-col class="ion-flex ion-margin-auto justify-content-end">
+                           <div>{{h.createdBy}}</div>
+                        </ion-col>
+                     </ion-row>
+                     <ion-row>
+                        <ion-col class="ion-flex ion-margin-auto">
+                           <div class="font-bold">Status</div>
+                        </ion-col>
+                        <ion-col class="ion-flex ion-margin-auto justify-content-end">
+                           <div>{{h.status}}</div>
+                        </ion-col>
+                     </ion-row>
+                     <ion-row>
+                        <ion-col class="ion-flex ion-margin-auto">
+                           <div class="font-bold">Reason</div>
+                        </ion-col>
+                        <ion-col class="ion-flex ion-margin-auto justify-content-end">
+                           <div>{{h.reason}}</div>
+                        </ion-col>
+                     </ion-row>
+                  </ion-grid>
+               </ion-item>
+            </ion-list>
+         </div>
+      </ion-content>
+   </ng-template>
+</ion-modal>
+
+<ion-modal [isOpen]="attachmentModel" (didDismiss)="attachmentModel = false">
+   <ng-template>
+      <ion-header>
+         <ion-toolbar>
+            <ion-title>Attachments</ion-title>
+            <ion-buttons slot="start">
+               <ion-button (click)="hideAttachmentModal()">Done</ion-button>
+            </ion-buttons>
+         </ion-toolbar>
+      </ion-header>
+      <ion-content>
+         <div class="p-2">
+            <ion-list class="list-custom animate__animated animate__fadeIn" lines="full">
+               <div *ngIf="objectService.attachment && objectService.attachment.length > 0">
+                  <ion-list-header class="ion-list-header-small ion-flex ion-text-center">
+                     <ion-label>Attachments</ion-label>
+                  </ion-list-header>
+                  <ion-item *ngFor="let file of objectService.attachment">
+                     <ion-thumbnail slot="start">
+                        <img [src]="file.imageUrl">
+                     </ion-thumbnail>
+                     <ion-label class="ion-text-wrap"> {{ file.filesName }} </ion-label>
+                  </ion-item>
+               </div>
+            </ion-list>
+         </div>
+      </ion-content>
+   </ng-template>
+</ion-modal>

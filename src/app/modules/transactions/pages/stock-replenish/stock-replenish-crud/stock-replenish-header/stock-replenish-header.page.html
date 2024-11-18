@@ -1,0 +1,25 @@
+<ion-header collapse="fade" [translucent]="true">
+  <ion-toolbar>
+    <ion-title>Header</ion-title>
+    <ion-buttons slot="start">
+      <ion-button (click)="cancelInsert()"><ion-icon slot="start" name="chevron-back-outline"></ion-icon>Cancel</ion-button>
+    </ion-buttons>
+  </ion-toolbar>
+</ion-header>
+<ion-content fullscreen>
+  <ion-header collapse="condense">
+    <ion-toolbar>
+      <ion-label class="label-title">Header</ion-label>
+    </ion-toolbar>
+  </ion-header>
+  <div class="p-2"> 
+    <ion-list class="list-custom animate__animated animate__fadeIn" lines="none">
+      <app-search-dropdown title="Location" [masterDropdownList]="objectService.locationMasterList" [selectedId]="objectForm?.controls?.toLocationId?.value" (onActionComplete)="onLocationSelected($event)"></app-search-dropdown>
+    </ion-list>
+  </div>
+</ion-content>
+<ion-footer class="ion-padding-bottom-large animate__animated animate__fadeInUp p-0" style="background-color: white;">
+  <ion-button class="ion-margin" expand="block" size="default" (click)="nextStep()" [disabled]="!objectForm.valid">
+    Next
+  </ion-button>
+</ion-footer>

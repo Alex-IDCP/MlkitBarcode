@@ -1,0 +1,118 @@
+<ion-header>
+   <ion-toolbar>
+      <ion-title>Insert</ion-title>
+      <ion-buttons slot="start">
+         <ion-button (click)="cancelInsert()"><ion-icon slot="start" name="chevron-back-outline"></ion-icon></ion-button>
+      </ion-buttons>
+      <ion-buttons slot="primary">
+         <ion-button (click)="showPopover($event)"><ion-icon slot="icon-only" name="menu-outline"></ion-icon></ion-button>
+      </ion-buttons>
+   </ion-toolbar>
+</ion-header>
+<ion-popover #popover [isOpen]="isPopoverOpen" (didDismiss)="isPopoverOpen = false">
+   <ng-template>
+      <ion-content class="p-2">
+         <ion-list class="list-custom animate__animated animate__fadeIn" lines="full">
+            <ion-item (click)="popover.dismiss(); sendForDebug()">
+               <ion-icon slot="end" name="push-outline" color="danger"></ion-icon>
+               <ion-label>
+                  <div>Debug</div>
+               </ion-label>
+            </ion-item>
+         </ion-list>
+      </ion-content>
+   </ng-template>
+</ion-popover>
+<ion-content>
+   <div class="p-2">
+      <form class="form-default" [formGroup]="objectForm">
+         <ion-list class="list-custom animate__animated animate__fadeIn" lines="full">
+            <ion-item>
+               <ion-label position="stacked">Name</ion-label>
+               <ion-input inputmode="text" type="text" enterkeyhint="next" placeholder="Enter Name" formControlName="name"></ion-input>
+               <div *ngIf="objectForm.controls['name'].errors && objectForm.controls['name'].touched" class="font-x-smaller pb-1 color-danger" padding>Name is required</div>
+            </ion-item>
+            <ion-item>
+               <ion-label position="stacked">Company Reg. Num</ion-label>
+               <ion-input inputmode="text" type="text" enterkeyhint="next" placeholder="Enter Company Reg. Num" formControlName="companyRegNum"></ion-input>
+            </ion-item>
+            <ion-item class="ion-no-padding">
+               <app-search-dropdown title="Country" optionLabel="description" [masterDropdownList]="objectService.countryMasterList" [selectedId]="defaultCountry.id" (onActionComplete)="onCountrySelected($event)"></app-search-dropdown>
+            </ion-item>
+            <ion-item class="ion-no-padding">
+               <app-search-dropdown title="State" optionLabel="description" [masterDropdownList]="objectService.stateMasterList" [selectedId]="objectForm?.controls?.stateId?.value" (onActionComplete)="onStateSelected($event)"></app-search-dropdown>
+            </ion-item>
+            <ion-item>
+               <ion-label position="stacked">Credit Limit</ion-label>
+               <ion-input placeholder="Enter Credit Limit" type="number" inputmode="decimal" formControlName="creditLimit"></ion-input>
+            </ion-item>
+            <ion-item class="ion-no-padding">
+               <app-search-dropdown title="Term Period" optionLabel="description" [masterDropdownList]="objectService.termPeriodMasterList" [selectedId]="objectForm?.controls?.termPeriodId?.value" (onActionComplete)="onTermPeriodSelected($event)"></app-search-dropdown>
+            </ion-item>
+            <ion-item>
+               <ion-label position="stacked">Remark</ion-label>
+               <ion-textarea autoGrow="true" inputmode="text" type="text" enterkeyhint="enter" placeholder="Enter Remark" formControlName="remark"></ion-textarea>
+            </ion-item>
+         </ion-list>
+         <ion-list-header class="ion-list-header-small ion-flex">
+            <ion-label>Billing Address</ion-label>
+            <ion-button size="small" (click)="applyToShipping()">Apply To Shipping</ion-button>
+         </ion-list-header>
+         <ion-list class="list-custom animate__animated animate__fadeIn" lines="full">
+            <ion-item>
+               <ion-label position="stacked">Address</ion-label>
+               <ion-textarea autoGrow="true" type="text" enterkeyhint="enter" placeholder="Enter Address" formControlName="billAddress"></ion-textarea>
+            </ion-item>
+            <ion-item>
+               <ion-label position="stacked">Attention</ion-label>
+               <ion-input inputmode="text" type="text" enterkeyhint="next" placeholder="Attention" formControlName="billAttention"></ion-input>
+            </ion-item>
+            <ion-item>
+               <ion-label position="stacked">Email Address</ion-label>
+               <ion-input inputmode="email" type="email" email enterkeyhint="next" placeholder="Enter Email" formControlName="billEmail" errorText="Invalid email format"></ion-input>
+               <div *ngIf="objectForm.controls['billEmail'].errors && objectForm.controls['billEmail'].dirty" class="font-x-smaller pb-1 color-danger" padding>Invalid Email</div>
+            </ion-item>
+            <ion-item>
+               <ion-label position="stacked">Phone Number</ion-label>
+               <ion-input inputmode="numeric" type="text" enterkeyhint="next" placeholder="Phone Number" formControlName="billPhone"></ion-input>
+            </ion-item>
+            <app-search-dropdown title="State" optionLabel="description" [masterDropdownList]="objectService.stateMasterList" [selectedId]="objectForm?.controls?.billStateId?.value" (onActionComplete)="onBillStateSelected($event)"></app-search-dropdown>
+         </ion-list>
+         <ion-list-header class="ion-list-header-small ion-flex">
+            <ion-label>Shipping Address</ion-label>
+            <ion-button size="small" (click)="applyToShipping()">Copy From Billing</ion-button>
+         </ion-list-header>
+         <ion-list class="list-custom animate__animated animate__fadeIn" lines="full">
+            <ion-item>
+               <ion-label position="stacked">Address</ion-label>
+               <ion-textarea autoGrow="true" type="text" enterkeyhint="enter" placeholder="Enter Address" formControlName="shipAddress"></ion-textarea>
+            </ion-item>
+            <ion-item>
+               <ion-label position="stacked">Attention</ion-label>
+               <ion-input inputmode="text" type="text" enterkeyhint="next" placeholder="Attention" formControlName="shipAttention"></ion-input>
+            </ion-item>
+            <ion-item>
+               <ion-label position="stacked">Email Address</ion-label>
+               <ion-input inputmode="email" type="email" email enterkeyhint="next" placeholder="Enter Email" formControlName="shipEmail" errorText="Invalid email format"></ion-input>
+               <div *ngIf="objectForm.controls['shipEmail'].errors && objectForm.controls['shipEmail'].dirty" class="font-x-smaller pb-1 color-danger" padding>Invalid Email</div>
+            </ion-item>
+            <ion-item>
+               <ion-label position="stacked">Phone Number</ion-label>
+               <ion-input inputmode="numeric" type="text" enterkeyhint="next" placeholder="Phone Number" formControlName="shipPhone"></ion-input>
+            </ion-item>
+            <app-search-dropdown title="State" optionLabel="description" [masterDropdownList]="objectService.stateMasterList" [selectedId]="objectForm?.controls?.shipStateId?.value" (onActionComplete)="onShipStateSelected($event)"></app-search-dropdown>
+         </ion-list>
+      </form>
+   </div>
+</ion-content>
+<ion-footer class="ion-padding-bottom-large animate__animated animate__fadeInUp p-0" style="background-color: white;">
+   <ion-grid class="ion-no-padding">
+      <ion-row>
+         <ion-col>
+            <ion-button class="ion-margin" expand="block" size="default" (click)="nextStep()" [disabled]="!objectForm.valid">
+               Confirm
+            </ion-button>
+         </ion-col>
+      </ion-row>
+   </ion-grid>
+</ion-footer>

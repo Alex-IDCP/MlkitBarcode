@@ -1,0 +1,70 @@
+<ion-header>
+  <ion-toolbar>
+    <ion-title>Check Credit Note</ion-title>
+    <ion-buttons slot="start">
+      <ion-back-button text="" defaultHref="/reports"></ion-back-button>
+    </ion-buttons>
+    <ion-buttons slot="end">
+      <ion-button (click)="showPopover($event)"><ion-icon name="menu-outline" slot="icon-only"></ion-icon></ion-button>
+    </ion-buttons>
+  </ion-toolbar>
+</ion-header>
+
+<ion-popover #popover [isOpen]="isPopoverOpen" (didDismiss)="isPopoverOpen = false">
+  <ng-template>
+    <ion-content class="p-2">
+      <ion-list class="list-custom animate__animated animate__fadeIn" lines="full">
+        <ion-item (click)="popover.dismiss(); printAllAlert();">
+          <ion-icon name="download-outline" slot="end"></ion-icon>
+          <ion-label>
+            <div>Download</div>
+          </ion-label>
+        </ion-item>
+      </ion-list>
+    </ion-content>
+  </ng-template>
+</ion-popover>
+
+<ion-content>
+  <div class="p-2">
+    <ion-list class="list-custom" lines="none">
+      <app-search-multi-dropdown title="Debtor" [showHeaderLabel]="true" [showBoldHeader]="true" [showCode]="true"  [searchDropdownList]="customerSearchDropdownList" (onActionComplete)="onCustomerSelected($event)"></app-search-multi-dropdown>
+    </ion-list>
+    <ion-button class="pt-2" expand="block" size="default" (click)="loadReport()">Search</ion-button>
+    <ion-list-header class="ion-list-header ion-flex ion-text-center" *ngIf="!objects || objects?.length === 0">
+      <ion-label>Nothing found!</ion-label>
+    </ion-list-header>
+    <ngx-datatable *ngIf="objects && objects.length > 0"
+      class="fullscreen material mt-2"
+      [rows]="objects" 
+      [rowHeight]="'auto'" 
+      [columnMode]="'force'"
+      [selected]="selected"
+      [selectionType]="SelectionType.checkbox"
+      [selectAllRowsOnPage]="false"
+      (activate)="onActivate($event)"
+      (select)="onSelect($event)">
+      <ngx-datatable-column [width]="40" [sortable]="false" [canAutoResize]="false" [draggable]="false" [resizeable]="false" [headerCheckboxable]="true" [checkboxable]="true"></ngx-datatable-column>
+      <ngx-datatable-column prop="docNum" name="Doc Num">
+        <ng-template let-row="row" ngx-datatable-cell-template>
+          <div class="flex ion-text-wrap font-half-size div-link-button" (click)="presentAlertViewPdf(row.transactionType, row.docId, row.docNum)"> {{row.docNum}}</div>
+        </ng-template>
+      </ngx-datatable-column>
+      <ngx-datatable-column prop="postingDate" name="Date">
+        <ng-template let-row="row" ngx-datatable-cell-template>
+          <div class="flex ion-text-wrap font-half-size">{{row.postingDate|date:'dd/MM/yyyy'}}</div>
+        </ng-template>
+      </ngx-datatable-column>
+      <ngx-datatable-column prop="customerCode" name="Debtor">
+        <ng-template let-row="row" ngx-datatable-cell-template>
+          <div class="flex ion-text-wrap font-half-size">{{row.customerCode}} - {{row.customerName}}</div>
+        </ng-template>
+      </ngx-datatable-column>
+      <ngx-datatable-column prop="unappliedAmount" name="Amount">
+        <ng-template let-row="row" ngx-datatable-cell-template>
+          <div class="font-half-size ion-text-right"> {{row.unappliedAmount|number:'1.2-2'}}</div>
+        </ng-template>
+      </ngx-datatable-column>
+    </ngx-datatable>
+  </div>
+</ion-content>

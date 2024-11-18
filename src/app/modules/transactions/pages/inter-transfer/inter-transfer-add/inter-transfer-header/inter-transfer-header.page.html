@@ -1,0 +1,38 @@
+<ion-header>
+  <ion-toolbar>
+    <ion-title>Inter Transfer</ion-title>
+    <ion-buttons slot="start">
+      <ion-button (click)="cancelInsert()"><ion-icon slot="start" name="chevron-back-outline"></ion-icon></ion-button>
+    </ion-buttons>
+  </ion-toolbar>
+</ion-header>
+<ion-content fullscreen>
+  <div class="p-2">
+    <form [formGroup]="objectForm">
+      <ion-list class="list-custom animate__animated animate__fadeIn" lines="full">
+
+        <app-search-dropdown title="Ori. Location" optionLabel="description" [masterDropdownList]="objectService.oriLocationMasterList" [selectedId]="objectForm?.controls?.locationId?.value" (onActionComplete)="onLocationSelected($event)"></app-search-dropdown>
+
+        <app-search-dropdown title="Dest. Location" optionLabel="description" [masterDropdownList]="objectService.locationMasterList" [selectedId]="objectForm?.controls?.toLocationId?.value" (onActionComplete)="onToLocationSelected($event)"></app-search-dropdown>
+        
+        <app-search-dropdown title="Ship Method" optionLabel="description" [masterDropdownList]="objectService.shipMethodMasterList" [selectedId]="objectForm?.controls?.shipMethodId?.value" (onActionComplete)="onShipMethodSelected($event)"></app-search-dropdown>
+        
+        <ion-item>
+          <ion-label class="font-bold" position="stacked">Total Carton</ion-label>
+          <ion-input formControlName="totalCarton" type="number" inputmode="numeric" placeholder="Enter Total Carton"></ion-input>
+        </ion-item>
+        
+        <ion-item>
+          <ion-label class="font-bold" position="stacked">GRN Number</ion-label>
+          <ion-input formControlName="grnNum" placeholder="Enter GRN Num"></ion-input>
+        </ion-item>
+        
+      </ion-list>
+    </form>
+  </div>
+</ion-content>
+<ion-footer class="ion-padding-bottom-large animate__animated animate__fadeInUp p-0" style="background-color: white;">
+  <ion-button class="ion-margin" expand="block" size="default" (click)="nextStep()" [disabled]="!objectForm.valid">
+    Next
+  </ion-button>
+</ion-footer>

@@ -1,0 +1,146 @@
+<ion-segment [scrollable]="true" [(ngModel)]="selectedScanningMethod" (ionChange)="scanningMethodChanged()">
+  <ion-segment-button value="I">
+     <ion-label>By Item</ion-label>
+  </ion-segment-button>
+  <ion-segment-button value="B">
+     <ion-label>By BarcodeS</ion-label>
+  </ion-segment-button>
+</ion-segment>
+
+<ion-grid class="ion-no-padding">
+  <ion-row>
+     <ion-col class="ion-flex ion-margin-auto" [size]="selectedScanningMethod === 'B' ? '8': '10'">
+        <input #barcodeInput class="p-2 ion-flex ion-text-center"
+           [type]="selectedScanningMethod === 'B' ? 'text' : 'hidden'" enterkeyhint="enter"
+           placeholder="Enter or Scan Barcode" (keydown)="handleBarcodeKeyDown($event, barcodeInput.value)">
+        <input #itemInput class="p-2 ion-flex ion-text-center"
+           [type]="selectedScanningMethod === 'I' ? 'text' : 'hidden'" enterkeyhint="enter"
+           [(ngModel)]="itemSearchValue" placeholder="Enter or Scan Item Code/Sku"
+           (keydown)="handleItemCodeKeyDown($event, itemSearchValue)">
+     </ion-col>
+     <ion-col class="ion-flex ion-margin-auto justify-content-end" *ngIf="selectedScanningMethod === 'B'">
+        <ion-button fill="clear" (click)="startScanning()" [disabled]="!isSupported">
+           <i slot="icon-only" class="fas fa-camera"></i>
+        </ion-button>
+        <ion-button fill="clear" (click)="showKeyboard($event)">
+           <i slot="icon-only" class="fas fa-keyboard"></i>
+        </ion-button>
+     </ion-col>
+  </ion-row>
+</ion-grid>
+
+<ion-modal #itemModal [isOpen]="itemModalOpen" (didDismiss)="itemModalOpen = false; setFocus()">
+  <ng-template>
+     <ion-header>
+        <ion-toolbar>
+           <ion-title>Items</ion-title>
+           <ion-buttons slot="start">
+              <ion-button (click)="itemModal.dismiss()">Cancel</ion-button>
+           </ion-buttons>
+        </ion-toolbar>
+     </ion-header>
+     <ion-content>
+        <div class="p-2">
+           <ion-list class="list-custom animate__animated animate__fadeIn" lines="full">
+              <ion-item detail="false" class="ion-no-padding no-ripple" *ngFor="let item of availableItemmmm"
+                 (click)="showVariations(item)">
+                 <ion-grid class="ion-no-padding py-2 pl-2">
+                    <ion-row>
+                       <ion-col class="ion-flex ion-margin-auto">
+                          <div>{{item.itemCode}} - {{item.description}}</div>
+                          <span class="badge-warning ion-text-wrap ion-flex my-auto px-1 mx-1"
+                             *ngIf="item.itemUomId && configSystemWideActivateMultiUOM && (itemUomMasterList && itemUomMasterList.length > 0)">{{item.itemUomId|idMapping:itemUomMasterList}}</span>
+                       </ion-col>
+                    </ion-row>
+                 </ion-grid>
+              </ion-item>
+           </ion-list>
+        </div>
+     </ion-content>
+  </ng-template>
+</ion-modal>
+
+<ion-modal #variationModal [isOpen]="variationModalOpen" (didDismiss)="variationModalOpen = false; setFocus()"
+  style="background-color: white;">
+  <ng-template>
+     <ion-header>
+        <ion-toolbar>
+           <ion-title>Variations</ion-title>
+           <ion-buttons slot="start">
+              <ion-button (click)="variationModal.dismiss()">Cancel</ion-button>
+           </ion-buttons>
+        </ion-toolbar>
+     </ion-header>
+     <ion-content>
+        <div class="p-2" *ngIf="availableVariationsByItemId && availableVariationsByItemId.length > 0">
+           <ion-list-header class="ion-list-header-small ion-flex ion-text-center">
+              <ion-label>{{availableVariationsByItemId[0].itemCode}} -
+                 {{availableVariationsByItemId[0].description}}</ion-label>
+           </ion-list-header>
+
+           <ion-list class="list-custom animate__animated animate__fadeIn custom-border" lines="full">
+              <ng-container *ngIf="!configItemVariationShowMatrix">
+                 <ion-item detail="false" class="ion-no-padding no-ripple"
+                    *ngFor="let item of availableVariationsByItemId">
+                    <ion-checkbox class="ml-2" slot="start" [(ngModel)]="item.isSelected"></ion-checkbox>
+                    <ion-grid class="ion-no-padding py-2 pl-2">
+                       <ion-row *ngIf="item.variationTypeCode === '1' || item.variationTypeCode === '2'">
+                          <ion-col class="ion-flex ion-margin-auto">
+                             <span class="badge-green ion-text-wrap ion-flex my-auto px-1 mr-1"
+                                style="font-size:small" *ngIf="item.itemVariationXId"> {{item.itemVariationXCd + " |
+                                " + item.itemVariationXDesc}}</span>
+                             <span class="badge-purple ion-text-wrap ion-flex my-auto px-1" style="font-size:small"
+                                *ngIf="item.itemVariationYId"> {{item.itemVariationYCd + " | " +
+                                item.itemVariationYDesc}}</span>
+                          </ion-col>
+                       </ion-row>
+                    </ion-grid>
+                 </ion-item>
+              </ng-container>
+              <ng-container *ngIf="configItemVariationShowMatrix && variationStructure">
+                 <div class="table-container" style="scroll-behavior: smooth;">
+                    <table id="qtyMatrix">
+                       <thead>
+                          <tr>
+                             <th class="p-1 font-half-size ion-text-left sticky-top"></th>
+                             <th class="p-1 font-half-size sticky-top"
+                                *ngFor="let rowData of variationStructure.variationY">
+                                <div class="ion-flex">
+                                   <ion-badge
+                                      *ngIf="configItemVariationMatrixShowCodeDesc && rowData">{{rowData|idToCodeMapping:itemVariationYMasterList}}</ion-badge>
+                                   <div class="ml-1 my-auto">{{rowData|idMapping:itemVariationYMasterList}}</div>
+                                </div>
+                             </th>
+                          </tr>
+                       </thead>
+                       <tbody style="margin-top: 2.5rem;">
+                          <tr *ngFor="let rowData of variationStructure.variationDetails">
+                             <td class="p-1 font-half-size">
+                                <div class="ion-flex">
+                                   <ion-badge
+                                      *ngIf="configItemVariationMatrixShowCodeDesc">{{rowData.itemVariationXId|idToCodeMapping:itemVariationXMasterList}}</ion-badge>
+                                   <div class="ml-1 my-auto">
+                                      {{rowData.itemVariationXId|idMapping:itemVariationXMasterList}}</div>
+                                </div>
+                             </td>
+                             <td class="p-1 font-half-size ion-text-right" *ngFor="let rowData2 of rowData.details">
+                                <ion-input #input class="ion-text-center" type="number" [min]="0"
+                                   [(ngModel)]="rowData2.qtyRequest" placeholder="0" (ionFocus)="highlight(input)"
+                                   [enterkeyhint]="'next'" [disabled]="rowData2.deactivated"></ion-input>
+                             </td>
+                          </tr>
+                       </tbody>
+                    </table>
+                 </div>
+              </ng-container>
+           </ion-list>
+        </div>
+     </ion-content>
+     <ion-footer class="ion-padding-bottom-large animate__animated animate__fadeInUp p-0"
+        style="background-color: white;">
+        <ion-button class="ion-margin" expand="block" (click)="addVariations()">
+           Add Item(s)
+        </ion-button>
+     </ion-footer>
+  </ng-template>
+</ion-modal>

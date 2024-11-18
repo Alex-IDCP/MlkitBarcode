@@ -1,0 +1,40 @@
+<ion-header>
+   <ion-toolbar>
+      <ion-title><div class="ion-text-wrap">Transfer Confirmation</div></ion-title>
+      <ion-buttons slot="start">
+         <ion-back-button text="" defaultHref="/transactions"></ion-back-button>
+      </ion-buttons>
+   </ion-toolbar>
+</ion-header>
+<ion-content [fullscreen]="true">
+   <div class="p-2">
+      <ion-list class="list-custom animate__animated animate__fadeIn " lines="none">
+         <app-search-dropdown title="Location" optionValue="id" [masterDropdownList]="objectService.oriLocationMasterList" [selectedId]="selectedLocationId" (onActionComplete)="onLocationChanged($event)"></app-search-dropdown>
+      </ion-list>
+      <ion-list-header class="ion-list-header-small ion-flex ion-text-center">
+         <ion-label>Pending Documents</ion-label>
+      </ion-list-header>
+      <ion-list *ngIf="pendingList.length > 0" class="list-custom animate__animated animate__fadeIn mt-2" lines="full">
+         <ion-item button detail="false" *ngFor="let p of pendingList" class="ion-no-padding" (click)="goToDetails(p)">
+            <ion-grid class="ion-no-padding py-2 pl-2">
+               <ion-row>
+                  <ion-col class="ion-flex ion-margin-auto">
+                     <div class="font-bold">{{p.interTransferNum}}</div>
+                  </ion-col>
+                  <ion-col class="ion-flex ion-margin-auto justify-content-end">
+                     <div>{{p.trxDate|date:'dd/MM/yyyy'}}</div>
+                  </ion-col>
+               </ion-row>
+               <ion-row>
+                  <ion-col class="ion-flex ion-margin-auto">
+                     <div>{{p.locationId|idMapping:objectService.locationMasterList}}</div>
+                  </ion-col>
+                  <ion-col class="ion-flex ion-margin-auto justify-content-end">
+                     <div>{{p.toLocationId|idMapping:objectService.locationMasterList}}</div>
+                  </ion-col>
+               </ion-row>
+            </ion-grid>
+         </ion-item>
+      </ion-list>
+   </div>
+</ion-content>

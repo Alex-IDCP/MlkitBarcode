@@ -1,0 +1,197 @@
+<ion-header>
+   <ion-toolbar>
+      <ion-title>
+         <div class="ion-text-wrap">
+            Inv. Level - Retail
+         </div>
+      </ion-title>
+      <ion-buttons slot="start">
+         <ion-back-button text="" defaultHref="/others"></ion-back-button>
+      </ion-buttons>
+      <ion-buttons slot="end">
+         <ion-button (click)="showPopover($event)"><ion-icon name="menu-outline" slot="icon-only"></ion-icon></ion-button>
+      </ion-buttons>
+   </ion-toolbar>
+
+</ion-header>
+<ion-popover #popover [isOpen]="isPopoverOpen" (didDismiss)="isPopoverOpen = false">
+   <ng-template>
+      <ion-content class="p-2">
+         <ion-list class="list-custom animate__animated animate__fadeIn" lines="full">
+            <ion-item button (click)="popover.dismiss(); showPriceDialog()">
+               <ion-label>
+                  <div>View Price</div>
+               </ion-label>
+            </ion-item>
+         </ion-list>
+      </ion-content>
+   </ng-template>
+</ion-popover>
+<ion-content fullscreen>
+   <div class="p-2">
+
+      <ion-list-header class="ion-list-header-small ion-flex ion-text-center">
+         <ion-label>OR</ion-label>
+      </ion-list-header>
+
+      <ion-list class="list-custom animate__animated animate__fadeIn" lines="full">
+         <app-search-dropdown title="Item" optionValue="code" [searchDropdownList]="itemSearchDropdownList" [selectedCode]="itemCode" (onActionComplete)="onItemChanged($event)"></app-search-dropdown>
+      </ion-list>
+
+      <ion-segment *ngIf="itemInfo && (itemInfo?.variationTypeCode === '1' || itemInfo?.variationTypeCode === '2')" [(ngModel)]="selectedViewOptions" (ionChange)="advancedFilter()">
+         <ion-segment-button value="item">
+            <ion-label>Item</ion-label>
+         </ion-segment-button>
+         <ion-segment-button value="variation">
+            <ion-label>Variation</ion-label>
+         </ion-segment-button>
+      </ion-segment>
+
+      <ion-accordion-group #accordionGroup *ngIf="itemInfo" class="py-1">
+         <ion-accordion value="advanced filter">
+            <ion-item slot="header" color="light">
+               <ion-label>Advanced Filter</ion-label>
+            </ion-item>
+            <ion-list class="list-custom" slot="content" lines="none">
+
+               <app-search-dropdown #searchLocation title="Location" optionLabel="description" [searchDropdownList]="locationSearchDropdownList" [selectedId]="selectedLocationId" (onActionComplete)="onLocationChanged($event)"></app-search-dropdown>
+               <ion-item>
+                  <ion-label position="fixed">Hide 0 Balance</ion-label>
+                  <ion-checkbox item-right checked="true" [(ngModel)]="hideEmpty" (ionChange)="advancedFilter()"></ion-checkbox>
+               </ion-item>
+               <ion-item *ngIf="selectedViewOptions === 'variation' && variationObject?.itemInfo.length > 0 && itemVariationX.length > 1">
+                  <ion-label position="fixed">Variation X</ion-label>
+                  <ion-select interface="action-sheet" placeholder="Select Variation X" [(ngModel)]="selectedVariationX" (ionChange)="advancedFilter()">
+                     <ion-select-option *ngFor="let x of itemVariationX" [value]="x.value">{{x.label}}</ion-select-option>
+                  </ion-select>
+               </ion-item>
+               <ion-item *ngIf="selectedViewOptions === 'variation' && variationObject?.itemInfo.length > 0 && itemVariationY.length > 1">
+                  <ion-label position="fixed">Variation Y</ion-label>
+                  <ion-select interface="action-sheet" placeholder="Select Variation Y" [(ngModel)]="selectedVariationY"
+                     (ionChange)="advancedFilter()">
+                     <ion-select-option *ngFor="let y of itemVariationY" [value]="y.value">{{y.label}}</ion-select-option>
+                  </ion-select>
+               </ion-item>
+            </ion-list>
+         </ion-accordion>
+      </ion-accordion-group>
+      <div *ngIf="selectedViewOptions === 'item'">
+         <ion-card *ngFor="let item of object?.itemInfo" class="mx-0 my-1">
+            <ion-card-header>
+               <ion-card-subtitle>{{item.locationCode}}</ion-card-subtitle>
+               <ion-card-title>{{item.locationDescription}}</ion-card-title>
+            </ion-card-header>
+            <ion-card-content class="ion-flex ion-margin-auto">
+               <div class="ion-flex ion-margin-auto" [ngClass]="{'color-danger': (item.qty < 0), 'color-warning': (item.qty == 0) }">
+                  {{item.qty | number:"1.0"}}
+               </div>
+               <div class="ion-flex ion-margin-auto">
+                  <div class="badge-purple font-bold px-2 mx-2 py-1 w-full flex justify-content-center" style="font-size: small; height:2rem">
+                     In Transit Qty: {{item.transitQty|number:"1.0"}} | Current Qty: {{item.qty - item.transitQty|number:"1.0"}}
+                  </div>
+               </div>
+            </ion-card-content>
+         </ion-card>
+      </div>
+      <div *ngIf="selectedViewOptions === 'variation'">
+         <ion-card *ngFor="let item of variationObject?.itemInfo" class="mx-0 my-1">
+            <ion-card-header>
+               <ion-card-subtitle>{{item.locationCode}}</ion-card-subtitle>
+               <ion-card-title>{{item.locationDescription}}</ion-card-title>
+            </ion-card-header>
+            <ion-card-content style="flex-wrap: nowrap; overflow-x: scroll!important; overflow-y: hidden;">
+               <table id="qtyMatrix">
+                  <tr>
+                     <th class="p-1 font-half-size ion-text-left">Variety</th>
+                     <ng-container *ngIf="selectedVariationY !== 'all'">
+                        <th class="p-1 font-half-size ion-text-right">
+                           {{selectedVariationY}}
+                        </th>
+                     </ng-container>
+                     <ng-container *ngIf="selectedVariationY === 'all'">
+                        <th class="p-1 font-half-size" *ngFor="let header of item.itemVariationYDescription">
+                           {{header}}
+                        </th>
+                     </ng-container>
+                  </tr>
+                  <tr *ngFor="let row of item.variation.variationDetails">
+                     <td class="p-1 font-half-size">
+                        {{row.itemVariationXDescription}}
+                     </td>
+                     <td class="p-1 font-half-size ion-text-right" *ngFor="let rowColumn of row.variationDetails">
+                        <div [ngClass]="{'color-danger': (rowColumn.qty < 0), 'color-warning': (rowColumn.qty == 0), 
+                        'background-yellow': (selectedItem && ((selectedItem.variationTypeCode === '1' && row.itemVariationXId === selectedItem.itemVariationXId && rowColumn.itemVariationYId === null) || (selectedItem.variationTypeCode === '2' && row.itemVariationXId === selectedItem.itemVariationXId && rowColumn.itemVariationYId === selectedItem.itemVariationYId))) }"> {{rowColumn.qty | number: '1.0-0'}}</div>
+                     </td>
+                  </tr>
+               </table>
+            </ion-card-content>
+         </ion-card>
+      </div>
+   </div>
+</ion-content>
+<ion-modal [isOpen]="priceModal" (didDismiss)="priceModal = false">
+   <ng-template>
+      <ion-header>
+         <ion-toolbar>
+            <ion-title>Price</ion-title>
+            <ion-buttons slot="start">
+               <ion-button (click)="hidePriceDialog()">Done</ion-button>
+            </ion-buttons>
+         </ion-toolbar>
+      </ion-header>
+      <ion-content>
+         <div class="p-2">
+            <ion-list-header class="ion-list-header-small ion-flex ion-text-center" *ngIf="prices.length === 0">
+               <ion-label>Price Not Available.</ion-label>
+            </ion-list-header>
+            <ion-list class="list-custom animate__animated animate__fadeIn" lines="full">
+               <ion-item button detail="false" class="ion-no-padding no-ripple" *ngFor="let p of prices">
+                  <ion-grid class="ion-no-padding py-2 pl-2">
+                     <ion-row *ngIf="p.locationId">
+                        <ion-col class="ion-flex ion-margin-auto">
+                           <div class="font-bold">Location</div>
+                        </ion-col>
+                        <ion-col class="ion-flex ion-margin-auto justify-content-end">
+                           <div>{{p.locationId|idMapping:objectService.locationMasterList}}</div>
+                        </ion-col>
+                     </ion-row>
+                     <ion-row>
+                        <ion-col class="ion-flex ion-margin-auto">
+                           <div class="font-bold">Segment</div>
+                        </ion-col>
+                        <ion-col class="ion-flex ion-margin-auto justify-content-end">
+                           <div>{{p.itemPricing.priceSegmentCode}}</div>
+                        </ion-col>
+                     </ion-row>
+                     <ion-row>
+                        <ion-col class="ion-flex ion-margin-auto">
+                           <div class="font-bold">Unit Price</div>
+                        </ion-col>
+                        <ion-col class="ion-flex ion-margin-auto justify-content-end">
+                           <div>{{p.itemPricing.unitPrice|number:'1.2-2'}}</div>
+                        </ion-col>
+                     </ion-row>
+                     <ion-row>
+                        <ion-col class="ion-flex ion-margin-auto">
+                           <div class="font-bold">Discount Code</div>
+                        </ion-col>
+                        <ion-col class="ion-flex ion-margin-auto justify-content-end">
+                           <div>{{p.itemPricing.discountGroupCode}} [{{p.itemPricing.discountExpression}}]</div>
+                        </ion-col>
+                     </ion-row>
+                     <ion-row>
+                        <ion-col class="ion-flex ion-margin-auto">
+                           <div class="font-bold">Nett Price</div>
+                        </ion-col>
+                        <ion-col class="ion-flex ion-margin-auto justify-content-end">
+                           <div>
+                              {{p.itemPricing.unitPrice*(p.itemPricing.discountPercent?((100-p.itemPricing.discountPercent)/100) : 1)|number:"1.2-2"}}</div>
+                        </ion-col>
+                     </ion-row>
+                  </ion-grid>
+               </ion-item>
+            </ion-list>
+         </div>
+      </ion-content>
+   </ng-template>
+</ion-modal>

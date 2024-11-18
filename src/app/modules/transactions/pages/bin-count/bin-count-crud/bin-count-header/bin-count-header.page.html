@@ -1,0 +1,78 @@
+<ion-header>
+   <ion-toolbar>
+      <ion-title>Bin Count</ion-title>
+      <ion-buttons slot="start">
+         <ion-button (click)="cancelInsert()"><ion-icon slot="start" name="chevron-back-outline"></ion-icon></ion-button>
+      </ion-buttons>
+   </ion-toolbar>
+</ion-header>
+
+<ion-content [fullscreen]="true">
+   <div class="p-2">
+      <ion-list class="list-custom animate__animated animate__fadeIn" lines="full">
+         <!-- <ng-container *ngIf="objectService.objectHeader?.binCountId && objectService.objectHeader?.binCountId > 0">
+            <ion-item button detail="false" class="ion-no-padding no-ripple">
+               <ion-grid class="ion-no-padding py-2 pl-2">
+                  <ion-row>
+                     <ion-col class="ion-flex ion-margin-auto">
+                        <div class="font-bold">Doc. Num.</div>
+                     </ion-col>
+                     <ion-col class="ion-flex ion-margin-auto justify-content-end">
+                        <div>{{objectService.objectHeader?.binCountNum}}</div>
+                     </ion-col>
+                  </ion-row>
+                  <ion-row>
+                     <ion-col class="ion-flex ion-margin-auto">
+                        <div class="font-bold">Doc. Date</div>
+                     </ion-col>
+                     <ion-col class="ion-flex ion-margin-auto justify-content-end">
+                        <div>{{objectService.objectHeader?.trxDate|date:'dd/MM/yyyy'}}</div>
+                     </ion-col>
+                  </ion-row>
+                  <ion-row>
+                     <ion-col class="ion-flex ion-margin-auto">
+                        <div class="font-bold">Location</div>
+                     </ion-col>
+                     <ion-col class="ion-flex ion-margin-auto justify-content-end">
+                        <div>{{objectService.objectHeader?.locationId|idMapping:objectService.locationMasterList}}</div>
+                     </ion-col>
+                  </ion-row>
+                  <ion-row>
+                     <ion-col class="ion-flex ion-margin-auto">
+                        <div class="font-bold">Bin Count Batch</div>
+                     </ion-col>
+                     <ion-col class="ion-flex ion-margin-auto justify-content-end">
+                        <div>{{objectService.objectHeader?.binCountBatchNum}}</div>
+                     </ion-col>
+                  </ion-row>
+               </ion-grid>
+            </ion-item>
+         </ng-container> -->
+         <ng-container>
+            <ion-item id="open-calendar-modal" [disabled]="objectService.objectHeader?.binCountId && objectService.objectHeader?.binCountId > 0">
+               <ion-label position="stacked" class="font-bold">Transaction Date</ion-label>
+               <ion-text class="ion-no-padding-end pb-3">{{formattedDateString}}</ion-text>
+            </ion-item>
+            <ion-modal class="ion-modal-calendar" trigger="open-calendar-modal">
+               <ng-template>
+                  <ion-content>
+                     <ion-datetime #datetime [value]="dateValue" size="cover" (ionChange)="onTrxDateSelected(datetime.value)" [preferWheel]="true" showDefaultTitle="true" presentation="date" [max]="maxDate" [disabled]="objectService.objectHeader?.binCountId && objectService.objectHeader?.binCountId > 0">
+                        <ion-buttons slot="buttons">
+                           <ion-button (click)="dateDismiss()" color="danger">Dismiss</ion-button>
+                           <ion-button (click)="dateSelect()" color="primary">Select</ion-button>
+                        </ion-buttons>
+                     </ion-datetime>
+                  </ion-content>
+               </ng-template>
+            </ion-modal>
+         </ng-container>
+         <app-search-dropdown title="Location" optionLabel="description" [masterDropdownList]="objectService.locationMasterList" [selectedId]="objectForm?.controls?.locationId?.value" (onActionComplete)="onLocationSelected($event)" [disabled]="objectService.objectHeader?.binCountId && objectService.objectHeader?.binCountId > 0"></app-search-dropdown>
+         <app-search-dropdown #binCountBatchSdd title="Bin Count Batch" optionLabel="description" [searchDropdownList]="binCountBatchDdl" [selectedId]="objectForm?.controls?.binCountBatchId?.value" (onActionComplete)="onBinCountBatchChanged($event)" emptyMessage="This Location does not have Bin Count Batch" [disabled]="objectService.objectHeader?.binCountId && objectService.objectHeader?.binCountId > 0"></app-search-dropdown>
+      </ion-list>
+   </div>
+</ion-content>
+<ion-footer class="ion-padding-bottom-large animate__animated animate__fadeInUp p-0" style="background-color: white;">
+   <ion-button class="ion-margin" expand="block" size="default" (click)="nextStep()" [disabled]="!objectForm.valid">
+      Next
+   </ion-button>
+</ion-footer>

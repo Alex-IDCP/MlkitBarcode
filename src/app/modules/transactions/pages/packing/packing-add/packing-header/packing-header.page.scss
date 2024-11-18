@@ -1,0 +1,14 @@
+input {
+   width: 100%;
+   background-color: transparent;
+   border: none;
+}
+
+input[type=text]:focus {
+   border: none;
+   outline: none;
+}
+
+ion-select::part(icon) {
+   display: none !important;
+}

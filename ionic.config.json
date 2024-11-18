@@ -1,0 +1,7 @@
+{
+  "name": "iDCP Mobile",
+  "integrations": {
+    "capacitor": {}
+  },
+  "type": "angular"
+}

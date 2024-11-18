@@ -1,0 +1,55 @@
+<ion-header>
+   <ion-toolbar>
+      <ion-title>
+         <div class="ion-text-wrap">
+            Defect Request
+         </div>
+      </ion-title>
+      <ion-buttons slot="start">
+         <ion-back-button text="" defaultHref="/transactions"></ion-back-button>
+      </ion-buttons>
+      <ion-buttons slot="primary">
+         <ion-button (click)="filter()">
+            <ion-icon slot="icon-only" name="filter"></ion-icon>
+         </ion-button>
+      </ion-buttons>
+   </ion-toolbar>
+</ion-header>
+
+<ion-content [fullscreen]="true">
+   <div class="px-2 pb-2">
+      <ion-searchbar #searchbar class="p-0" showCancelButton="never" showClearButton="focus" animated="true" placeholder="Search" enterkeyhint="search" (ionFocus)="highlight(searchbar)" (keydown)="onKeyDown($event, searchbar.value)" (ionClear)="resetFilteredObj()"></ion-searchbar>
+      <ion-list-header class="ion-list-header ion-flex ion-text-center" *ngIf="objects && objects.length === 0">
+         <ion-label>Nothing found!</ion-label>
+      </ion-list-header>
+      <ng-container *ngIf="objects.length > 0">
+         <pagination-controls class="ion-flex justify-content-center pagination-top" (pageChange)="currentPage=$event" previousLabel="" nextLabel="" [autoHide]="true" [directionLinks]="true" [maxSize]="5"></pagination-controls>
+         <ion-list class="list-custom animate__animated animate__fadeIn" lines="full">
+            <ion-item button detail="false" class="ion-no-padding" *ngFor="let rowData of filteredObj|paginate:{itemsPerPage:itemsPerPage,currentPage:currentPage}" (click)="goToDetail(rowData.defectRequestId)">
+               <ion-grid class="ion-no-padding py-2 pl-2">
+                  <ion-row>
+                     <ion-col class="ion-flex ion-margin-auto font-bold">{{rowData.defectRequestNum}}</ion-col>
+                     <ion-col class="ion-flex ion-margin-auto justify-content-end">
+                        <div class="ion-text-right">{{rowData.trxDate|date:'dd/MM/yyyy'}}</div>
+                     </ion-col>
+                  </ion-row>
+                  <ion-row>
+                     <ion-col class="ion-flex ion-margin-auto">{{rowData.customerName}}</ion-col>
+                     <ion-col class="ion-flex ion-margin-auto justify-content-end">{{rowData.salesAgentName}}</ion-col>
+                  </ion-row>
+                  <ion-row>
+                     <ion-col class="ion-flex ion-margin-auto">{{rowData.locationCode}} - {{rowData.locationDesc}}</ion-col>
+                     <ion-col class="ion-flex ion-margin-auto justify-content-end" *ngIf="rowData.toLocationCode">{{rowData.toLocationCode}} - {{rowData.toLocationDesc}}</ion-col>
+                  </ion-row>
+               </ion-grid>
+            </ion-item>
+         </ion-list>
+         <pagination-controls class="ion-flex justify-content-center pagination-top" (pageChange)="currentPage=$event" previousLabel="" nextLabel="" [autoHide]="true" [directionLinks]="true" [maxSize]="5"></pagination-controls>
+      </ng-container>
+      <ion-fab class="ion-fab-custom" vertical="bottom" horizontal="center" slot="fixed" (click)="selectAction()">
+         <ion-fab-button>
+            <ion-icon name="add"></ion-icon>
+         </ion-fab-button>
+      </ion-fab>
+   </div>
+</ion-content>

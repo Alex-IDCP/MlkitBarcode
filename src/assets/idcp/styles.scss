@@ -1,0 +1,815 @@
+/* ngx datatable */
+@import '../../../node_modules/@swimlane/ngx-datatable/index.css';
+@import '../../../node_modules/@swimlane/ngx-datatable/themes/material.scss';
+@import '../../../node_modules/@swimlane/ngx-datatable/assets/icons.css';
+
+.ngx-datatable.bootstrap {
+   background-color: transparent;
+   box-shadow: 0 0 0 #000;
+}
+
+.ngx-datatable.scroll-vertical {
+height: 300px;
+}
+
+.no-detail-row .datatable-row-detail {
+   display: none !important;
+}
+
+.ngx-datatable.bootstrap.single-selection .datatable-body-row.active,
+.ngx-datatable.bootstrap.single-selection .datatable-body-row.active .datatable-row-group,
+.ngx-datatable.bootstrap.multi-selection .datatable-body-row.active,
+.ngx-datatable.bootstrap.multi-selection .datatable-body-row.active .datatable-row-group,
+.ngx-datatable.bootstrap.multi-click-selection .datatable-body-row.active,
+.ngx-datatable.bootstrap.multi-click-selection .datatable-body-row.active .datatable-row-group,
+.ngx-datatable.bootstrap.single-selection .datatable-body-row.active:hover,
+.ngx-datatable.bootstrap.single-selection .datatable-body-row.active:hover .datatable-row-group,
+.ngx-datatable.bootstrap.multi-selection .datatable-body-row.active:hover,
+.ngx-datatable.bootstrap.multi-selection .datatable-body-row.active:hover .datatable-row-group,
+.ngx-datatable.bootstrap.multi-click-selection .datatable-body-row.active:hover,
+.ngx-datatable.bootstrap.multi-click-selection .datatable-body-row.active:hover .datatable-row-group {
+   background-color: red !important;
+}
+
+.datatable-body-cell {
+   color: #106cc8;
+}
+
+.datatable-icon-right {
+   text-decoration: none !important;
+}
+
+.ngx-datatable.bootstrap .empty-row {
+   text-align: center;
+   margin-top: 20px;
+}
+
+.ngx-datatable.bootstrap .datatable-footer {
+   background-color: transparent;
+   color: red;
+}
+
+.ngx-datatable.bootstrap .datatable-footer .datatable-pager a {
+   color: blue;
+}
+
+.pager li>a,
+.pager li>span {
+   border-color: black;
+}
+
+.ngx-datatable.bootstrap .datatable-footer .datatable-pager ul li:not(.disabled).active a,
+.ngx-datatable.bootstrap .datatable-footer .datatable-pager ul li:not(.disabled):hover a {
+   background-color: blue;
+   border-color: blue;
+   color: #fff;
+}
+
+.ngx-datatable.bootstrap .datatable-body .datatable-body-row {
+   border: 0;
+}
+
+.ngx-datatable.bootstrap .datatable-body .datatable-body-row.datatable-row-even {
+   background-color: rgba(0, 0, 0, 0.025);
+}
+
+.ngx-datatable.bootstrap .datatable-body .progress-linear {
+   display: block;
+   position: relative;
+   width: 100%;
+   height: 5px;
+   padding: 0;
+   margin: 0;
+   position: absolute;
+}
+
+.ngx-datatable.bootstrap .datatable-body .progress-linear .container {
+   display: block;
+   position: relative;
+   overflow: hidden;
+   width: 100%;
+   height: 5px;
+   -webkit-transform: translate(0, 0) scale(1, 1);
+   transform: translate(0, 0) scale(1, 1);
+   background-color: #aad1f9;
+}
+
+.ngx-datatable.bootstrap .datatable-body .progress-linear .container .bar {
+   transition: all .2s linear;
+   -webkit-animation: query 0.8s infinite cubic-bezier(0.39, 0.575, 0.565, 1);
+   animation: query 0.8s infinite cubic-bezier(0.39, 0.575, 0.565, 1);
+   transition: -webkit-transform .2s linear;
+   transition: transform .2s linear;
+   background-color: #106cc8;
+   position: absolute;
+   left: 0;
+   top: 0;
+   bottom: 0;
+   width: auto;
+   height: 5px;
+}
+
+.wrapper .aside-container .aside-inner,
+.wrapper .aside-container {
+   width: 230px;
+}
+
+.badge-green {
+   background: rgba(101, 214, 173, 0.1);
+   color: #27AB83;
+   border: 1px solid #65D6AD;
+   border-radius: 3px;
+   font-size: smaller;
+}
+
+.badge-red {
+   background: rgba(243, 150, 150, 0.1);
+   color: #db0f0f;
+   border: 1px solid #f57777;
+   border-radius: 3px;
+   font-size: smaller;
+}
+
+.badge-other {
+   background: rgba(180, 219, 241, 0.1);
+   color: #3dbbec;
+   border: 1px solid #97ddf8;
+   border-radius: 3px;
+   font-size: smaller;
+}
+
+.badge-purple {
+   background: rgba(219, 30, 210, 0.1);
+   color: #b456d1;
+   border: 1px solid #df99f5;
+   border-radius: 3px;
+   font-size: smaller;
+}
+
+.badge-warning {
+   background: rgba(241, 187, 239, 0.1);
+   color: #f0ad4e;
+   border: 1px solid rgba(#FBC02D,.1);
+   border-radius: 3px;
+   font-size: smaller;
+}
+
+.ion-custom-badge {
+   background: var(--ion-color-primary);
+   color: var(--ion-color-primary-contrast);
+   border-radius: 4px;
+   font-size: 12px;
+   font-weight: 500;
+   padding: 3px 3px;
+   display: flex;
+   align-items: center;
+}
+
+.m-0 {
+   margin: 0 !important;
+}
+
+.m-1 {
+   margin: .25rem !important;
+}
+
+.m-2 {
+   margin: .5rem !important;
+}
+
+.m-3 {
+   margin: 1rem !important;
+}
+
+.m-4 {
+   margin: 1.5rem !important;
+}
+
+.m-5 {
+   margin: 3rem !important;
+}
+
+.mt-0 {
+   margin-top: 0 !important;
+}
+
+.mr-0 {
+   margin-right: 0 !important;
+}
+
+.mb-0 {
+   margin-bottom: 0 !important;
+}
+
+.ml-0 {
+   margin-left: 0 !important;
+}
+
+.mx-0 {
+   margin-left: 0 !important;
+   margin-right: 0 !important;
+}
+
+.my-0 {
+   margin-top: 0 !important;
+   margin-bottom: 0 !important;
+}
+
+.mt-1 {
+   margin-top: .25rem !important;
+}
+
+.mr-1 {
+   margin-right: .25rem !important;
+}
+
+.mb-1 {
+   margin-bottom: .25rem !important;
+}
+
+.ml-1 {
+   margin-left: .25rem !important;
+}
+
+.mx-1 {
+   margin-left: .25rem !important;
+   margin-right: .25rem !important;
+}
+
+.my-1 {
+   margin-top: .25rem !important;
+   margin-bottom: .25rem !important;
+}
+
+.mt-2 {
+   margin-top: .5rem !important;
+}
+
+.mr-2 {
+   margin-right: .5rem !important;
+}
+
+.mb-2 {
+   margin-bottom: .5rem !important;
+}
+
+.ml-2 {
+   margin-left: .5rem !important;
+}
+
+.mx-2 {
+   margin-right: .5rem !important;
+   margin-left: .5rem !important;
+}
+
+.my-2 {
+   margin-top: .5rem !important;
+   margin-bottom: .5rem !important;
+}
+
+.mt-3 {
+   margin-top: 1rem !important;
+}
+
+.mr-3 {
+   margin-right: 1rem !important;
+}
+
+.mb-3 {
+   margin-bottom: 1rem !important;
+}
+
+.ml-3 {
+   margin-left: 1rem !important;
+}
+
+.mx-3 {
+   margin-right: 1rem !important;
+   margin-left: 1rem !important;
+}
+
+.my-3 {
+   margin-bottom: 1rem !important;
+   margin-top: 1rem !important;
+}
+
+.mt-4 {
+   margin-top: 1.5rem !important;
+}
+
+.mr-4 {
+   margin-right: 1.5rem !important;
+}
+
+.mb-4 {
+   margin-bottom: 1.5rem !important;
+}
+
+.ml-4 {
+   margin-left: 1.5rem !important;
+}
+
+.mx-4 {
+   margin-right: 1.5rem !important;
+   margin-left: 1.5rem !important;
+}
+
+.my-4 {
+   margin-top: 1.5rem !important;
+   margin-bottom: 1.5rem !important;
+}
+
+.mt-5 {
+   margin-top: 3rem !important;
+}
+
+.mr-5 {
+   margin-right: 3rem !important;
+}
+
+.mb-5 {
+   margin-bottom: 3rem !important;
+}
+
+.ml-5 {
+   margin-left: 3rem !important;
+}
+
+.mx-5 {
+   margin-right: 3rem !important;
+   margin-left: 3rem !important;
+}
+
+.my-5 {
+   margin-top: 3rem !important;
+   margin-bottom: 3rem !important;
+}
+
+.mt-auto {
+   margin-top: auto !important;
+}
+
+.mr-auto {
+   margin-right: auto !important;
+}
+
+.mb-auto {
+   margin-bottom: auto !important;
+}
+
+.ml-auto {
+   margin-left: auto !important;
+}
+
+.mx-auto {
+   margin-right: auto !important;
+   margin-left: auto !important;
+}
+
+.my-auto {
+   margin-bottom: auto !important;
+   margin-top: auto !important;
+}
+
+.p-0 {
+   padding: 0 !important;
+}
+
+.p-1 {
+   padding: .25rem !important;
+}
+
+.p-2 {
+   padding: .5rem !important;
+}
+
+.p-3 {
+   padding: 1rem !important;
+}
+
+.p-4 {
+   padding: 1.5rem !important;
+}
+
+.p-5 {
+   padding: 3rem !important;
+}
+
+.pt-0 {
+   padding-top: 0 !important;
+}
+
+.pr-0 {
+   padding-right: 0 !important;
+}
+
+.pb-0 {
+   padding-bottom: 0 !important;
+}
+
+.pl-0 {
+   padding-left: 0 !important;
+}
+
+.px-0 {
+   padding-left: 0 !important;
+   padding-right: 0 !important;
+}
+
+.py-0 {
+   padding-top: 0 !important;
+   padding-bottom: 0 !important;
+}
+
+.pt-1 {
+   padding-top: .25rem !important;
+}
+
+.pr-1 {
+   padding-right: .25rem !important;
+}
+
+.pb-1 {
+   padding-bottom: .25rem !important;
+}
+
+.pl-1 {
+   padding-left: .25rem !important;
+}
+
+.px-1 {
+   padding-left: .25rem !important;
+   padding-right: .25rem !important;
+}
+
+.py-1 {
+   padding-top: .25rem !important;
+   padding-bottom: .25rem !important;
+}
+
+.pt-2 {
+   padding-top: .5rem !important;
+}
+
+.pr-2 {
+   padding-right: .5rem !important;
+}
+
+.pb-2 {
+   padding-bottom: .5rem !important;
+}
+
+.pl-2 {
+   padding-left: .5rem !important;
+}
+
+.px-2 {
+   padding-right: .5rem !important;
+   padding-left: .5rem !important;
+}
+
+.py-2 {
+   padding-top: .5rem !important;
+   padding-bottom: .5rem !important;
+}
+
+.pt-3 {
+   padding-top: 1rem !important;
+}
+
+.pr-3 {
+   padding-right: 1rem !important;
+}
+
+.pb-3 {
+   padding-bottom: 1rem !important;
+}
+
+.pl-3 {
+   padding-left: 1rem !important;
+}
+
+.py-3 {
+   padding-bottom: 1rem !important;
+   padding-top: 1rem !important;
+}
+
+.px-3 {
+   padding-right: 1rem !important;
+   padding-left: 1rem !important;
+}
+
+.pt-4 {
+   padding-top: 1.5rem !important;
+}
+
+.pr-4 {
+   padding-right: 1.5rem !important;
+}
+
+.pb-4 {
+   padding-bottom: 1.5rem !important;
+}
+
+.pl-4 {
+   padding-left: 1.5rem !important;
+}
+
+.px-4 {
+   padding-right: 1.5rem !important;
+   padding-left: 1.5rem !important;
+}
+
+.py-4 {
+   padding-top: 1.5rem !important;
+   padding-bottom: 1.5rem !important;
+}
+
+.pt-5 {
+   padding-top: 3rem !important;
+}
+
+.pr-5 {
+   padding-right: 3rem !important;
+}
+
+.pb-5 {
+   padding-bottom: 3rem !important;
+}
+
+.pl-5 {
+   padding-left: 3rem !important;
+}
+
+.px-5 {
+   padding-right: 3rem !important;
+   padding-left: 3rem !important;
+}
+
+.py-5 {
+   padding-top: 3rem !important;
+   padding-bottom: 3rem !important;
+}
+
+.item-inner {
+   padding: 0 !important;
+}
+
+.no-ripple {
+   --ripple-color: transparent;
+   --background-activated: transparent;
+   --background-activated-opacity: transparent;
+   --background-focused: transparent;
+   --background-focused-opacity: transparent;
+   --background-hover: transparent;
+   --background-hover-opacity: transparent;
+}
+
+.ion-button-custom {
+   margin: auto !important;
+}
+
+.ion-margin-auto {
+   margin: auto !important;
+}
+
+input {
+   margin: auto !important;
+   padding-right: 0 !important;
+}
+
+.color-primary {
+   color: var(--primary-dark-color);
+}
+
+.color-success {
+   color: #5cb85c;
+}
+
+.color-danger {
+   color: #d9534f;
+}
+
+.color-warning {
+   color: #f0ad4e;
+}
+
+.background-yellow {
+   background: yellow;
+}
+
+.color-blue {
+   color: #5297FF;
+}
+
+.color-other {
+   color: #b456d1;
+}
+
+.color-white {
+   color: #f7f7f7;
+}
+
+.color-medium {
+   color: var(--ion-color-medium);
+}
+
+.font-half-size {
+   font-size: 0.75rem;
+}
+
+.font-bold {
+   font-weight: bold;
+}
+
+.font-underline {
+   text-decoration: underline;
+}
+
+.font-italic {
+   font-style: italic;
+}
+
+.font-uppercase {
+   text-transform: uppercase;
+}
+
+.text-align-center {
+   text-align: center;
+}
+
+.text-align-end {
+   text-align: end;
+   text-align: right;
+}
+
+.justify-content-center {
+   justify-content: center;
+}
+
+.justify-content-end {
+   text-align: end;
+   text-align: right;
+   justify-content: end;
+}
+
+.justify-content-between {
+   justify-content: space-between;
+}
+
+.main-card {
+   // background: var(--ion-color-primary);
+   border-radius: 8px;
+   display: flex;
+   flex-wrap: wrap;
+   // margin: 12px;
+   overflow: hidden;
+
+   ion-col {
+      display: flex;
+      // justify-content: center;
+      // padding: 4px;
+   }
+
+   ion-card {
+      // background: #55bdef;
+      // margin-bottom: 12px;
+      // margin-top: 12px;
+      width: 100%;
+   }
+
+   // ion-card-content {
+   //    color: #fff;
+   //    position: absolute;
+   //    bottom: 0;
+   // }
+}
+
+ion-card-header {
+   padding: .5rem !important
+}
+
+ion-card-title {
+   font-size: medium;
+}
+
+ion-card-subtitle {
+   font-size: x-small;
+   font-weight: normal;
+}
+
+ion-card-content {
+   padding-top: 0;
+   padding-left: .5rem !important;
+   padding-right: .5rem !important;
+   padding-bottom: .5rem !important;
+}
+
+ion-item {
+   font-size: smaller;
+}
+
+.font-smaller {
+   font-size: smaller;
+}
+
+.font-x-smaller {
+   font-size: x-small !important;
+}
+
+.font-xx-smaller {
+   font-size: xx-small !important;
+}
+
+.font-x-large {
+   font-size: x-large;
+}
+
+.label-title {
+   font-size: x-large;
+   padding-left: 1rem !important;
+   font-weight: 700;
+}
+
+.customToast {
+   opacity: 0.75;
+}
+
+.div-link-button {
+   color: var(--ion-color-primary);
+}
+
+.overlapBadgeTopRight {
+   position: absolute;
+   right: 0;
+}
+
+.overlapBadgeTopLeft {
+   position: absolute;
+   left: 0;
+}
+
+.w-full {
+   width: 100%
+}
+
+ion-modal.ion-modal-calendar {
+   --background: transparent; //rgba(44, 39, 25, 0.2);
+   --padding-top: 25vh;
+   --padding-start: 20px;
+   --padding-end: 20px;
+
+   // &::part(content) {
+   //    backdrop-filter: blur(6px);
+   // }
+
+   ion-content {
+      --background: transparent;
+      --padding-top: 25vh;
+      --padding-start: 20px;
+      --padding-end: 20px;
+
+      ion-datetime {
+         border-radius: 8px;
+      }
+   }
+}
+
+ion-modal.ion-custom-modal {
+   --height: 50vh;
+   padding: 0 10px;
+   display: flex;
+   &::part(content) {
+      border-radius: 12px;
+   }
+}
+
+.scan-box {
+   position: fixed;
+   top: 50%;
+   left: 50%;
+   width: 200px;
+   height: 200px;
+   transform: translate(-50%, -50%);
+   border: 4px solid rgba(0, 255, 0, 0.7);
+   border-radius: 8px;
+   background: rgba(0, 0, 0, 0.2);
+   z-index: 10;
+}
+
+.scanner-buttons {
+   margin: 0px;
+   position: absolute;
+   bottom: 100px;
+   width: 100vw;
+   height: 50px;
+   z-index: 11;
+}
+
+:host ::ng-deep .icon-smaller {
+   font-size: 12px !important;
+}
+
+pagination-controls ul {
+   padding-left: 0 !important;
+}

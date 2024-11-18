@@ -1,0 +1,99 @@
+<div class="px-2 pb-2">
+   <ion-searchbar #searchbar class="p-0" showCancelButton="never" showClearButton="focus" animated="true" placeholder="Search" enterkeyhint="search" [(ngModel)]="searchText" (ionFocus)="highlight(searchbar)"></ion-searchbar>
+   <ion-accordion-group>
+      <ng-container *ngFor="let rowData of companyArray">
+         <ion-accordion [value]="rowData.otherCompaniesId" [disabled]="!rowData.token">
+            <ion-item slot="header" color="light">
+               <ng-container *ngIf="rowData.token">
+                  <ion-icon class="ion-flex mr-2 my-auto color-success" name="ellipse"></ion-icon>
+               </ng-container>
+               <ng-container *ngIf="!rowData.token">
+                  <ion-icon class="ion-flex mr-2 my-auto color-danger" name="ellipse"></ion-icon>
+               </ng-container>
+               <ion-label>{{rowData.otherCompaniesId|idMapping:otherCompaniesMasterList}}</ion-label>
+               <ng-container *ngIf="rowData.isGetCountSuccess && rowData.trxList.length>0">
+                  <ion-badge slot="end" [style]="{ 'background-color': '#f0ad4e', 'color': '#ffffff', 'font-weight': 'bold' }">{{getTrxListCount(rowData.trxList)}}</ion-badge>
+               </ng-container>
+               <ng-container *ngIf="!rowData.isGetCountSuccess">
+                  <ion-icon class="ion-flex mr-2 my-auto color-danger" name="alert-circle-outline"></ion-icon>
+               </ng-container>
+            </ion-item>
+            <div class="p-2" slot="content">
+               <ion-list class="list-custom animate__animated animate__fadeIn" lines="full">
+                  <ion-item-sliding #slidingItem *ngFor="let rowData2 of getTrxList(rowData.trxList)">
+                     <ion-item [button]="false" [detail]="false" class="ion-no-padding">
+                        <ion-grid class="ion-no-padding py-2 pl-2">
+                           <ion-row>
+                              <ion-col size="4" class="ion-flex ion-margin-auto font-bold">
+                                 <span class="badge-green ion-text-wrap ion-flex my-auto" style="font-size: small; padding: 0 0.2rem;">{{rowData2.trxDate|date:"dd/MM/yy"}}</span>
+                              </ion-col>
+                              <ion-col class="ion-flex ion-margin-auto justify-content-end font-bold">
+                                 <div *ngIf="limitCol">{{rowData2.docNum}}</div>
+                              </ion-col>
+                           </ion-row>
+                           <ion-row *ngIf="rowData2.currency || rowData2.amount">
+                              <ion-col class="ion-flex ion-margin-auto">
+                                 <div *ngIf="!limitCol" class="mr-2">{{rowData2.currency}}</div>
+                              </ion-col>
+                              <ion-col class="ion-flex ion-margin-auto justify-content-end">
+                                 <div *ngIf="limitCol">
+                                    <ng-container *ngIf="displayAmountCountLength(rowData2.amountString) > 0 && specialTransaction; else normal">
+                                        <div *ngFor="let row of mapAmountStringToArr(rowData2.amountString)" class="ion-flex ion-margin-auto justify-content-end">
+                                            <div class="ion-flex ion-text-right my-1">
+                                               <ion-badge>
+                                                  <div class="ion-text-right">{{row.currency}} {{row.amount | number:"1.2-2"}}</div>                                                  
+                                               </ion-badge>
+                                             </div>
+                                        </div>
+                                    </ng-container>
+                                    <ng-template #normal>
+                                       {{rowData2.amount|number:"1.2-2"}}
+                                    </ng-template>
+                                 </div>
+                              </ion-col>
+                           </ion-row>
+                           <ion-row *ngIf="!limitCol">
+                              <ion-col class="ion-flex ion-margin-auto font-bold">
+                                 <div>{{rowData2.docNum}}</div>
+                              </ion-col>
+                              <ion-col class="ion-flex ion-margin-auto justify-content-end font-bold">
+                                 <div>Quantity: {{rowData2.quantity|number:"1.0-0"}}</div>
+                              </ion-col>
+                           </ion-row>
+                           <ion-row *ngIf="!limitCol">
+                              <ion-col class="ion-flex ion-margin-auto">
+                                 <span class="badge-warning ion-text-wrap ion-flex my-auto mr-2" style="font-size: smaller; padding: 0 0.2rem;" *ngIf="rowData2.counterPartCode">{{rowData2.counterPartCode}}</span>
+                                 <div>{{rowData2.counterPart}}</div>
+                              </ion-col>
+                           </ion-row>
+                           <ion-row *ngIf="rowData2.typeDetail">
+                              <ion-col class="ion-flex ion-margin-auto">
+                                 <span class="ion-text-wrap badge-warning px-1" *ngIf="rowData2.typeDetail"><ion-icon name="alert-circle-outline"></ion-icon> {{rowData2.typeDetail}}</span>
+                              </ion-col>
+                           </ion-row>
+                        </ion-grid>
+                     </ion-item>
+                     <ion-item-options side="start">
+                        <!-- <ion-item-option color="warning" (click)="slidingItem.close(); previewPdf(rowData, rowData2)">
+                           <ion-icon name="eye-outline" slot="bottom"></ion-icon>Preview
+                        </ion-item-option> -->
+                        <ion-item-option (click)="slidingItem.close(); presentAlertViewPdf(rowData, rowData2)">
+                           <ion-icon name="document-attach-outline" slot="bottom"></ion-icon>Download
+                        </ion-item-option>
+                     </ion-item-options>
+                     <ion-item-options side="end">
+                        <ion-item-option color="danger" (click)="slidingItem.close(); presentConfirmAlert('REJECT', rowData, rowData2)">
+                           <ion-icon name="close-circle-outline" slot="bottom"></ion-icon>Reject
+                        </ion-item-option>
+                        <ion-item-option color="success" (click)="slidingItem.close(); presentConfirmAlert('CONFIRM', rowData, rowData2)">
+                           <ion-icon name="checkmark-circle-outline" slot="bottom"></ion-icon>Confirm
+                        </ion-item-option>
+                     </ion-item-options>
+                  </ion-item-sliding>
+               </ion-list>
+            </div>
+         </ion-accordion>
+      </ng-container>
+   </ion-accordion-group>
+
+</div>

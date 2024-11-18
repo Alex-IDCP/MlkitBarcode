@@ -1,0 +1,41 @@
+<ion-item class="ion-no-padding">
+  <ion-grid class="ion-no-padding p-2">
+    <ion-row>
+      <ion-col size="9" class="ion-flex ion-margin-auto">
+        <ion-grid class="ion-no-padding p-0">
+          <ion-row>
+            <ion-col class="ion-flex ion-margin-auto">
+              <div class="font-bold">{{line.itemCode}}</div>
+              <span class="badge-green ion-text-wrap ion-flex my-auto px-1 mx-1" *ngIf="itemVariationXMasterList.length > 0 && line.itemVariationLineXId"> {{line.itemVariationLineXId|idMapping:itemVariationXMasterList}}</span>
+              <span class="badge-green ion-text-wrap ion-flex my-auto px-1 mx-1" *ngIf="itemVariationXMasterList.length > 0 && line.itemVariationXId"> {{line.itemVariationXId|idMapping:itemVariationXMasterList}}</span>
+              <span class="badge-purple ion-text-wrap ion-flex my-auto px-1" *ngIf="itemVariationYMasterList.length > 0 && line.itemVariationLineYId"> {{line.itemVariationLineYId|idMapping:itemVariationYMasterList}}</span>
+              <span class="badge-purple ion-text-wrap ion-flex my-auto px-1" *ngIf="itemVariationYMasterList.length > 0 && line.itemVariationYId"> {{line.itemVariationYId|idMapping:itemVariationYMasterList}}</span>
+            </ion-col>
+            <ion-col class="ion-flex justify-content-end" *ngIf="isPicking" size="1">
+              <ion-icon *ngIf="line.qtyRequest === (line.qtyPicked+ line.qtyPickedCurrent)" color="success" name="checkmark-circle"></ion-icon>
+            </ion-col>
+            <ion-col class="ion-flex justify-content-end" *ngIf="isPacking" size="1">
+              <ion-icon *ngIf="line.qtyRequest === (line.qtyPacked + line.qtyPackedCurrent)" color="success" name="checkmark-circle"></ion-icon>
+            </ion-col>
+          </ion-row>
+          <ion-row *ngIf="line.rack || line.subRack">
+            <ion-col class="ion-flex ion-margin-auto">
+              <div class="font-smaller">Location: {{line.rack}} - {{line.subRack}}</div>
+            </ion-col>
+          </ion-row>
+          <ion-row>
+            <ion-col class="ion-margin-auto ion-flex">
+              <div class="font-smaller" *ngIf="isPicking||isPacking">SO Qty: {{line.qtyRequest|number:'1.0'}}</div>
+              <div class="font-smaller ml-1" *ngIf="isPicking">Picked Qty: {{(line.qtyPicked + line.qtyPickedCurrent)|number:'1.0'}}</div>
+              <div class="font-smaller ml-1" *ngIf="isPacking">Picked Qty: {{line.qtyPicked|number:'1.0'}}</div>
+              <div class="font-smaller ml-1" *ngIf="isPacking">Packed Qty: {{(line.qtyPacked + line.qtyPackedCurrent)|number:'1.0'}}</div>
+            </ion-col>
+          </ion-row>
+        </ion-grid>
+      </ion-col>
+      <ion-col size="3" class="ion-margin-auto ion-flex">
+        <ion-input #inputNum class="ion-text-center" type="number" [min]="0" placeholder="0" [(ngModel)]="line[qtyField]" (ionFocus)="backupQty(line,inputNum)" (ionBlur)="updateQty()" (keypress)="eventHandler($event.keyCode)"></ion-input>
+      </ion-col>
+    </ion-row>    
+  </ion-grid>
+</ion-item>

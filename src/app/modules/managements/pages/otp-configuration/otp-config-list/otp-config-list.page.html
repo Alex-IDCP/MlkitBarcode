@@ -1,0 +1,56 @@
+<ion-header>
+  <ion-toolbar>
+    <ion-title>OTP History</ion-title>
+    <ion-buttons slot="start">
+      <ion-back-button text="Back" defaultHref="others"></ion-back-button>
+    </ion-buttons>
+  </ion-toolbar>
+</ion-header>
+
+<ion-content fullscreen>
+  <ion-header collapse="condense">
+    <ion-toolbar>
+      <ion-label class="label-title">OTP History List</ion-label>
+    </ion-toolbar>
+  </ion-header>
+  <div class="ion-padding">
+    <ion-list class="list-custom animate__animated animate__fadeIn" lines="full">
+      <ion-item>
+        <ion-label>Status</ion-label>
+        <ion-select interface="action-sheet" placeholder="Status" slot="end" [(ngModel)]="selectedStatus">
+          <ion-select-option *ngFor="let object of status" [value]="object.code">{{object.description}}</ion-select-option>
+        </ion-select>
+      </ion-item>
+      <ion-item>
+        <ion-label>Validity</ion-label>
+        <ion-select interface="action-sheet" placeholder="Validity" slot="end" [(ngModel)]="selectedValidity">
+          <ion-select-option *ngFor="let object of lovStatics" [value]="object.code">{{object.description}}</ion-select-option>
+        </ion-select>
+      </ion-item>
+    </ion-list>
+    <ion-grid class="py-2 px-0">
+      <ion-row>
+        <ion-col>
+          <ion-button expand="block" size="small" (click)="reset()">Reset</ion-button>
+        </ion-col>
+        <ion-col>
+          <ion-button expand="block" size="small" (click)="loadOtps()">Filter</ion-button>
+        </ion-col>
+      </ion-row>
+    </ion-grid>
+    <ion-list class="list-custom animate__animated animate__fadeIn" lines="full">
+      <ion-item *ngFor="let otp of otps">
+        <ion-label>
+          <ion-header>
+            <ion-text style="font-size:medium">{{otp.otpCode}}</ion-text>
+              <ion-text *ngIf="otp.status==='Active'" color="success" class="flex ion-float-right">{{otp.status}}</ion-text>
+              <ion-text *ngIf="otp.status==='Expired'" color="danger" class="flex ion-float-right">{{otp.status}}</ion-text>
+          </ion-header>
+          <p class="flex ion-float-right">{{otp.expiredAt | date:'dd/MM/yyyy hh:mm a'}}</p>
+          <p>{{mapUserIdToName(otp.userId)}}</p>
+          <p>{{otp.validity}}</p>
+        </ion-label>
+      </ion-item>
+    </ion-list>
+  </div>
+</ion-content>

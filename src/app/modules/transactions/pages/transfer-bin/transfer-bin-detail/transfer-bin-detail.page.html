@@ -1,0 +1,128 @@
+<ion-header>
+   <ion-toolbar>
+      <ion-title>
+         <div class="ion-text-wrap">
+            {{objectService.objectHeader?.transferBinNum}}
+         </div>
+      </ion-title>
+      <ion-buttons slot="start">
+         <ion-button (click)="previousStep()"><ion-icon slot="start" name="chevron-back-outline"></ion-icon></ion-button>
+      </ion-buttons>
+      <ion-buttons slot="primary">
+         <ion-button (click)="showPopover($event)">
+            <ion-icon slot="icon-only" name="menu-outline"></ion-icon>
+         </ion-button>
+      </ion-buttons>
+   </ion-toolbar>
+</ion-header>
+
+<ion-popover #popover [isOpen]="isPopoverOpen" (didDismiss)="isPopoverOpen = false">
+   <ng-template>
+      <ion-content class="p-2">
+         <ion-list class="list-custom animate__animated animate__fadeIn" lines="full">
+            <ion-item (click)="popover.dismiss(); edit()">
+               <ion-icon name="create-outline" slot="end"></ion-icon>
+               <ion-label>
+                  <div>Edit</div>
+               </ion-label>
+            </ion-item>
+         </ion-list>
+      </ion-content>
+   </ng-template>
+</ion-popover>
+   
+<ion-content [fullscreen]="true">
+   <div class="p-2" *ngIf="objectService.objectHeader">
+
+      <ion-list class="list-custom animate__animated animate__fadeIn" lines="full">
+         <ion-item button detail="false" class="ion-no-padding no-ripple">
+            <ion-grid class="ion-no-padding py-2 pl-2">
+               <ion-row>
+                  <ion-col class="ion-flex ion-margin-auto justify-content-between">
+                     <div class="font-bold">Doc. Num.</div>
+                     <div>{{objectService.objectHeader?.transferBinNum}}</div>
+                  </ion-col>
+               </ion-row>
+               <ion-row>
+                  <ion-col class="ion-flex ion-margin-auto justify-content-between">
+                     <div class="font-bold">Doc. Date</div>
+                     <div>{{objectService.objectHeader.trxDate|date:"dd/MM/yyyy"}}</div>
+                  </ion-col>
+               </ion-row>
+               <ion-row>
+                  <ion-col class="ion-flex ion-margin-auto justify-content-between">
+                     <div class="font-bold">Location</div>
+                     <div>{{objectService.objectHeader.locationId|idMapping:objectService.locationMasterList}}</div>
+                  </ion-col>
+               </ion-row>
+               <ion-row>
+                  <ion-col class="ion-flex ion-margin-auto justify-content-between">
+                     <div class="font-bold">Warehouse Agent</div>
+                     <div>{{objectService.objectHeader.warehouseAgentId|idMapping:objectService.warehouseAgentMasterList}}</div>
+                  </ion-col>
+               </ion-row>
+               <ion-row>
+                  <ion-col class="ion-flex ion-margin-auto justify-content-between">
+                     <div class="font-bold">Created By</div>
+                     <div>{{objectService.objectHeader.createdBy}} {{objectService.objectHeader.createdAt|date:"dd/MM/yy hh:mm a"}}</div>
+                  </ion-col>
+               </ion-row>
+            </ion-grid>
+         </ion-item>
+      </ion-list>
+      <ion-list-header class="ion-list-header-small ion-flex ion-text-center">
+         <ion-label>Details</ion-label>
+      </ion-list-header>
+      <ion-list class="list-custom animate__animated animate__fadeIn" lines="full">
+         <ion-item button detail="false" class="ion-no-padding no-ripple">
+            <ion-grid class="ion-no-padding py-2 pl-2">
+               <ion-row>
+                  <ion-col size="1" class="ion-flex ion-margin-auto">
+                     <div class="font-bold">#</div>
+                  </ion-col>
+                  <ion-col class="ion-flex ion-margin-auto">
+                     <div class="font-bold">From Bin</div>
+                  </ion-col>
+                  <ion-col class="ion-flex ion-margin-auto">
+                     <div class="font-bold">Pallet</div>
+                  </ion-col>
+                  <ion-col class="ion-flex ion-margin-auto">
+                     <div class="font-bold">To Bin</div>
+                  </ion-col>
+               </ion-row>
+            </ion-grid>
+         </ion-item>
+      </ion-list>
+
+      <ion-list class="list-custom animate__animated animate__fadeIn" lines="full" *ngFor="let rowData of objectService.objectDetail; let rowIndex = index;">
+         <ion-item button detail="false" class="ion-no-padding no-ripple">
+            <ion-grid class="ion-no-padding py-2 pl-2">
+               <ion-row class="mb-1">
+                  <ion-col size="1" class="ion-flex ion-margin-auto">
+                     <div>{{rowIndex+1}}</div>
+                  </ion-col>
+                  <ion-col class="ion-flex ion-margin-auto">
+                     <div>{{rowData.fromBinCode}}</div>
+                  </ion-col>
+                  <ion-col class="ion-flex ion-margin-auto">
+                     <div>{{rowData.fromPalletCode}}</div>
+                  </ion-col>
+                  <ion-col class="ion-flex ion-margin-auto">
+                     <div>{{rowData.toBinCode}}</div>
+                  </ion-col>
+               </ion-row>
+               <ion-row *ngFor="let rowData2 of rowData.groupList; let rowIndex2 = index">
+                  <ion-col size="1" class="ion-flex ion-margin-auto">
+
+                  </ion-col>
+                  <ion-col class="ion-flex ion-margin-auto justify-content-between">
+                     <div>{{rowData2.itemCode}}</div>
+                     <div>{{rowData2.qtyRequest|number:"1.0"}}</div>
+                  </ion-col>
+               </ion-row>
+            </ion-grid>
+         </ion-item>
+      </ion-list>
+
+   </div>
+</ion-content>

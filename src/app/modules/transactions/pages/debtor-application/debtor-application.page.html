@@ -1,0 +1,57 @@
+<ion-header>
+   <ion-toolbar>
+      <ion-title>Debtor App.</ion-title>
+      <ion-buttons slot="start">
+         <ion-back-button text="" defaultHref="/transactions"></ion-back-button>
+      </ion-buttons>
+   </ion-toolbar>
+</ion-header>
+<ion-content [fullscreen]="true">
+   <div class="px-2 pb-2">
+      <ion-list-header class="ion-list-header ion-flex ion-text-center" *ngIf="objects && objects.length === 0">
+         <ion-label>Nothing found!</ion-label>
+      </ion-list-header>
+      <ng-container *ngIf="objects?.length > 0">
+         <div *ngFor="let m of uniqueGrouping">
+            <ion-list-header class="ion-list-header-small ion-flex ion-text-center">
+               <ion-label>{{m|date:'dd MMM yyyy'}}</ion-label>
+            </ion-list-header>
+            <ion-list class="list-custom animate__animated animate__fadeIn" lines="full">
+               <ion-item button detail="false" class="ion-no-padding no-ripple" *ngFor="let rowData of getObjects(m)" (click)="goToDetail(rowData.customerPreId)">
+                  <ion-grid class="ion-no-padding p-2">
+                     <ion-row>
+                        <ion-col class="ion-flex ion-margin-auto" *ngIf="rowData.pendingStatus">
+                           <span class="badge-purple ion-text-wrap ion-flex my-auto"> Pending {{rowData.pendingStatus}}</span>
+                        </ion-col>
+                        <ion-col class="ion-flex ion-margin-auto" *ngIf="rowData.pendingStatus === null">
+                           <span class="badge-green ion-text-wrap ion-flex my-auto"> Completed</span>
+                        </ion-col>
+                     </ion-row>
+                     <ion-row>
+                        <ion-col size="auto" class="ion-flex ion-margin-auto">
+                           <ion-icon class="ion-flex my-auto" name="ellipse" [class]="rowData.deactivated?'color-danger':'color-success'"></ion-icon>
+                           <div class="ml-1 font-bold">{{rowData.name}}</div>
+                        </ion-col>
+                        <ion-col class="ion-flex ion-margin-auto justify-content-end">
+                           <div>{{rowData.salesAgentName}}</div>
+                        </ion-col>
+                     </ion-row>
+                     <ion-row>
+                        <ion-col class="ion-flex ion-margin-auto">{{rowData.companyRegNum}}</ion-col>
+                        <ion-col class="ion-flex ion-margin-auto justify-content-end">
+                           <div>{{rowData.priceSegmentCode}}</div>
+                        </ion-col>
+                     </ion-row>
+                  </ion-grid>
+               </ion-item>
+            </ion-list>
+         </div>
+      </ng-container>
+   </div>
+
+   <ion-fab class="ion-fab-custom" vertical="bottom" horizontal="center" slot="fixed" (click)="selectAction()">
+      <ion-fab-button>
+         <ion-icon name="add"></ion-icon>
+      </ion-fab-button>
+   </ion-fab>
+</ion-content>

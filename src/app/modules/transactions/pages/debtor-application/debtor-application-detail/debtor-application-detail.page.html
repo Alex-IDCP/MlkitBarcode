@@ -1,0 +1,226 @@
+<ion-header>
+  <ion-toolbar>
+    <ion-title>Detail</ion-title>
+    <ion-buttons slot="start">
+      <ion-back-button text="" defaultHref="/transactions/debtor-application"></ion-back-button>
+    </ion-buttons>
+    <ion-buttons slot="end">
+      <ion-button (click)="showPopover($event)"><ion-icon name="menu-outline" slot="icon-only"></ion-icon></ion-button>
+    </ion-buttons>
+  </ion-toolbar>
+</ion-header>
+<ion-popover #popover [isOpen]="isPopoverOpen" (didDismiss)="isPopoverOpen = false">
+  <ng-template>
+    <ion-content class="p-2">
+      <ion-list class="list-custom animate__animated animate__fadeIn" lines="full">
+        <ion-item (click)="popover.dismiss(); showStatus()">
+          <ion-icon name="time-outline" slot="end"></ion-icon>
+          <ion-label>
+            <div>Current Status</div>
+          </ion-label>
+        </ion-item>
+        <ion-item *ngIf="editable" (click)="popover.dismiss(); editObject()">
+          <ion-icon name="create-outline" slot="end"></ion-icon>
+          <ion-label>
+            <div>Edit</div>
+          </ion-label>
+        </ion-item>
+        <ion-item (click)="popover.dismiss(); toggleObject();">
+           <ion-icon [name]="object?.header?.deactivated?'checkmark-circle-outline':'close-circle-outline'" slot="end"></ion-icon>
+           <ion-label>
+              <div>{{object?.header?.deactivated?'Enable':'Disable'}}</div>
+           </ion-label>
+        </ion-item>
+        <ion-item (click)="popover.dismiss(); presentAlertViewPdf('Debtor Application')">
+          <ion-icon name="download-outline" slot="end"></ion-icon>
+          <ion-label>
+            <div>Debtor App.</div>
+          </ion-label>
+        </ion-item>
+      </ion-list>
+    </ion-content>
+  </ng-template>
+</ion-popover>
+<ion-content fullscreen>
+  <div class="p-2" *ngIf="object">    
+    <ion-list class="list-custom animate__animated animate__fadeIn" lines="full">
+      <ion-item button detail="false" class="ion-no-padding no-ripple">
+        <ion-grid class="ion-no-padding py-2 pl-2">
+          <ion-row>
+            <ion-col class="ion-flex ion-margin-auto">
+              <div class="font-bold">Name</div>
+            </ion-col>
+            <ion-col class="ion-flex ion-margin-auto justify-content-end">
+               <ion-icon class="ion-flex my-auto mr-1" name="ellipse" [class]="object.header.deactivated?'color-danger':'color-success'"></ion-icon>
+              <div>{{object.header.name}}</div>
+            </ion-col>
+          </ion-row>
+          <ion-row *ngIf="object?.header?.companyRegNum">
+            <ion-col class="ion-flex ion-margin-auto">
+              <div class="font-bold">Company Reg. Num.</div>
+            </ion-col>
+            <ion-col class="ion-flex ion-margin-auto justify-content-end">
+              <div>{{object?.header?.companyRegNum}}</div>
+            </ion-col>
+          </ion-row>
+          <ion-row *ngIf="object?.header?.countryId">
+            <ion-col class="ion-flex ion-margin-auto">
+              <div class="font-bold">Country</div>
+            </ion-col>
+            <ion-col class="ion-flex ion-margin-auto justify-content-end">
+              <div>{{object?.header?.countryId|idMapping:objectService.countryMasterList}}</div>
+            </ion-col>
+          </ion-row>
+          <ion-row *ngIf="object?.header?.creditLimit">
+            <ion-col class="ion-flex ion-margin-auto">
+              <div class="font-bold">Credit Limit</div>
+            </ion-col>
+            <ion-col class="ion-flex ion-margin-auto justify-content-end">
+              <div>{{object?.header?.creditLimit|number:'1.2'}}</div>
+            </ion-col>
+          </ion-row>
+          <ion-row *ngIf="object?.header?.termPeriodId">
+            <ion-col class="ion-flex ion-margin-auto">
+              <div class="font-bold">Term Period</div>
+            </ion-col>
+            <ion-col class="ion-flex ion-margin-auto justify-content-end">
+              <div>{{object?.header?.termPeriodId|idMapping:objectService.termPeriodMasterList}}</div>
+            </ion-col>
+          </ion-row>
+          <ion-row *ngIf="object?.header?.remark">
+            <ion-col class="ion-flex ion-margin-auto">
+              <div class="font-bold">Remark</div>
+            </ion-col>
+            <ion-col class="ion-flex ion-margin-auto justify-content-end">
+              <div>{{object?.header?.remark}}</div>
+            </ion-col>
+          </ion-row>
+          <ion-row >
+            <ion-col class="ion-flex ion-margin-auto">
+              <div class="font-bold">Created By</div>
+            </ion-col>
+            <ion-col class="ion-flex ion-margin-auto justify-content-end">
+              <div>{{object?.header?.createdBy}} {{object.header.createdAt|date:"dd/MM/yy hh:mm a"}}</div>
+            </ion-col>
+          </ion-row>
+        </ion-grid>
+      </ion-item>
+    </ion-list>
+    <div *ngIf="object?.header?.billAddress">
+      <ion-list-header class="ion-list-header-small ion-flex ion-text-center">
+        <ion-label>Billing Address</ion-label>
+      </ion-list-header>
+      <ion-list class="list-custom animate__animated animate__fadeIn" lines="full">
+        <ion-item button detail="false" class="ion-no-padding no-ripple">
+          <ion-grid class="ion-no-padding py-2 pl-2">
+            <ion-row *ngIf="object?.header?.billAddress">
+              <ion-col class="ion-flex ion-margin-auto">
+                <div class="font-bold">Address</div>
+              </ion-col>
+              <ion-col class="ion-flex ion-margin-auto justify-content-end">
+                <div>{{object?.header?.billAddress}}</div>
+              </ion-col>
+            </ion-row>
+            <ion-row *ngIf="object?.header?.billAttention">
+              <ion-col class="ion-flex ion-margin-auto">
+                <div class="font-bold">Attention</div>
+              </ion-col>
+              <ion-col class="ion-flex ion-margin-auto justify-content-end">
+                <div>{{object?.header?.billAttention}}</div>
+              </ion-col>
+            </ion-row>
+            <ion-row *ngIf="object?.header?.billEmail">
+              <ion-col class="ion-flex ion-margin-auto">
+                <div class="font-bold">Email</div>
+              </ion-col>
+              <ion-col class="ion-flex ion-margin-auto justify-content-end">
+                <div>{{object?.header?.billEmail}}</div>
+              </ion-col>
+            </ion-row>
+            <ion-row *ngIf="object?.header?.billPhone">
+              <ion-col class="ion-flex ion-margin-auto">
+                <div class="font-bold">Phone Num.</div>
+              </ion-col>
+              <ion-col class="ion-flex ion-margin-auto justify-content-end">
+                <div>{{object?.header?.billPhone}}</div>
+              </ion-col>
+            </ion-row>
+            <ion-row *ngIf="object?.header?.billStateId">
+              <ion-col class="ion-flex ion-margin-auto">
+                <div class="font-bold">State</div>
+              </ion-col>
+              <ion-col class="ion-flex ion-margin-auto justify-content-end">
+                <div>{{object?.header?.billStateId|idMapping:objectService.stateMasterList}}</div>
+              </ion-col>
+            </ion-row>
+          </ion-grid>
+        </ion-item>
+      </ion-list>
+    </div>
+    <div *ngIf="object?.header?.shipAddress">
+      <ion-list-header class="ion-list-header-small ion-flex ion-text-center">
+        <ion-label>Shipping Address</ion-label>
+      </ion-list-header>
+      <ion-list class="list-custom animate__animated animate__fadeIn" lines="full">
+        <ion-item button detail="false" class="ion-no-padding no-ripple">
+          <ion-grid class="ion-no-padding py-2 pl-2">
+            <ion-row *ngIf="object?.header?.shipAddress">
+              <ion-col class="ion-flex ion-margin-auto">
+                <div class="font-bold">Address</div>
+              </ion-col>
+              <ion-col class="ion-flex ion-margin-auto justify-content-end">
+                <div>{{object?.header?.shipAddress}}</div>
+              </ion-col>
+            </ion-row>
+            <ion-row *ngIf="object?.header?.shipAttention">
+              <ion-col class="ion-flex ion-margin-auto">
+                <div class="font-bold">Attention</div>
+              </ion-col>
+              <ion-col class="ion-flex ion-margin-auto justify-content-end">
+                <div>{{object?.header?.shipAttention}}</div>
+              </ion-col>
+            </ion-row>
+            <ion-row *ngIf="object?.header?.shipEmail">
+              <ion-col class="ion-flex ion-margin-auto">
+                <div class="font-bold">Email</div>
+              </ion-col>
+              <ion-col class="ion-flex ion-margin-auto justify-content-end">
+                <div>{{object?.header?.shipEmail}}</div>
+              </ion-col>
+            </ion-row>
+            <ion-row *ngIf="object?.header?.shipPhone">
+              <ion-col class="ion-flex ion-margin-auto">
+                <div class="font-bold">Phone Num.</div>
+              </ion-col>
+              <ion-col class="ion-flex ion-margin-auto justify-content-end">
+                <div>{{object?.header?.shipPhone}}</div>
+              </ion-col>
+            </ion-row>
+            <ion-row *ngIf="object?.header?.shipStateId">
+              <ion-col class="ion-flex ion-margin-auto">
+                <div class="font-bold">State</div>
+              </ion-col>
+              <ion-col class="ion-flex ion-margin-auto justify-content-end">
+                <div>{{object?.header?.shipStateId|idMapping:objectService.stateMasterList}}</div>
+              </ion-col>
+            </ion-row>
+          </ion-grid>
+        </ion-item>
+      </ion-list>
+    </div>
+    <ion-list-header class="ion-list-header-small ion-flex ion-text-center">
+      <ion-label>Attachments</ion-label>
+    </ion-list-header>
+    <ion-button expand="full" (click)="startUpload()">
+      <ion-icon lazy="true" slot="start" name="document-outline"></ion-icon>
+      <ion-label slot="end">Upload File</ion-label>
+      <input #fileInput type="file" id="file-input" (change)="onFileChange($event)">
+    </ion-button>
+    <ion-list class="list-custom animate__animated animate__fadeIn" lines="full">
+      <ion-item *ngFor="let a of object?.attachmentFile">
+        <ion-label (click)="downloadFile(a)"><div class="ion-text-wrap div-link-button">{{a.filesName}}{{a.filesType}}</div></ion-label>
+        <ion-icon (click)="deleteFile(a)" slot="end" name="trash-outline"></ion-icon>
+      </ion-item>
+    </ion-list>
+  </div>
+</ion-content>

@@ -1,0 +1,398 @@
+<ion-header>
+   <ion-toolbar>
+      <ion-title>
+         iDCP
+      </ion-title>
+      <ion-buttons slot="end">
+         <ion-button (click)="showPopover($event)"><ion-icon name="menu-outline" slot="icon-only"></ion-icon></ion-button>
+      </ion-buttons>
+   </ion-toolbar>
+</ion-header>
+<ion-popover #popover [isOpen]="isPopoverOpen" (didDismiss)="isPopoverOpen = false">
+   <ng-template>
+      <ion-content class="p-2">
+         <ion-list class="list-custom animate__animated animate__fadeIn" lines="full">
+            <ion-item button (click)="popover.dismiss(); showNotificationHistoryModal()">
+               <ion-label>
+                  <div>Notification History</div>
+               </ion-label>
+            </ion-item>
+         </ion-list>
+      </ion-content>
+   </ng-template>
+</ion-popover>
+<ion-content [fullscreen]="true">
+   <div class="px-2 pb-2">
+
+      <ng-container *ngIf="dashboardData?.memo && dashboardData?.memo.length > 0">
+         <ion-list-header class="ion-list-header-small ion-flex ion-text-center">
+            <ion-label>Announcement</ion-label>
+         </ion-list-header>
+         <ion-list class="list-custom animate__animated animate__fadeIn" lines="full">
+            <ion-item button *ngFor="let rowData of dashboardData?.memo" (click)="showModal(rowData)">
+               <ion-icon name="desktop-outline" slot="start"></ion-icon>
+               <h6>{{rowData?.header?.subject}}</h6>
+            </ion-item>
+         </ion-list>
+      </ng-container>
+
+      <div *ngIf="showQuotationReview || showQuotationApproval || showSalesOrderReview || showSalesOrderApproval || showPurchaseReqReview || showPurchaseReqApproval || showPurchaseOrderReview || showPurchaseOrderApproval || showSalesOrderPricingApproval || showBackToBackOrderPricingApproval || showNonTradePurchaseOrderReview || showNonTradePurchaseOrderApproval || showBranchReceivingReview || showBranchReceivingApproval || showRefundApproval || showExchangeApproval || showRecallDepositApproval || showInventoryProcessingReview || showInventoryProcessingApproval || showInventoryAdjReqReview || showInventoryAdjReqApproval">
+         
+         <ion-list-header class="ion-list-header-small ion-flex ion-text-center">
+            <ion-label>Pending Task</ion-label>
+         </ion-list-header>
+         <ion-list class="list-custom animate__animated animate__fadeIn" lines="full">
+
+            <ion-item *ngIf="showQuotationReview && dashboardData?.quotationReviewCount?.pending > 0" (click)="goToManagement('quotation', 'reviews')">
+               <ion-icon name="list-outline" slot="start"></ion-icon>
+               <ion-label>
+                  <h3>Quotation Review</h3>
+               </ion-label>
+               <ion-badge slot="end">{{dashboardData?.quotationReviewCount?.pending|number:"1.0"}}</ion-badge>
+            </ion-item>
+            <ion-item *ngIf="showQuotationApproval && dashboardData?.quotationApprovalCount?.pending > 0" (click)="goToManagement('quotation', 'approvals')">
+               <ion-icon name="checkmark-done-outline" slot="start"></ion-icon>
+               <ion-label>
+                  <h3>Quotation Approval</h3>
+               </ion-label>
+               <ion-badge slot="end">{{dashboardData?.quotationApprovalCount?.pending|number:"1.0"}}</ion-badge>
+            </ion-item>
+
+            <ion-item *ngIf="showSalesOrderReview && dashboardData?.salesOrderReviewCount?.pending > 0" (click)="goToManagement('sales-order', 'reviews')">
+               <ion-icon name="list-outline" slot="start"></ion-icon>
+               <ion-label>
+                  <h3>Sales Order Review</h3>
+               </ion-label>
+               <ion-badge slot="end">{{dashboardData?.salesOrderReviewCount?.pending|number:"1.0"}}</ion-badge>
+            </ion-item>
+            <ion-item *ngIf="showSalesOrderApproval && dashboardData?.salesOrderApprovalCount?.pending > 0" (click)="goToManagement('sales-order', 'approvals')">
+               <ion-icon name="checkmark-done-outline" slot="start"></ion-icon>
+               <ion-label>
+                  <h3>Sales Order Approval</h3>
+               </ion-label>
+               <ion-badge slot="end">{{dashboardData?.salesOrderApprovalCount?.pending|number:"1.0"}}</ion-badge>
+            </ion-item>
+
+            <ion-item *ngIf="showBackToBackOrderReview && dashboardData?.backToBackOrderReviewCount?.pending > 0" (click)="goToManagement('b2bo', 'reviews')">
+               <ion-icon name="list-outline" slot="start"></ion-icon>
+               <ion-label>
+                  <h3>Back To Back Order Review</h3>
+               </ion-label>
+               <ion-badge slot="end">{{dashboardData?.backToBackOrderReviewCount?.pending|number:"1.0"}}</ion-badge>
+            </ion-item>
+            <ion-item *ngIf="showBackToBackOrderApproval && dashboardData?.backToBackOrderApprovalCount?.pending > 0" (click)="goToManagement('b2bo', 'approvals')">
+               <ion-icon name="checkmark-done-outline" slot="start"></ion-icon>
+               <ion-label>
+                  <h3>Back To Back Order Approval</h3>
+               </ion-label>
+               <ion-badge slot="end">{{dashboardData?.backToBackOrderApprovalCount?.pending|number:"1.0"}}</ion-badge>
+            </ion-item>
+
+            <ion-item *ngIf="showPurchaseReqReview && dashboardData?.purchaseReqReviewCount?.pending > 0" (click)="goToManagement('purchase-req', 'reviews')">
+               <ion-icon name="list-outline" slot="start"></ion-icon>
+               <ion-label>
+                  <h3>Purchase Req Review</h3>
+               </ion-label>
+               <ion-badge slot="end">{{dashboardData?.purchaseReqReviewCount?.pending|number:"1.0"}}</ion-badge>
+            </ion-item>
+            <ion-item *ngIf="showPurchaseReqApproval && dashboardData?.purchaseReqApprovalCount?.pending > 0" (click)="goToManagement('purchase-req', 'approvals')">
+               <ion-icon name="checkmark-done-outline" slot="start"></ion-icon>
+               <ion-label>
+                  <h3>Purchase Req Approval</h3>
+               </ion-label>
+               <ion-badge slot="end">{{dashboardData?.purchaseReqApprovalCount?.pending|number:"1.0"}}</ion-badge>
+            </ion-item>
+
+            <ion-item *ngIf="showPurchaseOrderReview && dashboardData?.purchaseOrderReviewCount?.pending > 0" (click)="goToManagement('purchase-order', 'reviews')">
+               <ion-icon name="list-outline" slot="start"></ion-icon>
+               <ion-label>
+                  <h3>Purchase Order Review</h3>
+               </ion-label>
+               <ion-badge slot="end">{{dashboardData?.purchaseOrderReviewCount?.pending|number:"1.0"}}</ion-badge>
+            </ion-item>
+            <ion-item *ngIf="showPurchaseOrderApproval && dashboardData?.purchaseOrderApprovalCount?.pending > 0" (click)="goToManagement('purchase-order', 'approvals')">
+               <ion-icon name="checkmark-done-outline" slot="start"></ion-icon>
+               <ion-label>
+                  <h3>Purchase Order Approval</h3>
+               </ion-label>
+               <ion-badge slot="end">{{dashboardData?.purchaseOrderApprovalCount?.pending|number:"1.0"}}</ion-badge>
+            </ion-item>
+
+            <ion-item *ngIf="showNonTradePurchaseReqReview && dashboardData?.nonTradePurchaseReqReviewCount?.pending > 0" (click)="goToManagement('non-trade-purchase-req', 'reviews')">
+               <ion-icon name="list-outline" slot="start"></ion-icon>
+               <ion-label>
+                  <h3>Non-Trade Purchase Req Review</h3>
+               </ion-label>
+               <ion-badge slot="end">{{dashboardData?.nonTradePurchaseReqReviewCount?.pending|number:"1.0"}}</ion-badge>
+            </ion-item>
+            <ion-item *ngIf="showNonTradePurchaseReqApproval && dashboardData?.nonTradePurchaseReqApprovalCount?.pending > 0" (click)="goToManagement('non-trade-purchase-req', 'approvals')">
+               <ion-icon name="checkmark-done-outline" slot="start"></ion-icon>
+               <ion-label>
+                  <h3>Non-Trade Purchase Req Approval</h3>
+               </ion-label>
+               <ion-badge slot="end">{{dashboardData?.nonTradePurchaseReqApprovalCount?.pending|number:"1.0"}}</ion-badge>
+            </ion-item>
+
+            <ion-item *ngIf="showNonTradePurchaseOrderReview && dashboardData?.nonTradePurchaseOrderReviewCount?.pending > 0" (click)="goToManagement('non-trade-purchase-order', 'reviews')">
+               <ion-icon name="list-outline" slot="start"></ion-icon>
+               <ion-label>
+                  <h3>Non-Trade Purchase Order Review</h3>
+               </ion-label>
+               <ion-badge slot="end">{{dashboardData?.nonTradePurchaseOrderReviewCount?.pending|number:"1.0"}}</ion-badge>
+            </ion-item>
+            <ion-item *ngIf="showNonTradePurchaseOrderApproval && dashboardData?.nonTradePurchaseOrderApprovalCount?.pending > 0" (click)="goToManagement('non-trade-purchase-order', 'approvals')">
+               <ion-icon name="checkmark-done-outline" slot="start"></ion-icon>
+               <ion-label>
+                  <h3>Non-Trade Purchase Order Approval</h3>
+               </ion-label>
+               <ion-badge slot="end">{{dashboardData?.nonTradePurchaseOrderApprovalCount?.pending|number:"1.0"}}</ion-badge>
+            </ion-item>
+
+            <ion-item *ngIf="showSalesOrderPricingApproval && dashboardData?.nonTradePurchaseOrderApprovalCount?.pending > 0" (click)="goToManagement('pricing', 'approvals')">
+               <ion-icon name="checkmark-done-outline" slot="start"></ion-icon>
+               <ion-label>
+                  <h3>Sales Order Pricing Approval</h3>
+               </ion-label>
+               <ion-badge slot="end">{{dashboardData?.salesOrderPricingApprovalCount?.pending|number:"1.0"}}</ion-badge>
+            </ion-item>
+
+            <ion-item *ngIf="showBackToBackOrderPricingApproval && dashboardData?.b2bOrderPricingApprovalCount?.pending > 0" (click)="goToManagement('b2bopricing', 'approvals')">
+               <ion-icon name="checkmark-done-outline" slot="start"></ion-icon>
+               <ion-label>
+                  <h3>B2B Order Pricing Approval</h3>
+               </ion-label>
+               <ion-badge slot="end">{{dashboardData?.b2bOrderPricingApprovalCount?.pending|number:"1.0"}}</ion-badge>
+            </ion-item>
+
+            <ion-item *ngIf="showBranchReceivingReview && dashboardData?.branchReceivingReviewCount?.pending > 0" (click)="goToManagement('branch-receiving', 'reviews')">
+               <ion-icon name="list-outline" slot="start"></ion-icon>
+               <ion-label>
+                  <h3>Branch Receiving Review</h3>
+               </ion-label>
+               <ion-badge slot="end">{{dashboardData?.branchReceivingReviewCount?.pending|number:"1.0"}}</ion-badge>
+            </ion-item>
+            <ion-item *ngIf="showBranchReceivingApproval && dashboardData?.branchReceivingApprovalCount?.pending > 0" (click)="goToManagement('branch-receiving', 'approvals')">
+               <ion-icon name="checkmark-done-outline" slot="start"></ion-icon>
+               <ion-label>
+                  <h3>Branch Receiving Approval</h3>
+               </ion-label>
+               <ion-badge slot="end">{{dashboardData?.branchReceivingApprovalCount?.pending|number:"1.0"}}</ion-badge>
+            </ion-item>
+
+            <ion-item *ngIf="showRefundApproval && dashboardData?.refundApprovalCount" (click)="goToManagement('refund', 'approvals')">
+               <ion-icon name="checkmark-done-outline" slot="start"></ion-icon>
+               <ion-label>
+                  <h3>Refund Approval</h3>
+               </ion-label>
+               <ion-badge slot="end">{{dashboardData?.refundApprovalCount?.pending|number:"1.0"}}</ion-badge>
+            </ion-item>
+            <ion-item *ngIf="showExchangeApproval && dashboardData?.exchangeApprovalCount?.pending > 0" (click)="goToManagement('exchange', 'approvals')">
+               <ion-icon name="checkmark-done-outline" slot="start"></ion-icon>
+               <ion-label>
+                  <h3>Exchange Approval</h3>
+               </ion-label>
+               <ion-badge slot="end">{{dashboardData?.exchangeApprovalCount?.pending|number:"1.0"}}</ion-badge>
+            </ion-item>
+            <ion-item *ngIf="showRecallDepositApproval && dashboardData?.recallDepositApprovalCount?.pending > 0" (click)="goToManagement('recall-deposit', 'approvals')">
+               <ion-icon name="checkmark-done-outline" slot="start"></ion-icon>
+               <ion-label>
+                  <h3>Recall Deposit Approval</h3>
+               </ion-label>
+               <ion-badge slot="end">{{dashboardData?.recallDepositApprovalCount?.pending|number:"1.0"}}</ion-badge>
+            </ion-item>
+
+            <ion-item *ngIf="showInventoryProcessingReview && dashboardData?.inventoryProcessingReviewCount" (click)="goToManagement('inventory-processing', 'reviews')">
+               <ion-icon name="list-outline" slot="start"></ion-icon>
+               <ion-label>
+                  <h3>Inv. Processing Review</h3>
+               </ion-label>
+               <ion-badge slot="end">{{dashboardData?.inventoryProcessingReviewCount?.pending|number:"1.0"}}</ion-badge>
+            </ion-item>
+            <ion-item *ngIf="showInventoryProcessingApproval && dashboardData?.inventoryProcessingApprovalCount?.pending > 0" (click)="goToManagement('inventory-processing', 'approvals')">
+               <ion-icon name="checkmark-done-outline" slot="start"></ion-icon>
+               <ion-label>
+                  <h3>Inv. Processing Approval</h3>
+               </ion-label>
+               <ion-badge slot="end">{{dashboardData?.inventoryProcessingApprovalCount?.pending|number:"1.0"}}</ion-badge>
+            </ion-item>
+
+            <ion-item *ngIf="showInventoryAdjReqReview && dashboardData?.inventoryAdjustmentReqReviewCount?.pending > 0" (click)="goToManagement('inventory-adj-req', 'reviews')">
+               <ion-icon name="list-outline" slot="start"></ion-icon>
+               <ion-label>
+                  <h3>Inv. Adj. Req. Review</h3>
+               </ion-label>
+               <ion-badge slot="end">{{dashboardData?.inventoryAdjustmentReqReviewCount?.pending|number:"1.0"}}</ion-badge>
+            </ion-item>
+            <ion-item *ngIf="showInventoryAdjReqApproval && dashboardData?.inventoryAdjustmentReqApprovalCount?.pending > 0" (click)="goToManagement('inventory-adj-req', 'approvals')">
+               <ion-icon name="checkmark-done-outline" slot="start"></ion-icon>
+               <ion-label>
+                  <h3>Inv. Adj. Req. Approval</h3>
+               </ion-label>
+               <ion-badge slot="end">{{dashboardData?.inventoryAdjustmentReqApprovalCount?.pending|number:"1.0"}}</ion-badge>
+            </ion-item>
+
+         </ion-list>
+      </div>
+
+      <div *ngIf="showQuotation || showSalesOrder">
+         <ion-list-header class="ion-list-header-small ion-flex ion-text-center">
+            <ion-label>Current Month Transaction</ion-label>
+         </ion-list-header>
+         <ion-list class="list-custom animate__animated animate__fadeIn" lines="full">
+            <ion-item *ngIf="showQuotation" (click)="goToTransaction('quotation')">
+               <ion-icon name="newspaper-outline" slot="start"></ion-icon>
+               <ion-label>
+                  <h3>Quotation Issued</h3>
+               </ion-label>
+               <ion-badge slot="end">{{dashboardData?.quotationList|sum:"grandTotal"|number:'1.2-2'}}</ion-badge>
+            </ion-item>
+            <ion-item *ngIf="showSalesOrder" (click)="goToTransaction('sales-order')">
+               <ion-icon name="cart-outline" slot="start"></ion-icon>
+               <ion-label>
+                  <h3>Sales Order Issued</h3>
+               </ion-label>
+               <ion-badge slot="end">{{dashboardData?.salesOrderList|sum:"grandTotal"|number:'1.2-2'}}</ion-badge>
+            </ion-item>
+         </ion-list>
+      </div>
+      <hr class="hr-medium">
+      <ion-list-header class="ion-list-header-small ion-flex ion-text-center">
+         <ion-label>Item Last Sync: {{last_sync_datetime|date:'yyyy-MM-dd hh:mm:ss'}}</ion-label>
+      </ion-list-header>
+      <ion-item *ngIf="false">
+         <ion-label floating>Badge Number</ion-label>
+         <ion-input type="number" [(ngModel)]="badgeNumber"></ion-input>
+      </ion-item>
+      <ion-button *ngIf="false" (click)="setBadges()">Set Badge to {{badgeNumber}}</ion-button>
+   </div>
+</ion-content>
+<ion-modal [isOpen]="isModalOpen" (didDismiss)="isModalOpen = false">
+   <ng-template>
+      <ion-header>
+         <ion-toolbar>
+            <ion-title>Detail</ion-title>
+            <ion-buttons slot="start">
+               <ion-button (click)="hideModal()">Done</ion-button>
+            </ion-buttons>
+         </ion-toolbar>
+      </ion-header>
+      <ion-content *ngIf="selectedAnnouncement">
+         <div class="p-2">
+            <ion-list-header class="ion-list-header-small ion-flex ion-text-center">
+               <ion-label>Subject</ion-label>
+            </ion-list-header>
+            <ion-list class="list-custom animate__animated animate__fadeIn" lines="full">
+               <ion-item>
+                  <ion-textarea [autoGrow]="true" [readonly]="true" [(ngModel)]="selectedAnnouncement.header.subject"></ion-textarea>
+               </ion-item>
+            </ion-list>
+            <ion-list-header class="ion-list-header-small ion-flex ion-text-center">
+               <ion-label>Body</ion-label>
+            </ion-list-header>
+            <ion-list class="list-custom animate__animated animate__fadeIn" lines="full">
+               <ion-item>
+                  <span [innerHTML]="selectedAnnouncement.header.body | sanitizeHtml"></span>
+               </ion-item>
+            </ion-list>
+            <ion-list-header class="ion-list-header-small ion-flex ion-text-center">
+               <ion-label>Attachment</ion-label>
+            </ion-list-header>
+            <ion-list class="list-custom animate__animated animate__fadeIn" lines="full">
+               <ion-item *ngFor="let a of selectedAnnouncement?.details" (click)="downloadPdf(a)">
+                  <ion-label>{{a.filesName}}</ion-label>
+                  <ion-icon slot="end" name="download-outline"></ion-icon>
+               </ion-item>
+            </ion-list>
+         </div>
+      </ion-content>
+   </ng-template>
+</ion-modal>
+<ion-modal [isOpen]="notificationHistoryModal" (didDismiss)="notificationHistoryModal = false">
+   <ng-template>
+      <ion-header>
+         <ion-toolbar>
+            <ion-title>History</ion-title>
+            <ion-buttons slot="start">
+               <ion-button (click)="hideNotificationHistoryModal()">Done</ion-button>
+            </ion-buttons>
+         </ion-toolbar>
+      </ion-header>
+      <ion-content>
+         <div class="p-2">
+            <ion-list-header class="ion-list-header-small ion-flex ion-text-center" *ngIf="notificationHistories.length === 0">
+               <ion-label>Notification History not available.</ion-label>
+            </ion-list-header>
+            <ion-list class="list-custom animate__animated animate__fadeIn" lines="full">
+               <ion-item button="false" *ngFor="let h of notificationHistories">
+                  <ion-grid class="p-1">
+                     <ion-row>
+                        <ion-col>
+                           <div>Date</div>
+                        </ion-col>
+                        <ion-col [size]="9">
+                           <div class="ion-text-right">{{h.createdAt|date:'dd/MM/yyyy hh:mm:ss a'}}</div>
+                        </ion-col>
+                     </ion-row>
+                     <ion-row>
+                        <ion-col>
+                           <div>Title</div>
+                        </ion-col>
+                        <ion-col [size]="9">
+                           <div class="ion-text-right font-bold">{{h.title}}</div>
+                        </ion-col>
+                     </ion-row>
+                     <ion-row>
+                        <ion-col>
+                           <div>Content</div>
+                        </ion-col>
+                        <ion-col [size]="9">
+                           <div class="ion-text-right">{{h.content}}</div>
+                        </ion-col>
+                     </ion-row>
+                  </ion-grid>
+               </ion-item>
+            </ion-list>
+         </div>
+      </ion-content>
+   </ng-template>
+</ion-modal>
+
+<ion-modal [isOpen]="selectLocationModal" (didDismiss)="selectLocationModal = false">
+   <ng-template>
+      <ion-header>
+         <ion-toolbar>
+            <ion-title>
+               <div class="ion-text-wrap">
+                  Select Location
+               </div>
+            </ion-title>
+            <ion-buttons slot="start">
+               <ion-button (click)="hideLocationModal()">Done</ion-button>
+            </ion-buttons>
+         </ion-toolbar>
+      </ion-header>
+      <ion-content>
+         <div class="p-2">
+            <ion-list-header class="ion-list-header-small ion-flex ion-text-center" *ngIf="configService.loginUser.locationId && configService.loginUser.locationId.length === 0">
+               <ion-label>Location not set</ion-label>
+            </ion-list-header>
+            <ion-list class="list-custom animate__animated animate__fadeIn" lines="full">
+               <ion-item button="false" *ngFor="let rowData of objectService.locationMasterList" (click)="setDefaultLocation(rowData)">
+                  <div slot="start">
+                     <ion-grid class="ion-no-padding">
+                        <ion-row>
+                           <ion-col class="ion-margin-auto">
+                              <ion-badge style="display:inline-flex" *ngIf="rowData && rowData?.code">
+                                 <div>{{rowData?.code}}</div>
+                              </ion-badge>
+                           </ion-col>
+                        </ion-row>
+                     </ion-grid>
+                  </div>
+                  <div class="ion-text-wrap">{{rowData?.description}}</div>
+               </ion-item>
+            </ion-list>
+         </div>
+      </ion-content>
+   </ng-template>
+</ion-modal>

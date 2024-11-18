@@ -1,0 +1,112 @@
+<ion-header>
+   <ion-toolbar>
+      <ion-title>Consignment Count Analysis</ion-title>
+      <ion-buttons slot="start">
+         <ion-back-button text="" defaultHref="/reports"></ion-back-button>
+      </ion-buttons>
+   </ion-toolbar>
+</ion-header>
+
+<ion-content>
+   <div class="p-2" style="overflow:auto">
+
+      <ion-list class="list-custom" lines="none" slot="content">
+         <ion-item id="open-calendar-modal">
+            <!-- <ion-icon icon="calendar-outline" slot="start" color="primary"></ion-icon> -->
+            <ion-label position="stacked" class="font-bold">Start Date</ion-label>
+            <ion-text class="ion-no-padding-end pb-3">{{formattedDateString}}</ion-text>
+         </ion-item>
+         <ion-modal class="ion-modal-calendar" trigger="open-calendar-modal">
+            <ng-template>
+               <ion-content>
+               <ion-datetime #datetime [value]="dateValue" size="cover" (ionChange)="onTrxDateSelected(datetime.value)" [preferWheel]="true" showDefaultTitle="true" presentation="date" [max]="maxDate">
+                  <ion-buttons slot="buttons">
+                     <ion-button (click)="dateDismiss()" color="danger">Dismiss</ion-button>
+                     <ion-button (click)="dateSelect()" color="primary">Select</ion-button>
+                  </ion-buttons>
+               </ion-datetime>
+               </ion-content>
+            </ng-template>
+         </ion-modal>
+
+         <ion-item id="open-calendar-modal2">
+            <!-- <ion-icon icon="calendar-outline" slot="start" color="primary"></ion-icon> -->
+            <ion-label position="stacked" class="font-bold">End Date</ion-label>
+            <ion-text class="ion-no-padding-end pb-3">{{formattedDateString2}}</ion-text>
+         </ion-item>
+         <ion-modal class="ion-modal-calendar" trigger="open-calendar-modal2">
+            <ng-template>
+               <ion-content>
+               <ion-datetime #datetime2 [value]="dateValue2" size="cover" (ionChange)="onTrxDateSelected2(datetime2.value)" [preferWheel]="true" showDefaultTitle="true" presentation="date" [max]="maxDate">
+                  <ion-buttons slot="buttons">
+                     <ion-button (click)="dateDismiss2()" color="danger">Dismiss</ion-button>
+                     <ion-button (click)="dateSelect2()" color="primary">Select</ion-button>
+                  </ion-buttons>
+               </ion-datetime>
+               </ion-content>
+            </ng-template>
+         </ion-modal>
+
+         <app-search-multi-dropdown title="Location" [showHeaderLabel]="true" [showBoldHeader]="true" [showCode]="true" [masterDropdownList]="locationMasterList" [selectedIds]="request?.locationId" (onActionComplete)="onLocationSelected($event)"></app-search-multi-dropdown>
+         
+      </ion-list>
+
+      <ion-button class="pt-2" expand="block" size="default" (click)="loadReport()">Search</ion-button>
+
+      <ngx-datatable #myTable
+      class="fullscreen material mt-2 expandable"
+      [rows]="objects"
+      [rowHeight]="'auto'"
+      [groupRowsBy]="'locationCode'"
+      [columnMode]="'force'"
+      [scrollbarH]="true"
+      [groupExpansionDefault]="groupExpansionDefaultStatus">
+         <!-- Group Header Template -->
+         <ngx-datatable-group-header [rowHeight]="50" #myGroupHeader (toggle)="onDetailToggle($event)">
+            <ng-template let-group="group" let-expanded="expanded" ngx-datatable-group-header-template>
+               <div class="color-blue font-smaller ion-flex justify-content-between w-full" (click)="toggleExpandGroup(group)">
+                  <div class="ion-flex">
+                     <div class="font-bold">{{group.value[0]["locationCode"]}}</div>
+                     <div class="ml-1">[{{group.value[0]["locationDesc"]}}]</div>
+                  </div>
+                  <div class="ion-flex ml-3">
+                     <div>Total: {{objects|sum:"qtyRequest"|number:"1.0-0"}}</div>
+                  </div>
+               </div>
+            </ng-template>
+         </ngx-datatable-group-header>
+
+         <ngx-datatable-column name="Item Code">
+            <ng-template let-row="row" ngx-datatable-cell-template>
+               <div class="flex ion-text-wrap font-half-size">{{row.itemCode}}</div>
+            </ng-template>
+         </ngx-datatable-column>
+
+         <ngx-datatable-column name="Item Desc">
+            <ng-template let-row="row" ngx-datatable-cell-template>
+               <div class="flex ion-text-wrap font-half-size">{{row.itemCode}}</div>
+            </ng-template>
+         </ngx-datatable-column>
+
+         <ngx-datatable-column name="X Code/Desc">
+            <ng-template let-row="row" ngx-datatable-cell-template>
+               <div class="flex ion-text-wrap font-half-size" *ngIf="row.xCode">{{row.xCode}}/{{row.xDesc}}</div>
+            </ng-template>
+         </ngx-datatable-column>
+
+         <ngx-datatable-column name="Y Code/Desc">
+            <ng-template let-row="row" ngx-datatable-cell-template>
+               <div class="flex ion-text-wrap font-half-size" *ngIf="row.yCode">{{row.yCode}}/{{row.yDesc}}</div>
+            </ng-template>
+         </ngx-datatable-column>
+
+         <ngx-datatable-column name="Qty.">
+            <ng-template let-row="row" ngx-datatable-cell-template>
+               <div class="flex ion-text-wrap font-half-size">{{row.qtyRequest|number:"1.0-0"}}</div>
+            </ng-template>
+         </ngx-datatable-column>
+
+      </ngx-datatable>
+
+   </div>
+</ion-content>

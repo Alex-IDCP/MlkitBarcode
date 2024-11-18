@@ -1,0 +1,184 @@
+<ion-header>
+   <ion-toolbar>
+      <ion-title>
+         <div class="ion-text-wrap">
+            Defect Request
+         </div>
+      </ion-title>
+      <ion-buttons slot="start">
+         <ion-button (click)="cancelInsert()"><ion-icon slot="start" name="chevron-back-outline"></ion-icon></ion-button>
+      </ion-buttons>
+      <ion-buttons slot="end">
+         <ion-button (click)="showPopover($event)"><ion-icon name="menu-outline" slot="icon-only"></ion-icon></ion-button>
+      </ion-buttons>
+   </ion-toolbar>
+</ion-header>
+
+<ion-popover #popover [isOpen]="isPopoverOpen" (didDismiss)="isPopoverOpen = false">
+   <ng-template>
+      <ion-content class="p-2">
+         <ion-list class="list-custom animate__animated animate__fadeIn" lines="full">
+            <ion-item (click)="popover.dismiss(); copyFromSI()">
+               <ion-icon name="copy-outline" slot="end"></ion-icon>
+               <ion-label>
+                  <div>Copy From SI</div>
+               </ion-label>
+            </ion-item>
+         </ion-list>
+      </ion-content>
+   </ng-template>
+</ion-popover>
+
+<ion-content [fullscreen]="true">
+   <div class="p-2">
+      <ion-list class="list-custom animate__animated animate__fadeIn" lines="none" [formGroup]="objectForm">
+         <app-search-dropdown #locationsd title="Location" [masterDropdownList]="objectService.fLocationMasterList" [selectedId]="objectForm.controls.locationId.value" (onActionComplete)="onLocationSelected($event)"></app-search-dropdown>
+         <app-search-dropdown #customersd title="Customer" [searchDropdownList]="objectService.customerSearchDropdownList" [selectedId]="objectForm.controls.customerId.value" (onActionComplete)="onCustomerSelected($event)"></app-search-dropdown>
+         <ng-container *ngIf="objectForm.controls.businessModelType.value !== 'T' && objectForm.controls.businessModelType.value !== null">
+            <app-search-dropdown #locationsd title="Origin Location" [masterDropdownList]="selectedCustomerLocationList" [selectedId]="objectForm.controls.toLocationId.value" (onActionComplete)="onCustomerLocationSelected($event)"></app-search-dropdown>
+         </ng-container>
+         <app-search-dropdown #locationsd title="Reason" [masterDropdownList]="objectService.reasonMasterList" [selectedId]="objectForm.controls.reasonId.value" (onActionComplete)="onReasonSelected($event)"></app-search-dropdown>
+         <app-search-dropdown #locationsd title="Category" [masterDropdownList]="objectService.defectRequestCategoryMasterList" [selectedId]="objectForm.controls.defectRequestCategoryId.value" (onActionComplete)="onCategorySelected($event)"></app-search-dropdown>
+         <ion-item>
+            <ion-label class="font-bold" position="stacked">Remark</ion-label>
+            <ion-textarea formControlName="remark" placeholder="Enter Remark" [autoGrow]="true"></ion-textarea>
+         </ion-item>
+      </ion-list>
+      
+      <ng-container *ngIf="copyFromSIHeaderList && copyFromSIHeaderList.length > 0">
+         <ion-list-header class="ion-list-header-small ion-flex ion-text-center">
+            <ion-label>SI Available</ion-label>
+         </ion-list-header>
+         <ion-list class="list-custom animate__animated animate__fadeIn" lines="full">
+            <ion-item class="ion-no-padding no-ripple" *ngFor="let rowData of copyFromSIHeaderList" (click)="selectSI(rowData)">
+               <ion-grid class="ion-no-padding p-2">
+                  <ion-row>
+                     <ion-col size="2" class="ion-flex ion-margin-auto justify-content-center">
+                        <ion-checkbox [checked]="rowData.isSelected"></ion-checkbox>
+                     </ion-col>
+                     <ion-col class="ion-flex ion-margin-auto">
+                        <ion-grid class="ion-no-padding">
+                           <ion-row>
+                              <ion-col class="ion-flex ion-margin-auto">
+                                 <div class="font-bold">{{rowData.salesInvoiceNum}}</div>
+                              </ion-col>
+                           </ion-row>
+                           <ion-row>
+                              <ion-col class="ion-flex ion-margin-auto">
+                                 <span class="badge-purple ion-text-wrap ion-flex my-auto px-1 mr-1"> {{rowData.trxDate|date:"dd/MM/yyyy"}}</span>
+                                 <span class="badge-purple ion-text-wrap ion-flex my-auto px-1 mr-1"> {{rowData.customer}}</span>
+                              </ion-col>
+                           </ion-row>
+                           <ion-row>
+                              <ion-col class="ion-flex ion-margin-auto">
+                                 <span class="badge-green ion-text-wrap ion-flex my-auto px-1 mr-1"> {{rowData.country}}</span>
+                                 <span class="badge-green ion-text-wrap ion-flex my-auto px-1 mr-1"> {{rowData.currency}}</span>
+                              </ion-col>
+                           </ion-row>
+                           <ion-row>
+                              <ion-col class="ion-flex ion-margin-auto">
+                                 <span class="badge-other ion-text-wrap ion-flex my-auto px-1 mr-1"> {{rowData.location}}</span>
+                                 <span class="badge-other ion-text-wrap ion-flex my-auto px-1 mr-1"> Total Qty: {{rowData.qtyRequest | number: "1.0-0"}} | O/S Qty: {{rowData.qtyBalance | number: "1.0-0" }}</span>
+                              </ion-col>
+                           </ion-row>
+                        </ion-grid>
+                     </ion-col>
+                  </ion-row>
+               </ion-grid>
+            </ion-item>
+         </ion-list>
+      </ng-container>
+   </div>
+</ion-content>
+<ion-footer class="ion-padding-bottom-large animate__animated animate__fadeInUp p-0" style="background-color: white;">
+  <ion-button class="ion-margin" expand="block" size="default" (click)="nextStep()" [disabled]="!objectForm.valid">
+    Next
+  </ion-button>
+</ion-footer>
+
+<ion-modal [isOpen]="isModalOpen" (didDismiss)="isModalOpen = false" (ionModalDidDismiss)="onModalHide()">
+   <ng-template>
+      <ion-header>
+         <ion-toolbar>
+            <ion-title>SI Line Preview</ion-title>
+            <ion-buttons slot="start">
+               <ion-button (click)="hidePreviewModal()"><ion-icon slot="start" name="chevron-back-outline"></ion-icon></ion-button>
+            </ion-buttons>
+         </ion-toolbar>
+      </ion-header>
+      <ion-content *ngIf="copyFromSILineList && copyFromSILineList.length > 0">
+         <div class="px-2">
+            <ion-list-header class="ion-list-header-small ion-flex ion-text-center">
+               <ion-label>{{copyFromSILineList[0].salesInvoiceNum}}</ion-label>
+            </ion-list-header>
+            <ion-list class="list-custom animate__animated animate__fadeIn" lines="full">
+               <ion-item button="false" class="ion-no-padding no-ripple" *ngFor="let rowData of copyFromSILineList; let rowIndex = index">
+                  <ion-grid class="ion-no-padding p-2">
+                     <ion-row>
+                        <ion-col class="ion-flex ion-margin-auto">
+                           <div class="font-bold">Code</div>
+                        </ion-col>
+                        <ion-col class="ion-flex ion-margin-auto justify-content-end">
+                           <div>{{rowData.itemCode}}</div>
+                        </ion-col>
+                     </ion-row>
+                     <ion-row>
+                        <ion-col class="ion-flex ion-margin-auto">
+                           <div class="font-bold">Desc.</div>
+                        </ion-col>
+                        <ion-col class="ion-flex ion-margin-auto justify-content-end">
+                           <div>{{rowData.description}}</div>
+                        </ion-col>
+                     </ion-row>
+                     <ion-row>
+                        <ion-col class="ion-flex ion-margin-auto">
+                           <div class="font-bold">UOM Desc.</div>
+                        </ion-col>
+                        <ion-col class="ion-flex ion-margin-auto justify-content-end">
+                           <div>{{rowData.itemUomDescription}}</div>
+                        </ion-col>
+                     </ion-row>
+                     <ion-row>
+                        <ion-col class="ion-flex ion-margin-auto">
+                           <div class="font-bold">Qty.</div>
+                        </ion-col>
+                        <ion-col class="ion-flex ion-margin-auto justify-content-end">
+                           <div>{{rowData.qtyRequest|number:"1.0"}}</div>
+                        </ion-col>
+                     </ion-row>
+                     <ion-row>
+                        <ion-col class="ion-flex ion-margin-auto">
+                           <div class="font-bold">U/P.</div>
+                        </ion-col>
+                        <ion-col class="ion-flex ion-margin-auto justify-content-end">
+                           <div>{{rowData.unitPrice|number:"1.2-2"}}</div>
+                        </ion-col>
+                     </ion-row>
+                     <ion-row>
+                        <ion-col class="ion-flex ion-margin-auto">
+                           <div class="font-bold">SubTotal</div>
+                        </ion-col>
+                        <ion-col class="ion-flex ion-margin-auto justify-content-end">
+                           <div>{{rowData.qtyRequest*rowData.unitPrice|number:"1.2-2"}}</div>
+                        </ion-col>
+                     </ion-row>
+                  </ion-grid>
+               </ion-item>
+            </ion-list>
+         </div>
+      </ion-content>
+      <ion-footer class="ion-padding-bottom-large animate__animated animate__fadeInUp p-0" style="background-color:white;">
+         <ion-grid class="ion-no-padding">
+            <ion-row>
+               <ion-col>
+                  <ion-button class="ion-margin" expand="block" size="default" (click)="hidePreviewModal(); proceedWithSI()">
+                     Proceed
+                  </ion-button>
+               </ion-col>
+            </ion-row>
+         </ion-grid>
+      </ion-footer>
+   </ng-template>
+</ion-modal>
+
+

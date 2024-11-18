@@ -1,0 +1,346 @@
+<ion-header>
+   <ion-toolbar>
+      <ion-title>
+         <div class="ion-text-wrap">{{objectService.object?.header?.multiPackingNum}}</div>
+      </ion-title>
+      <ion-buttons slot="start">
+         <ion-back-button text="" defaultHref="/transactions/packing"></ion-back-button>
+      </ion-buttons>
+      <ion-buttons slot="end">
+         <ion-button (click)="showPopover($event)"><ion-icon name="menu-outline" slot="icon-only"></ion-icon></ion-button>
+      </ion-buttons>
+   </ion-toolbar>
+</ion-header>
+<ion-popover #popover [isOpen]="isPopoverOpen" (didDismiss)="isPopoverOpen = false">
+   <ng-template>
+      <ion-content class="p-2">
+         <ion-list class="list-custom animate__animated animate__fadeIn" lines="full">
+            <ion-item (click)="popover.dismiss(); editObject()">
+               <ion-icon name="create-outline" slot="end"></ion-icon>
+               <ion-label>
+                  <div>Edit</div>
+               </ion-label>
+            </ion-item>
+            <ion-item (click)="popover.dismiss(); deleteLocal()" *ngIf="objectService.header.isTrxLocal">
+              <ion-icon name="trash-outline" slot="end"></ion-icon>
+              <ion-label>
+                <div>Delete</div>
+              </ion-label>
+            </ion-item>
+         </ion-list>
+      </ion-content>
+   </ng-template>
+</ion-popover>
+<ion-content fullscreen>
+   <div class="p-2" *ngIf="objectService.object">
+      <ion-list class="list-custom animate__animated animate__fadeIn" lines="full">
+         <ion-item button detail="false" class="ion-no-padding no-ripple">
+            <ion-grid class="ion-no-padding py-2 pl-2">
+               <ion-row>
+                  <ion-col class="ion-flex ion-margin-auto">
+                     <div class="font-bold">Packing Num.</div>
+                  </ion-col>
+                  <ion-col class="ion-flex ion-margin-auto justify-content-end">
+                     <div>{{objectService.object.header.multiPackingNum}}</div>
+                  </ion-col>
+               </ion-row>
+               <ion-row>
+                  <ion-col class="ion-flex ion-margin-auto">
+                     <div class="font-bold">Doc. Date</div>
+                  </ion-col>
+                  <ion-col class="ion-flex ion-margin-auto justify-content-end">
+                     <div>{{objectService.object.header.trxDate|date:'dd/MM/yyyy'}}</div>
+                  </ion-col>
+               </ion-row>
+               <ion-row>
+                  <ion-col class="ion-flex ion-margin-auto">
+                     <div class="font-bold">Deemed Supply?</div>
+                  </ion-col>
+                  <ion-col class="ion-flex ion-margin-auto justify-content-end">
+                     <ion-icon [class]="(objectService.object.header.isDeemedSupply??false)?'color-success':'color-danger'" [name]="(objectService.object.header.isDeemedSupply??false)?'checkmark-circle-outline':'close-circle-outline'"></ion-icon>
+                  </ion-col>
+               </ion-row>
+               <ng-container *ngIf="objectService.object.header.deemedSupplyNum">
+                  <ion-row>
+                     <ion-col class="ion-flex ion-margin-auto">
+                        <div class="font-bold">Deemed Supply Num.</div>
+                     </ion-col>
+                     <ion-col class="ion-flex ion-margin-auto justify-content-end">
+                        <div>{{objectService.object.header.deemedSupplyNum}}</div>
+                     </ion-col>
+                  </ion-row>
+                  <ion-row>
+                     <ion-col class="ion-flex ion-margin-auto">
+                        <div class="font-bold">Generate Date</div>
+                     </ion-col>
+                     <ion-col class="ion-flex ion-margin-auto justify-content-end">
+                        <div>{{objectService.object.header.generateDate|date:'dd/MM/yyyy'}}</div>
+                     </ion-col>
+                  </ion-row>
+               </ng-container>
+               <ion-row>
+                  <ion-col class="ion-flex ion-margin-auto">
+                     <div class="font-bold">Origin Location</div>
+                  </ion-col>
+                  <ion-col class="ion-flex ion-margin-auto justify-content-end">
+                     <div>{{objectService.object.header.locationId|idMapping:objectService.locationMasterList}}</div>
+                  </ion-col>
+               </ion-row>
+               <ion-row *ngIf="objectService.object.header.toLocationId">
+                  <ion-col class="ion-flex ion-margin-auto">
+                     <div class="font-bold">Destination Location</div>
+                  </ion-col>
+                  <ion-col class="ion-flex ion-margin-auto justify-content-end">
+                     <div>{{objectService.object.header.toLocationId|idMapping:objectService.locationMasterList}}</div>
+                  </ion-col>
+               </ion-row>
+               <ion-row>
+                  <ion-col class="ion-flex ion-margin-auto">
+                     <div class="font-bold">Customer</div>
+                  </ion-col>
+                  <ion-col class="ion-flex ion-margin-auto justify-content-end">
+                     <div>{{objectService.object.header.customerId|idMapping:objectService.customerMasterList}}</div>
+                  </ion-col>
+               </ion-row>
+               <ion-row>
+                  <ion-col class="ion-flex ion-margin-auto">
+                     <div class="font-bold">Warehouse Agent</div>
+                  </ion-col>
+                  <ion-col class="ion-flex ion-margin-auto justify-content-end">
+                     <div>{{objectService.object.header.warehouseAgentId|idMapping:objectService.warehouseAgentMasterList}}
+                     </div>
+                  </ion-col>
+               </ion-row>
+               <ion-row>
+                  <ion-col class="ion-flex ion-margin-auto">
+                     <div class="font-bold">Total Packed</div>
+                  </ion-col>
+                  <ion-col class="ion-flex ion-margin-auto justify-content-end">
+                     <div class="font-bold">{{objectService.getTotalPacked()}}</div>
+                  </ion-col>
+               </ion-row>
+               <ion-row>
+                  <ion-col class="ion-flex ion-margin-auto">
+                     <div class="font-bold">Created By</div>
+                  </ion-col>
+                  <ion-col class="ion-flex ion-margin-auto justify-content-end">
+                     <div>{{objectService.object.header.createdBy}} {{objectService.object.header.createdAt|date:"dd/MM/yy hh:mm a"}}</div>
+                  </ion-col>
+               </ion-row>
+            </ion-grid>
+         </ion-item>
+      </ion-list>
+      <div *ngIf="objectService.object.header.isWithSo">
+         <ion-list-header class="ion-list-header-small ion-flex ion-text-center">
+            <ion-label>Outstanding Packed List</ion-label>
+         </ion-list-header>
+         <ion-list class="list-custom animate__animated animate__fadeIn" lines="full">
+            <ion-item button detail="false" class="ion-no-padding no-ripple" *ngFor="let o of uniqueSalesOrder">
+               <ion-grid class="ion-no-padding py-2 pl-2">
+                  <ion-row>
+                     <ion-col class="ion-flex ion-margin-auto justify-content-center">
+                        <div class="font-bold color-blue">{{o}}</div>
+                     </ion-col>
+                  </ion-row>
+                  <ion-row *ngFor="let rowData of getItemOfSO(o); let rowIndex = index" class="mt-2">
+                     <ion-grid class="ion-no-padding">
+                        <ion-row *ngIf="rowIndex === 0">
+                           <ion-col size="1" class="ion-flex ion-margin-auto">
+                              <div class="font-bold">#</div>
+                           </ion-col>
+                           <ion-col size="5" class="ion-flex ion-margin-auto">
+                              <div class="font-bold">Item</div>
+                           </ion-col>
+                           <ion-col class="ion-flex ion-margin-auto justify-content-end">
+                              <div class="font-bold">SO</div>
+                           </ion-col>
+                           <ion-col class="ion-flex ion-margin-auto justify-content-end">
+                              <div class="font-bold">Picked</div>
+                           </ion-col>
+                           <ion-col class="ion-flex ion-margin-auto justify-content-end">
+                              <div class="font-bold">Packed (Other)</div>
+                           </ion-col>
+                        </ion-row>
+                        <ion-row class="mt-1">
+                           <ion-col size="1" class="ion-flex ion-margin-auto">
+                              <div [ngClass]="{'font-underline font-bold color-blue':(rowData.isComponentScan && rowData.assembly && rowData.assembly.length > 0)}">
+                                 {{rowIndex+1}}
+                              </div>
+                           </ion-col>
+                           <ion-col size="5" class="ion-flex ion-margin-auto">
+                              <ion-icon name="ellipse" [class]="rowData.qtyRequest === (rowData.qtyCurrent+(rowData.qtyPacked??0))?'color-success':'color-danger'"></ion-icon>
+                              <div [ngClass]="{'font-underline font-bold color-blue':(rowData.isComponentScan && rowData.assembly && rowData.assembly.length > 0)}">
+                                 {{rowData.itemCode}}</div>
+                              <span class="badge-green px-1 mx-1 ion-text-wrap ion-flex my-auto" *ngIf="rowData.itemVariationXId">
+                                 {{rowData.itemVariationXId|idMapping:objectService.itemVariationXMasterList}}</span>
+                              <span class="badge-purple px-1 ion-text-wrap ion-flex my-auto" *ngIf="rowData.itemVariationYId">
+                                 {{rowData.itemVariationYId|idMapping:objectService.itemVariationYMasterList}}</span>
+                           </ion-col>
+                           <ion-col class="ion-flex ion-margin-auto justify-content-end">
+                              <div [ngClass]="{'font-underline font-bold color-blue':(rowData.isComponentScan && rowData.assembly && rowData.assembly.length > 0)}">
+                                 {{rowData.qtyRequest}}</div>
+                           </ion-col>
+                           <ion-col class="ion-flex ion-margin-auto justify-content-end">
+                              <div [ngClass]="{'font-underline font-bold color-blue':(rowData.isComponentScan && rowData.assembly && rowData.assembly.length > 0)}">
+                                 {{rowData.qtyPicked}}</div>
+                           </ion-col>
+                           <ion-col class="ion-flex ion-margin-auto justify-content-end">
+                              <div [ngClass]="{'font-underline font-bold color-blue':(rowData.isComponentScan && rowData.assembly && rowData.assembly.length > 0)}">
+                                 {{rowData.qtyCurrent}} ({{rowData.qtyPacked??0}})</div>
+                           </ion-col>
+                        </ion-row>
+                        <ng-container *ngIf="rowData.isComponentScan && rowData.assembly && rowData.assembly.length > 0;">
+                           <ion-row class="mt-1" *ngFor="let rowData2 of rowData.assembly; let rowIndex2 = index">
+                              <ion-col size="1" class="ion-flex ion-margin-auto">
+                                 <div class="font-italic font-bold">{{rowIndex+1}}.{{rowIndex2+1}}</div>
+                              </ion-col>
+                              <ion-col size="5" class="ion-flex ion-margin-auto" *ngIf="isMobile">
+                                 <div class="font-italic font-bold">
+                                    {{(rowData2.itemComponentId|offlineItemIdMapping:configService.item_Masters)}}
+                                 </div>
+                              </ion-col>
+                              <ion-col size="5" class="ion-flex ion-margin-auto" *ngIf="!isMobile">
+                                 <div class="font-italic font-bold">N/A</div>
+                              </ion-col>
+                              <ion-col class="ion-flex ion-margin-auto justify-content-end">
+                                 <div class="font-italic font-bold">{{rowData2.qtyRequest}}</div>
+                              </ion-col>
+                              <ion-col class="ion-flex ion-margin-auto justify-content-end">
+                                 <div class="font-italic font-bold">{{rowData2.qtyPicked}}</div>
+                              </ion-col>
+                              <ion-col class="ion-flex ion-margin-auto justify-content-end">
+                                 <div class="font-italic font-bold">{{rowData2.qtyCurrent}} ({{rowData.qtyPacked??0}})</div>
+                              </ion-col>
+                           </ion-row>
+                        </ng-container>
+                     </ion-grid>
+                  </ion-row>
+               </ion-grid>
+            </ion-item>
+         </ion-list>
+      </div>
+      <ion-list-header class="ion-list-header-small ion-flex ion-text-center">
+         <ion-label>Current Packed List</ion-label>
+      </ion-list-header>
+      <ion-list class="list-custom animate__animated animate__fadeIn" lines="full">
+         <ion-item button detail="false" class="ion-no-padding no-ripple" *ngFor="let rowData of objectService.object.details" (click)="showDetails(rowData)">
+            <ion-grid class="ion-no-padding py-2 pl-2">
+               <ion-row>
+                  <ion-col class="ion-flex ion-margin-auto justify-content-center">
+                     <ion-icon style="position:relative; top:0.1rem" name="alert-circle-outline"></ion-icon>
+                     <div class="font-bold">Carton {{rowData.cartonNum}}</div>
+                  </ion-col>
+               </ion-row>
+               <ng-container *ngIf="rowData.isSelected">
+                  <ion-row>
+                     <ion-col class="ion-flex ion-margin-auto">
+                        <div class="font-bold">Ctn. Barcode</div>
+                     </ion-col>
+                     <ion-col class="ion-flex ion-margin-auto justify-content-end">
+                        <div>
+                           {{rowData.cartonBarcode}}
+                        </div>
+                     </ion-col>
+                  </ion-row>
+                  <ion-row>
+                     <ion-col class="ion-flex ion-margin-auto justify-content-between">
+                        <div class="font-bold">Dimension</div>
+                        <div>
+                           <ion-grid class="ion-no-padding">
+                              <ion-row>
+                                 <ion-col class="ion-flex my-auto justify-content-between">
+                                    <div class="font-bold my-auto">H</div>
+                                    <div class="mx-2">{{rowData.cartonHeight}}</div>
+                                 </ion-col>
+                                 <ion-col class="ion-flex my-auto justify-content-between">
+                                    <div class="font-bold my-auto">W</div>
+                                    <div class="mx-2">{{rowData.cartonWidth}}</div>
+                                 </ion-col>
+                                 <ion-col class="ion-flex my-auto justify-content-between">
+                                    <div class="font-bold my-auto">L</div>
+                                    <div class="mx-2">{{rowData.cartonLength}}</div>
+                                 </ion-col>
+                              </ion-row>
+                           </ion-grid>
+                        </div>
+                     </ion-col>
+                  </ion-row>
+                  <ion-row>
+                     <ion-col class="ion-flex ion-margin-auto">
+                        <div class="font-bold">CBM</div>
+                     </ion-col>
+                     <ion-col class="ion-flex ion-margin-auto justify-content-end">
+                        <div>
+                           {{rowData.cartonCbm}}                           
+                        </div>
+                     </ion-col>
+                  </ion-row>
+                  <ion-row>
+                     <ion-col class="ion-flex ion-margin-auto">
+                        <div class="font-bold">Weight</div>
+                     </ion-col>
+                     <ion-col class="ion-flex ion-margin-auto justify-content-end">
+                        <div>
+                           {{rowData.cartonWeight}}
+                        </div>
+                     </ion-col>
+                  </ion-row>
+                  <ion-row>
+                     <ion-col class="ion-flex ion-margin-auto">
+                        <div class="font-bold">Packaging</div>
+                     </ion-col>
+                     <ion-col class="ion-flex ion-margin-auto justify-content-end">
+                        <div>
+                           {{rowData.packagingId|idMapping:objectService.packagingMasterList}}
+                        </div>
+                     </ion-col>
+                  </ion-row>
+               </ng-container>
+               <ion-row class="mt-2">
+                  <ion-grid class="ion-no-padding">
+                     <ion-row>
+                        <ion-col size="1" class="ion-flex ion-margin-auto">
+                           <div class="font-bold">#</div>
+                        </ion-col>
+                        <ion-col class="ion-flex ion-margin-auto">
+                           <div class="font-bold">Barcode</div>
+                        </ion-col>
+                        <ion-col size="1" class="ion-flex ion-margin-auto justify-content-end">
+                           <div class="font-bold">Qty</div>
+                        </ion-col>
+                     </ion-row>
+                     <ion-row *ngFor="let rowData2 of rowData.packList; let rowIndex2 = index">
+                        <ion-col size="1" class="ion-flex ion-margin-auto">
+                           <div>{{rowIndex2+1}}</div>
+                        </ion-col>
+                        <ion-col class="ion-flex ion-margin-auto">
+                           <ion-grid class="ion-no-padding">
+                              <ion-row>
+                                 <ion-col class="ion-flex ion-margin-auto">
+                                    <div>{{rowData2.itemBarcode}}</div>
+                                 </ion-col>
+                              </ion-row>
+                              <ion-row>
+                                 <ion-col class="ion-flex ion-margin-auto">
+                                    <div>{{rowData2.itemCode}}</div>
+                                    <span class="badge-warning ion-text-wrap ion-flex my-auto px-1 mx-1" *ngIf="rowData2.itemUomId && configSystemWideActivateMultiUOM && objectService.itemUomMasterList">{{rowData2.itemUomId|idMapping:objectService.itemUomMasterList}}</span>
+                                    <span class="badge-green ion-text-wrap ion-flex my-auto px-1 mx-1" *ngIf="rowData2.itemVariationXDescription">{{rowData2.itemVariationXDescription}}</span>
+                                    <span class="badge-purple ion-text-wrap ion-flex my-auto px-1" *ngIf="rowData2.itemVariationYDescription">{{rowData2.itemVariationYDescription}}</span>
+                                    <div *ngIf="rowData2.assemblyItemId" class="ml-1">
+                                       <span class="badge-purple ion-text-wrap ion-flex my-auto px-1">{{lookupItemInfo(rowData2.assemblyItemId, "CODE")}}</span>
+                                    </div>
+                                 </ion-col>
+                              </ion-row>
+                           </ion-grid>
+                        </ion-col>
+                        <ion-col size="1" class="ion-flex ion-margin-auto justify-content-end">
+                           <div class="ion-flex">{{rowData2.qtyPacked|number:'1.0'}}</div>
+                        </ion-col>
+                     </ion-row>
+                  </ion-grid>
+               </ion-row>
+            </ion-grid>
+         </ion-item>
+      </ion-list>
+   </div>
+</ion-content>

@@ -1,0 +1,14 @@
+<!-- <ion-fab class="ion-fab-custom mb-5" vertical="bottom" horizontal="center" slot="fixed" size="small" [edge]="true" (click)="startScanning()" [hidden]="scanActive">
+  <ion-fab-button>
+    <ion-icon name="camera"></ion-icon>
+  </ion-fab-button>
+</ion-fab> -->
+<ion-button (click)="startScanning()">
+  <ion-icon slot="icon-only" name="camera-outline"></ion-icon>
+</ion-button>
+<!-- <ion-row class="scanner-buttons" [hidden]="!scanActive">
+  <ion-col class="ion-no-padding">
+    <ion-button expand="full" (click)="stopScanner()">Stop</ion-button>
+  </ion-col>
+</ion-row>
+<div class="scan-box" [hidden]="!scanActive"></div> -->
